@@ -760,7 +760,7 @@ const COLORS = {
 };
 
 // --- CARD COMPONENT ---
-function CardView({ card, faceDown, onClick, selected, small, disabled, style: extraStyle }) {
+function CardView({ card, faceDown, onClick, selected, small, disabled, highlighted, onMouseEnter, onMouseLeave, style: extraStyle }) {
     const w = small ? CARD_W_SM : CARD_W;
     const h = small ? CARD_H_SM : CARD_H;
     const src = faceDown ? CARD_BACK_URL : card.img;
@@ -774,7 +774,9 @@ function CardView({ card, faceDown, onClick, selected, small, disabled, style: e
         transform: selected ? 'translateY(-8px)' : 'none',
         boxShadow: selected
             ? `0 4px 16px ${COLORS.gold}`
-            : '0 1px 4px rgba(0,0,0,0.4)',
+            : highlighted
+                ? `0 0 10px 3px ${COLORS.captureGlow}`
+                : '0 1px 4px rgba(0,0,0,0.4)',
         opacity: disabled ? 0.5 : 1,
         flexShrink: 0,
         ...extraStyle,
@@ -787,18 +789,21 @@ function CardView({ card, faceDown, onClick, selected, small, disabled, style: e
             title={faceDown ? '' : card.name}
             style={baseStyle}
             onClick={onClick && !disabled ? onClick : undefined}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
             draggable={false}
         />
     );
 }
 
 // --- RIVER COMPONENT ---
-function RiverView({ cards, index, onClick, onDiscard, highlightType, showDiscard, label }) {
+function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighlight, showDiscard, label, onMouseEnter, onMouseLeave }) {
     const borderColor =
         highlightType === 'capture' ? COLORS.captureGlow
             : highlightType === 'forced' ? COLORS.forcedGlow
                 : highlightType === 'place' ? COLORS.discardGlow
-                    : 'transparent';
+                    : hoverHighlight ? 'rgba(46,204,113,0.35)'
+                        : 'transparent';
 
     const hasRainManCard = cards.some(isRainMan);
     const hasLightningCard = cards.some(isLightning);
@@ -806,6 +811,8 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, showDiscar
     return (
         <div
             onClick={onClick}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
             style={{
                 display: 'flex',
                 flexDirection: 'row',
@@ -813,7 +820,9 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, showDiscar
                 gap: 4,
                 padding: '6px 10px',
                 minHeight: CARD_H_RIVER + 16,
-                background: `linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.06))`,
+                background: hoverHighlight && !highlightType
+                    ? `linear-gradient(90deg, rgba(46,204,113,0.06), rgba(46,204,113,0.12))`
+                    : `linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.06))`,
                 border: `2px solid ${borderColor}`,
                 borderRadius: 8,
                 cursor: onClick ? 'pointer' : 'default',
@@ -880,7 +889,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, showDiscar
 }
 
 // --- HAND COMPONENT ---
-function HandView({ cards, faceDown, selectedCard, onSelect, disabled }) {
+function HandView({ cards, faceDown, selectedCard, onSelect, disabled, highlightedIds, onCardHover, onCardLeave }) {
     return (
         <div style={{
             display: 'flex',
@@ -895,7 +904,10 @@ function HandView({ cards, faceDown, selectedCard, onSelect, disabled }) {
                     card={card}
                     faceDown={faceDown}
                     selected={selectedCard && selectedCard.id === card.id}
+                    highlighted={highlightedIds && highlightedIds.has(card.id)}
                     onClick={!faceDown && onSelect ? () => onSelect(card) : undefined}
+                    onMouseEnter={!faceDown && onCardHover ? () => onCardHover(card) : undefined}
+                    onMouseLeave={onCardLeave}
                     disabled={disabled}
                 />
             ))}
@@ -965,6 +977,8 @@ function YakuList({ captured, label }) {
 function FlowerRivers() {
     const [state, dispatch] = useReducer(gameReducer, null, makeInitialState);
     const [aiDelay, setAiDelay] = useState(false);
+    const [hoveredRiver, setHoveredRiver] = useState(null);   // river index
+    const [hoveredHandCard, setHoveredHandCard] = useState(null); // card object
 
     const {
         phase, deck, hands, captured, rivers, dealerIdx, capturerIdx,
@@ -1230,6 +1244,31 @@ function FlowerRivers() {
         return phase === 'CAPTURING' && isHumanCapturer && selectedHandCard !== null;
     };
 
+    // Hover cross-highlighting
+    const isCapturingPhase = (phase === 'CAPTURING' || phase === 'FORCED_CAPTURE') && isHumanCapturer;
+
+    // Which hand card IDs to highlight (when hovering a river)
+    const highlightedHandIds = (() => {
+        if (!isCapturingPhase || hoveredRiver === null) return null;
+        const river = rivers[hoveredRiver];
+        if (river.length === 0) return null;
+        const ids = new Set();
+        for (const card of hands[0]) {
+            if (canCaptureRiver(card, river)) ids.add(card.id);
+        }
+        return ids.size > 0 ? ids : null;
+    })();
+
+    // Which river indices to highlight (when hovering a hand card)
+    const highlightedRiverSet = (() => {
+        if (!isCapturingPhase || !hoveredHandCard) return null;
+        const set = new Set();
+        for (let ri = 0; ri < 3; ri++) {
+            if (rivers[ri].length > 0 && canCaptureRiver(hoveredHandCard, rivers[ri])) set.add(ri);
+        }
+        return set.size > 0 ? set : null;
+    })();
+
     const canHumanAct =
         (phase === 'DEALING' && isHumanDealer) ||
         ((phase === 'CAPTURING' || phase === 'FORCED_CAPTURE') && isHumanCapturer);
@@ -1359,9 +1398,12 @@ function FlowerRivers() {
                             index={ri}
                             label={`River ${ri + 1}`}
                             highlightType={getRiverHighlight(ri)}
+                            hoverHighlight={highlightedRiverSet && highlightedRiverSet.has(ri)}
                             onClick={canHumanAct ? () => handleRiverClick(ri) : undefined}
                             onDiscard={() => handleDiscard(ri)}
                             showDiscard={showDiscardButton(ri)}
+                            onMouseEnter={isCapturingPhase ? () => setHoveredRiver(ri) : undefined}
+                            onMouseLeave={isCapturingPhase ? () => setHoveredRiver(null) : undefined}
                         />
                     ))}
                 </div>
@@ -1446,6 +1488,9 @@ function FlowerRivers() {
                         selectedCard={selectedHandCard}
                         onSelect={handleSelectCard}
                         disabled={!((phase === 'CAPTURING' || phase === 'FORCED_CAPTURE') && isHumanCapturer)}
+                        highlightedIds={highlightedHandIds}
+                        onCardHover={isCapturingPhase ? (card) => setHoveredHandCard(card) : undefined}
+                        onCardLeave={isCapturingPhase ? () => setHoveredHandCard(null) : undefined}
                     />
                     {koikoiCounts[0] > 0 && (
                         <span style={{ fontSize: 11, color: COLORS.red, fontWeight: 700 }}>
