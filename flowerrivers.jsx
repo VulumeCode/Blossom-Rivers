@@ -69,12 +69,14 @@ const CARDS = [
 const CARD_BACK_URL = getWikiUrl('Hanafuda_card_back.svg');
 
 // PRELOAD IMAGES immediately so they are cached by the time the user clicks Start
-if (typeof window !== 'undefined') {
-    [...CARDS.map(c => c.img), CARD_BACK_URL].forEach(url => {
+// Keep references alive at module scope to prevent GC before download completes
+const _preloaded = typeof window !== 'undefined'
+    ? [...CARDS.map(c => c.img), CARD_BACK_URL].map(url => {
         const img = new Image();
         img.src = url;
-    });
-}
+        return img;
+    })
+    : [];
 
 // --- CARD HELPERS ---
 const isLightning = (c) => c.id === '11-junk-lightning';
