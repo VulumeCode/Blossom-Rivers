@@ -868,8 +868,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 <button
                     onClick={(e) => { e.stopPropagation(); onDiscard(); }}
                     style={{
-                        marginLeft: 'auto',
-                        marginTop: 10,
+                        marginTop: 13,
                         width: CARD_W_RIVER,
                         height: CARD_H_RIVER,
                         display: 'flex',
@@ -877,7 +876,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                         justifyContent: 'center',
                         fontSize: 11,
                         fontWeight: 600,
-                        background: COLORS.discardGlow,
+                        background: 'transparent',
                         color: COLORS.white,
                         border: `2px dashed ${COLORS.discardGlow}`,
                         borderRadius: 4,
