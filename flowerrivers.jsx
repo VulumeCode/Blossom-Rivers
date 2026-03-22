@@ -751,7 +751,7 @@ const COLORS = {
     dark: 'var(--color-dark)',
     darkOverlay: 'var(--color-dark-overlay)',
     gold: 'var(--color-gold)',
-    goldDim: 'var(--color-gold-dim)',
+    pink: 'var(--color-pink)',
     white: 'var(--color-text)',
     red: 'var(--color-red)',
     blue: 'var(--color-blue)',
@@ -812,7 +812,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
             : highlightType === 'forced' ? COLORS.forcedGlow
                 : highlightType === 'place' ? COLORS.discardGlow
                     : hoverHighlight ? COLORS.hoverGlow
-                        : 'transparent';
+                        : COLORS.riverFrom;
 
     const hasRainManCard = cards.some(isRainMan);
     const hasLightningCard = cards.some(isLightning);
@@ -844,7 +844,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 top: 2,
                 left: 8,
                 fontSize: 10,
-                color: COLORS.goldDim,
+                color: COLORS.pink,
                 fontWeight: 600,
                 letterSpacing: 1,
                 textTransform: 'uppercase',
@@ -854,9 +854,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 {hasLightningCard && ' ⚡'}
             </span>
             {cards.length === 0 && (
-                <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: 13, marginTop: 14 }}>
-                    empty
-                </span>
+                <div style={{ width: CARD_W_RIVER, height: CARD_H_RIVER, marginTop: 12, flexShrink: 0 }} />
             )}
             {cards.map(card => (
                 <CardView
@@ -944,6 +942,7 @@ function CapturedView({ cards, label }) {
             gap: 12,
             alignItems: 'flex-start',
             padding: '4px 0',
+            minHeight: CARD_H_SM + 8,
         }}>
             <span style={{
                 color: COLORS.gold,
@@ -1112,7 +1111,7 @@ function FlowerRivers() {
                 <div style={{ fontSize: 48, fontWeight: 700, color: COLORS.gold, marginBottom: 8 }}>
                     Flower Rivers
                 </div>
-                <div style={{ fontSize: 16, color: COLORS.goldDim, marginBottom: 32 }}>
+                <div style={{ fontSize: 16, color: COLORS.pink, marginBottom: 32 }}>
                     A Hanafuda game for two
                 </div>
                 <button
@@ -1155,7 +1154,7 @@ function FlowerRivers() {
                                 {y.name}: {y.points} pts
                             </div>
                         ))}
-                        <div style={{ marginTop: 8, fontSize: 13, color: COLORS.goldDim }}>
+                        <div style={{ marginTop: 8, fontSize: 13, color: COLORS.pink }}>
                             Base: {info.basePoints}
                             {info.sevenBonus && ' × 2 (7+ bonus)'}
                             {info.oppKoikoi > 0 && ` × ${Math.pow(2, info.oppKoikoi)} (opponent koi-koi)`}
@@ -1330,7 +1329,7 @@ function FlowerRivers() {
                 borderBottom: `1px solid ${COLORS.separator}`,
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
-                    <span style={{ fontSize: 12, color: COLORS.goldDim, minWidth: 30 }}>AI</span>
+                    <span style={{ fontSize: 12, color: COLORS.pink, minWidth: 30 }}>AI</span>
                     <HandView cards={hands[1]} faceDown disabled />
                     {koikoiCounts[1] > 0 && (
                         <span style={{ fontSize: 11, color: COLORS.red, fontWeight: 700 }}>
@@ -1372,22 +1371,20 @@ function FlowerRivers() {
                         <span style={{
                             position: 'absolute', bottom: -14, left: '50%',
                             transform: 'translateX(-50%)',
-                            fontSize: 10, color: COLORS.goldDim,
+                            fontSize: 10, color: COLORS.pink,
                         }}>
                             {deck.length} left
                         </span>
                     </div>
 
                     {/* Drawn card */}
-                    {drawnCard && (
-                        <div style={{ marginTop: 8 }}>
-                            <CardView card={drawnCard} />
-                        </div>
-                    )}
+                    <div style={{ marginTop: 8, width: CARD_W, height: CARD_H, flexShrink: 0 }}>
+                        {drawnCard && <CardView card={drawnCard} />}
+                    </div>
 
                     {/* Dealing indicator */}
                     {phase === 'DEALING' && (
-                        <div style={{ fontSize: 11, color: COLORS.goldDim, textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        <div style={{ fontSize: 11, color: COLORS.pink, textAlign: 'center', whiteSpace: 'nowrap' }}>
                             Deal {dealStep + 1}/3
                         </div>
                     )}
@@ -1449,7 +1446,7 @@ function FlowerRivers() {
                                 {y.name} — {y.points} pts
                             </div>
                         ))}
-                        <div style={{ margin: '16px 0 6px', fontSize: 14, color: COLORS.goldDim }}>
+                        <div style={{ margin: '16px 0 6px', fontSize: 14, color: COLORS.pink }}>
                             Total so far: {computeYaku(captured[0]).total} pts
                             {koikoiCounts[1] > 0 && (
                                 <span> (opponent called koi-koi ×{koikoiCounts[1]})</span>
@@ -1490,7 +1487,7 @@ function FlowerRivers() {
                 <CapturedView cards={captured[0]} label="Your captured" />
                 <YakuList captured={captured[0]} label="Your yaku" />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
-                    <span style={{ fontSize: 12, color: COLORS.goldDim, minWidth: 30 }}>You</span>
+                    <span style={{ fontSize: 12, color: COLORS.pink, minWidth: 30 }}>You</span>
                     <HandView
                         cards={hands[0]}
                         selectedCard={selectedHandCard}
