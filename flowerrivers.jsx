@@ -857,6 +857,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
 
     return (
         <div
+            id={`river-${index}`}
             onClick={onClick}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
@@ -869,8 +870,10 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 minHeight: CARD_H_RIVER + 16,
                 background: `linear-gradient(160deg, ${COLORS.riverFrom}, ${COLORS.riverMid})`,
                 opacity: hoverHighlight && !highlightType ? 0.85 : 1,
-                border: `2px solid ${borderColor}`,
-                borderRadius: 8,
+                borderStyle: 'solid',
+                borderColor: borderColor,
+                borderWidth: '2px 0 2px 2px',
+                borderRadius: '8px 0 0 8px',
                 cursor: onClick ? 'pointer' : 'default',
                 transition: 'border-color 0.2s, background 0.2s',
                 position: 'relative',
@@ -932,9 +935,9 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
 }
 
 // --- HAND COMPONENT ---
-function HandView({ cards, faceDown, selectedCard, onSelect, disabled, highlightedIds, onCardHover, onCardLeave }) {
+function HandView({ id, cards, faceDown, selectedCard, onSelect, disabled, highlightedIds, onCardHover, onCardLeave }) {
     return (
-        <div style={{
+        <div id={id} style={{
             display: 'flex',
             flexDirection: 'row',
             gap: 6,
@@ -959,7 +962,7 @@ function HandView({ cards, faceDown, selectedCard, onSelect, disabled, highlight
 }
 
 // --- CAPTURED AREA ---
-function CapturedView({ cards, label }) {
+function CapturedView({ id, cards, label }) {
     const brights = cards.filter(c => c.type === 'bright');
     const animals = cards.filter(c => c.type === 'animal');
     const ribbons = cards.filter(c => c.type === 'ribbon');
@@ -973,7 +976,7 @@ function CapturedView({ cards, label }) {
     ];
 
     return (
-        <div style={{
+        <div id={id} style={{
             display: 'flex',
             flexDirection: 'row',
             gap: 12,
@@ -1140,15 +1143,15 @@ function FlowerRivers() {
     // Menu screen
     if (phase === 'MENU') {
         return (
-            <div style={{
+            <div id="menu-screen" style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', height: '100vh', background: COLORS.bg,
                 fontFamily: "'Inter', sans-serif", color: COLORS.white,
             }}>
-                <div style={{ fontSize: 48, fontWeight: 700, color: COLORS.red, marginBottom: 8 }}>
+                <div id="menu-title" style={{ fontSize: 48, fontWeight: 700, color: COLORS.red, marginBottom: 8 }}>
                     Flower Rivers
                 </div>
-                <div style={{ fontSize: 16, color: COLORS.pink, marginBottom: 32 }}>
+                <div id="menu-subtitle" style={{ fontSize: 16, color: COLORS.pink, marginBottom: 32 }}>
                     A Hanafuda game for two
                 </div>
                 <button
@@ -1169,21 +1172,21 @@ function FlowerRivers() {
     if (phase === 'ROUND_OVER') {
         const info = roundScoreInfo;
         return (
-            <div style={{
+            <div id="round-over-screen" style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', height: '100vh', background: COLORS.bg,
                 fontFamily: "'Inter', sans-serif", color: COLORS.white,
             }}>
-                <div style={{ fontSize: 32, fontWeight: 700, color: COLORS.red, marginBottom: 16 }}>
+                <div id="round-over-title" style={{ fontSize: 32, fontWeight: 700, color: COLORS.red, marginBottom: 16 }}>
                     Round {round} Complete
                 </div>
                 {info.winner === -1 ? (
-                    <div style={{ fontSize: 18, marginBottom: 12 }}>
+                    <div id="round-over-draw-info" style={{ fontSize: 18, marginBottom: 12 }}>
                         Draw! Points doubled next round.
                     </div>
                 ) : (
-                    <div style={{ textAlign: 'center', marginBottom: 16 }}>
-                        <div style={{ fontSize: 20, marginBottom: 8 }}>
+                        <div id="round-over-winner-info" style={{ textAlign: 'center', marginBottom: 16 }}>
+                            <div id="round-over-winner-text" style={{ fontSize: 20, marginBottom: 8 }}>
                             {info.winner === 0 ? 'You' : 'AI'} won the round!
                         </div>
                         {info.yakuList.map(y => (
@@ -1191,18 +1194,18 @@ function FlowerRivers() {
                                 {y.name}: {y.points} pts
                             </div>
                         ))}
-                        <div style={{ marginTop: 8, fontSize: 13, color: COLORS.pink }}>
+                            <div id="round-over-multiplier" style={{ marginTop: 8, fontSize: 13, color: COLORS.pink }}>
                             Base: {info.basePoints}
                             {info.sevenBonus && ' × 2 (7+ bonus)'}
                             {info.oppKoikoi > 0 && ` × ${Math.pow(2, info.oppKoikoi)} (opponent koi-koi)`}
                             {info.drawMultiplier > 1 && ` × ${info.drawMultiplier} (draw bonus)`}
                         </div>
-                            <div style={{ fontSize: 22, fontWeight: 700, color: COLORS.red, marginTop: 6 }}>
+                            <div id="round-over-final-points" style={{ fontSize: 22, fontWeight: 700, color: COLORS.red, marginTop: 6 }}>
                             = {info.finalPoints} points
                         </div>
                     </div>
                 )}
-                <div style={{ fontSize: 16, marginBottom: 20 }}>
+                <div id="round-over-scores" style={{ fontSize: 16, marginBottom: 20 }}>
                     Score — You: {scores[0]} | AI: {scores[1]}
                 </div>
                 <button
@@ -1226,17 +1229,17 @@ function FlowerRivers() {
         const finalS1 = scores[1];
         const winner = finalS0 > finalS1 ? 'You win!' : finalS0 < finalS1 ? 'AI wins!' : 'Tie game!';
         return (
-            <div style={{
+            <div id="game-over-screen" style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', height: '100vh', background: COLORS.bg,
                 fontFamily: "'Inter', sans-serif", color: COLORS.white,
             }}>
-                <div style={{ fontSize: 36, fontWeight: 700, color: COLORS.red, marginBottom: 8 }}>
+                <div id="game-over-title" style={{ fontSize: 36, fontWeight: 700, color: COLORS.red, marginBottom: 8 }}>
                     Game Over
                 </div>
                 {info && info.winner !== -1 && (
-                    <div style={{ textAlign: 'center', marginBottom: 12 }}>
-                        <div style={{ fontSize: 16, marginBottom: 6 }}>
+                    <div id="game-over-round-info" style={{ textAlign: 'center', marginBottom: 12 }}>
+                        <div id="game-over-round-text" style={{ fontSize: 16, marginBottom: 6 }}>
                             {info.winner === 0 ? 'You' : 'AI'} won the final round with {info.finalPoints} pts
                         </div>
                         {info.yakuList.map(y => (
@@ -1247,12 +1250,12 @@ function FlowerRivers() {
                     </div>
                 )}
                 {info && info.winner === -1 && (
-                    <div style={{ fontSize: 16, marginBottom: 12 }}>Final round was a draw.</div>
+                    <div id="game-over-draw-info" style={{ fontSize: 16, marginBottom: 12 }}>Final round was a draw.</div>
                 )}
-                <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>
+                <div id="game-over-scores" style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>
                     You: {finalS0} — AI: {finalS1}
                 </div>
-                <div style={{ fontSize: 28, color: COLORS.red, fontWeight: 700, marginBottom: 24 }}>
+                <div id="game-over-winner" style={{ fontSize: 28, color: COLORS.red, fontWeight: 700, marginBottom: 24 }}>
                     {winner}
                 </div>
                 <button
@@ -1338,14 +1341,14 @@ function FlowerRivers() {
     }
 
     return (
-        <div style={{
+        <div id="game-board" style={{
             display: 'flex', flexDirection: 'column',
             height: '100vh', background: COLORS.bg,
             fontFamily: "'Inter', sans-serif", color: COLORS.white,
             overflow: 'hidden',
         }}>
             {/* Top Bar */}
-            <div style={{
+            <div id="top-bar" style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '6px 16px', background: COLORS.dark,
                 fontSize: 13, flexShrink: 0,
@@ -1361,37 +1364,38 @@ function FlowerRivers() {
             </div>
 
             {/* AI Area */}
-            <div style={{
+            <div id="ai-area" style={{
                 padding: '4px 16px', flexShrink: 0,
                 borderBottom: `1px solid ${COLORS.separator}`,
             }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
+                <div id="ai-hand-row" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
                     <span style={{ fontSize: 12, color: COLORS.pink, minWidth: 30 }}>AI</span>
-                    <HandView cards={hands[1]} faceDown disabled />
+                    <HandView id="ai-hand" cards={hands[1]} faceDown disabled />
                     {koikoiCounts[1] > 0 && (
                         <span style={{ fontSize: 11, color: COLORS.red, fontWeight: 700 }}>
                             Koi-Koi ×{koikoiCounts[1]}
                         </span>
                     )}
                 </div>
-                <CapturedView cards={captured[1]} label="AI captured" />
+                <CapturedView id="ai-captured" cards={captured[1]} label="AI captured" />
                 <YakuList captured={captured[1]} label="AI yaku" />
             </div>
 
             {/* Deck + Rivers area */}
-            <div style={{
+            <div id="play-area" style={{
                 flex: 1, display: 'flex', flexDirection: 'row',
-                padding: '8px 16px', gap: 16, minHeight: 0,
+                padding: '8px 0px 8px 16px', gap: 16, minHeight: 0,
                 overflow: 'hidden',
             }}>
                 {/* Deck + Drawn card */}
-                <div style={{
+                <div id="deck-column" style={{
                     display: 'flex', flexDirection: 'column',
                     alignItems: 'center', justifyContent: 'center',
                     gap: 10, minWidth: 90,
                 }}>
                     {/* Deck */}
                     <div
+                        id="deck"
                         style={{
                             position: 'relative',
                         }}
@@ -1399,7 +1403,7 @@ function FlowerRivers() {
                         {deck.length > 0 ? (
                             <CardView card={CARDS[0]} faceDown />
                         ) : (
-                            <div style={{
+                                <div id="deck-empty" style={{
                                 width: CARD_W, height: CARD_H,
                                     border: `2px dashed ${COLORS.separator}`,
                                 borderRadius: 4,
@@ -1415,20 +1419,20 @@ function FlowerRivers() {
                     </div>
 
                     {/* Drawn card */}
-                    <div style={{ marginTop: 8, width: CARD_W, height: CARD_H, flexShrink: 0 }}>
+                    <div id="drawn-card" style={{ marginTop: 8, width: CARD_W, height: CARD_H, flexShrink: 0 }}>
                         {drawnCard && <CardView card={drawnCard} />}
                     </div>
 
                     {/* Dealing indicator */}
                     {phase === 'DEALING' && (
-                        <div style={{ fontSize: 11, color: COLORS.pink, textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        <div id="deal-indicator" style={{ fontSize: 11, color: COLORS.pink, textAlign: 'center', whiteSpace: 'nowrap' }}>
                             Deal {dealStep + 1}/3
                         </div>
                     )}
                 </div>
 
                 {/* Rivers */}
-                <div style={{
+                <div id="rivers-column" style={{
                     flex: 1, display: 'flex', flexDirection: 'column',
                     gap: 8, justifyContent: 'center',
                     overflow: 'auto',
@@ -1452,7 +1456,7 @@ function FlowerRivers() {
             </div>
 
             {/* Status bar */}
-            <div style={{
+            <div id="status-bar" style={{
                 padding: '6px 16px', textAlign: 'center',
                 fontSize: 14, fontWeight: 500,
                 background: COLORS.dark,
@@ -1465,17 +1469,17 @@ function FlowerRivers() {
 
             {/* Yaku Choice Dialog */}
             {phase === 'YAKU_CHOICE' && yakuPlayer === 0 && (
-                <div style={{
+                <div id="yaku-dialog-overlay" style={{
                     position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     background: COLORS.overlay, zIndex: 100,
                 }}>
-                    <div style={{
+                    <div id="yaku-dialog" style={{
                         background: COLORS.felt, border: `2px solid ${COLORS.red}`,
                         borderRadius: 12, padding: 32, textAlign: 'center',
                         maxWidth: 400,
                     }}>
-                        <div style={{ fontSize: 22, fontWeight: 700, color: COLORS.red, marginBottom: 12 }}>
+                        <div id="yaku-dialog-title" style={{ fontSize: 22, fontWeight: 700, color: COLORS.red, marginBottom: 12 }}>
                             Yaku!
                         </div>
                         {newYaku.map(y => (
@@ -1483,13 +1487,13 @@ function FlowerRivers() {
                                 {y.name} — {y.points} pts
                             </div>
                         ))}
-                        <div style={{ margin: '16px 0 6px', fontSize: 14, color: COLORS.pink }}>
+                        <div id="yaku-dialog-total" style={{ margin: '16px 0 6px', fontSize: 14, color: COLORS.pink }}>
                             Total so far: {computeYaku(captured[0]).total} pts
                             {koikoiCounts[1] > 0 && (
                                 <span> (opponent called koi-koi ×{koikoiCounts[1]})</span>
                             )}
                         </div>
-                        <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 16 }}>
+                        <div id="yaku-dialog-buttons" style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 16 }}>
                             <button
                                 onClick={() => dispatch({ type: 'CALL_STOP' })}
                                 style={{
@@ -1517,15 +1521,16 @@ function FlowerRivers() {
             )}
 
             {/* Human Area */}
-            <div style={{
+            <div id="human-area" style={{
                 padding: '4px 16px', flexShrink: 0,
                 borderTop: `1px solid ${COLORS.separator}`,
             }}>
-                <CapturedView cards={captured[0]} label="Your captured" />
+                <CapturedView id="human-captured" cards={captured[0]} label="Your captured" />
                 <YakuList captured={captured[0]} label="Your yaku" />
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
+                <div id="human-hand-row" style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
                     <span style={{ fontSize: 12, color: COLORS.pink, minWidth: 30 }}>You</span>
                     <HandView
+                        id="human-hand"
                         cards={hands[0]}
                         selectedCard={selectedHandCard}
                         onSelect={handleSelectCard}
