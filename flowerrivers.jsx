@@ -164,12 +164,8 @@ function computeYaku(captured) {
     return { yakuList: matched, total };
 }
 
-function getNewYaku(currentList, previousNames) {
-    return currentList.filter(y => !previousNames.includes(y.name));
-}
-
-function hasNonJunkYaku(yakuList) {
-    return yakuList.some(y => !y.isJunk);
+function nonJunkPoints(yakuList) {
+    return yakuList.filter(y => !y.isJunk).reduce((s, y) => s + y.points, 0);
 }
 
 // --- GAME HELPERS ---
@@ -233,7 +229,7 @@ function makeInitialState() {
         round: 1,
         turn: 1,
         drawMultiplier: 1,
-        previousYaku: [[], []],
+        previousPoints: [0, 0],
         newYaku: [],
         yakuPlayer: -1,
         message: '',
@@ -259,7 +255,7 @@ function startRound(state) {
         lightningRiver: null,
         selectedHandCard: null,
         koikoiCounts: [0, 0],
-        previousYaku: [[], []],
+        previousPoints: [0, 0],
         newYaku: [],
         yakuPlayer: -1,
         turn: 1,
@@ -388,12 +384,14 @@ function gameReducer(state, action) {
                 i === riverIdx ? [] : [...r]
             );
 
-            // Check yaku
+            // Check yaku — trigger choice if non-junk points increased
             const yaku = computeYaku(newCaptured[who]);
-            const newYakuList = getNewYaku(yaku.yakuList, state.previousYaku[who]);
-            const hasNewNonJunk = newYakuList.some(y => !y.isJunk);
+            const currentNonJunk = nonJunkPoints(yaku.yakuList);
+            const improved = currentNonJunk > state.previousPoints[who];
 
-            if (hasNewNonJunk) {
+            if (improved) {
+                const newPrev = [...state.previousPoints];
+                newPrev[who] = currentNonJunk;
                 return {
                     ...state,
                     hands: newHands,
@@ -403,17 +401,15 @@ function gameReducer(state, action) {
                     lightningRiver: null,
                     phase: 'YAKU_CHOICE',
                     yakuPlayer: who,
-                    newYaku: newYakuList,
-                    previousYaku: state.previousYaku.map((p, i) =>
-                        i === who ? yaku.yakuList.map(y => y.name) : [...p]
-                    ),
+                    newYaku: yaku.yakuList.filter(y => !y.isJunk),
+                    previousPoints: newPrev,
                     message: who === 0
-                        ? `Yaku! ${newYakuList.map(y => y.name).join(', ')}. Stop or Koi-Koi?`
-                        : `AI formed: ${newYakuList.map(y => y.name).join(', ')}`,
+                        ? `Yaku! ${yaku.yakuList.filter(y => !y.isJunk).map(y => y.name).join(', ')} (${currentNonJunk} pts). Stop or Koi-Koi?`
+                        : `AI has ${currentNonJunk} pts: ${yaku.yakuList.filter(y => !y.isJunk).map(y => y.name).join(', ')}`,
                 };
             }
 
-            // No new yaku — advance turn
+            // No point increase — advance turn
             return advanceTurn({
                 ...state,
                 hands: newHands,
@@ -421,9 +417,6 @@ function gameReducer(state, action) {
                 rivers: newRivers,
                 selectedHandCard: null,
                 lightningRiver: null,
-                previousYaku: state.previousYaku.map((p, i) =>
-                    i === who ? yaku.yakuList.map(y => y.name) : [...p]
-                ),
             });
         }
 
@@ -767,10 +760,11 @@ function aiChooseForcedCaptureCard(state) {
 function aiDecideKoikoi(state) {
     const yaku = computeYaku(state.captured[1]);
     const pts = yaku.total;
-    if (pts >= 10) return false; // never risk it with big score
-    if (pts < 3) return true;   // always continue with small score
+    if (pts >= 12) return false; // very high score — stop to lock it in
+    if (pts < 5) return true;   // low score — always continue
     const turnsLeft = TURNS_PER_ROUND - state.turn;
-    const prob = (turnsLeft / TURNS_PER_ROUND) * 0.7;
+    if (turnsLeft <= 1) return false; // last turn — take what you have
+    const prob = (turnsLeft / TURNS_PER_ROUND) * 0.85;
     return Math.random() < prob;
 }
 
