@@ -793,11 +793,11 @@ function CardView({ card, faceDown, onClick, selected, small, disabled, style: e
 }
 
 // --- RIVER COMPONENT ---
-function RiverView({ cards, index, onClick, highlightType, label }) {
+function RiverView({ cards, index, onClick, onDiscard, highlightType, showDiscard, label }) {
     const borderColor =
         highlightType === 'capture' ? COLORS.captureGlow
             : highlightType === 'forced' ? COLORS.forcedGlow
-                : highlightType === 'discard' ? COLORS.discardGlow
+                : highlightType === 'place' ? COLORS.discardGlow
                     : 'transparent';
 
     const hasRainManCard = cards.some(isRainMan);
@@ -849,6 +849,32 @@ function RiverView({ cards, index, onClick, highlightType, label }) {
                     style={{ width: CARD_W_RIVER, height: CARD_H_RIVER, marginTop: 12 }}
                 />
             ))}
+            {showDiscard && (
+                <button
+                    onClick={(e) => { e.stopPropagation(); onDiscard(); }}
+                    style={{
+                        marginLeft: 'auto',
+                        marginTop: 10,
+                        width: CARD_W_RIVER,
+                        height: CARD_H_RIVER,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 11,
+                        fontWeight: 600,
+                        background: 'rgba(52,152,219,0.15)',
+                        color: COLORS.white,
+                        border: `2px dashed ${COLORS.discardGlow}`,
+                        borderRadius: 4,
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0,
+                    }}
+                >
+                    Discard
+                </button>
+            )}
         </div>
     );
 }
@@ -1041,13 +1067,15 @@ function FlowerRivers() {
             return;
         }
 
-        if (phase === 'CAPTURING') {
-            if (canCaptureRiver(selectedHandCard, rivers[ri])) {
-                dispatch({ type: 'CAPTURE_RIVER', riverIdx: ri, handCard: selectedHandCard });
-            } else {
-                dispatch({ type: 'DISCARD_TO_RIVER', riverIdx: ri, handCard: selectedHandCard });
-            }
+        // Clicking the river body captures (if valid)
+        if (phase === 'CAPTURING' && canCaptureRiver(selectedHandCard, rivers[ri])) {
+            dispatch({ type: 'CAPTURE_RIVER', riverIdx: ri, handCard: selectedHandCard });
         }
+    };
+
+    const handleDiscard = (ri) => {
+        if (phase !== 'CAPTURING' || !selectedHandCard || !isHumanCapturer) return;
+        dispatch({ type: 'DISCARD_TO_RIVER', riverIdx: ri, handCard: selectedHandCard });
     };
 
     // --- RENDER ---
@@ -1187,16 +1215,19 @@ function FlowerRivers() {
     // Determine river highlights
     const getRiverHighlight = (ri) => {
         if (phase === 'DEALING' && isHumanDealer && drawnCard && !riversUsedThisTurn[ri]) {
-            return 'discard'; // blue glow = place here
+            return 'place';
         }
         if (phase === 'FORCED_CAPTURE' && isHumanCapturer && ri === lightningRiver) {
             return 'forced';
         }
         if (phase === 'CAPTURING' && isHumanCapturer && selectedHandCard) {
             if (canCaptureRiver(selectedHandCard, rivers[ri])) return 'capture';
-            return 'discard';
         }
         return null;
+    };
+
+    const showDiscardButton = (ri) => {
+        return phase === 'CAPTURING' && isHumanCapturer && selectedHandCard !== null;
     };
 
     const canHumanAct =
@@ -1329,6 +1360,8 @@ function FlowerRivers() {
                             label={`River ${ri + 1}`}
                             highlightType={getRiverHighlight(ri)}
                             onClick={canHumanAct ? () => handleRiverClick(ri) : undefined}
+                            onDiscard={() => handleDiscard(ri)}
+                            showDiscard={showDiscardButton(ri)}
                         />
                     ))}
                 </div>
