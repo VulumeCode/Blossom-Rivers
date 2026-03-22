@@ -969,7 +969,7 @@ function CapturedView({ id, cards, label }) {
             minHeight: CARD_H_SM + 8,
         }}>
             <span style={{
-                color: COLORS.red,
+                color: COLORS.pink,
                 fontSize: 11,
                 fontWeight: 600,
                 minWidth: 60,
@@ -1337,7 +1337,7 @@ function FlowerRivers() {
                 padding: '6px 16px', background: COLORS.dark,
                 fontSize: 13, flexShrink: 0,
             }}>
-                <span style={{ color: COLORS.red, fontWeight: 700 }}>Flower Rivers</span>
+                <span style={{ color: COLORS.pink, fontWeight: 700 }}>Flower Rivers</span>
                 <span>Round {round}/{TOTAL_ROUNDS} — Turn {turn}</span>
                 <span>
                     You: <b>{scores[0]}</b> | AI: <b>{scores[1]}</b>
