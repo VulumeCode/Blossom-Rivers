@@ -287,7 +287,7 @@ function gameReducer(state, action) {
             };
         }
 
-        case 'PLACE_IN_RIVER': {
+        case 'DROP_IN_RIVER': {
             if (state.phase !== 'DEALING' || !state.drawnCard) return state;
             const { riverIdx } = action;
             if (state.riversUsedThisTurn[riverIdx]) return state;
@@ -299,7 +299,7 @@ function gameReducer(state, action) {
             newUsed[riverIdx] = true;
             const nextStep = state.dealStep + 1;
 
-            // Check if lightning was placed
+            // Check if lightning was dropped
             let lightningRiver = state.lightningRiver;
             if (isLightning(state.drawnCard)) {
                 lightningRiver = riverIdx;
@@ -316,7 +316,7 @@ function gameReducer(state, action) {
                     lightningRiver,
                     message: state.dealerIdx === 0
                         ? 'Draw the next card.'
-                        : 'AI places cards...',
+                        : 'AI drops cards...',
                 };
             }
 
@@ -596,7 +596,7 @@ function aiScoreCapture(aiCaptured, riverCards, handCard) {
     return score;
 }
 
-// AI chooses where to place a drawn card (dealing phase)
+// AI chooses where to drop a drawn card (dealing phase)
 // Does NOT look at opponent's hand — infers threat from their captured cards
 function aiChooseRiver(state) {
     const available = [0, 1, 2].filter(i => !state.riversUsedThisTurn[i]);
@@ -657,7 +657,7 @@ function aiChooseRiver(state) {
         const aiCanCapture = aiHand.some(hc => canCaptureRiver(hc, riverAfter));
         if (aiCanCapture) score += 3;
 
-        // Prefer placing in already-matching rivers (month consolidation)
+        // Prefer dropping in already-matching rivers (month consolidation)
         const monthMatch = state.rivers[ri].some(c => c.month === card.month);
         if (monthMatch) score += 1;
 
@@ -842,7 +842,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
     const outlineColor =
         highlightType === 'capture' ? COLORS.captureGlow
             : highlightType === 'forced' ? COLORS.forcedGlow
-                : highlightType === 'place' ? COLORS.discardGlow
+                : highlightType === 'drop' ? COLORS.discardGlow
                     : hoverHighlight ? COLORS.hoverGlow
                         : COLORS.riverFrom;
 
@@ -1032,14 +1032,14 @@ function FlowerRivers() {
         return () => clearTimeout(timer);
     }, [phase, drawnCard, dealStep]);
 
-    // AI dealing: place drawn cards
+    // AI dealing: drop drawn cards
     useEffect(() => {
         if (phase !== 'DEALING' || isHumanDealer || !drawnCard) return;
         if (aiDelay) return;
 
         const timer = setTimeout(() => {
             const ri = aiChooseRiver(state);
-            dispatch({ type: 'PLACE_IN_RIVER', riverIdx: ri });
+            dispatch({ type: 'DROP_IN_RIVER', riverIdx: ri });
         }, 500);
 
         return () => clearTimeout(timer);
@@ -1086,9 +1086,9 @@ function FlowerRivers() {
     }, [phase, yakuPlayer]);
 
     // --- HUMAN HANDLERS ---
-    const handlePlaceInRiver = (ri) => {
+    const handleDropInRiver = (ri) => {
         if (phase === 'DEALING' && isHumanDealer && drawnCard) {
-            dispatch({ type: 'PLACE_IN_RIVER', riverIdx: ri });
+            dispatch({ type: 'DROP_IN_RIVER', riverIdx: ri });
         }
     };
 
@@ -1100,7 +1100,7 @@ function FlowerRivers() {
 
     const handleRiverClick = (ri) => {
         if (phase === 'DEALING' && isHumanDealer && drawnCard) {
-            handlePlaceInRiver(ri);
+            handleDropInRiver(ri);
             return;
         }
         if (!selectedHandCard || !isHumanCapturer) return;
@@ -1260,7 +1260,7 @@ function FlowerRivers() {
     // Determine river highlights
     const getRiverHighlight = (ri) => {
         if (phase === 'DEALING' && isHumanDealer && drawnCard && !riversUsedThisTurn[ri]) {
-            return 'place';
+            return 'drop';
         }
         if (phase === 'FORCED_CAPTURE' && isHumanCapturer && ri === lightningRiver) {
             return 'forced';
@@ -1309,7 +1309,7 @@ function FlowerRivers() {
     if (phase === 'DEALING' && isHumanDealer && !drawnCard) {
         statusText = `Turn ${turn} — Drawing... (${dealStep + 1}/3)`;
     } else if (phase === 'DEALING' && isHumanDealer && drawnCard) {
-        statusText = `Place ${drawnCard.name} in a river. (${dealStep + 1}/3)`;
+        statusText = `Drop ${drawnCard.name} in a river. (${dealStep + 1}/3)`;
     } else if (phase === 'CAPTURING' && isHumanCapturer && !selectedHandCard) {
         statusText = 'Select a card from your hand.';
     } else if (phase === 'CAPTURING' && isHumanCapturer && selectedHandCard) {
