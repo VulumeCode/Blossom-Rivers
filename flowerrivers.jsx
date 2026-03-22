@@ -745,18 +745,27 @@ const CARD_W_RIVER = 56;
 const CARD_H_RIVER = Math.round(CARD_W_RIVER * 839 / 512);
 
 const COLORS = {
-    bg: '#1a3a1a',
-    bgLight: '#2a5a2a',
-    felt: '#1e4d2b',
-    gold: '#d4a843',
-    goldDim: '#8a7030',
-    white: '#f0ead6',
-    red: '#c0392b',
-    blue: '#2980b9',
-    highlight: 'rgba(255,215,0,0.5)',
-    captureGlow: 'rgba(46,204,113,0.6)',
-    discardGlow: 'rgba(52,152,219,0.4)',
-    forcedGlow: 'rgba(231,76,60,0.6)',
+    bg: 'var(--color-bg)',
+    bgLight: 'var(--color-bg-light)',
+    felt: 'var(--color-felt)',
+    dark: 'var(--color-dark)',
+    darkOverlay: 'var(--color-dark-overlay)',
+    gold: 'var(--color-gold)',
+    goldDim: 'var(--color-gold-dim)',
+    white: 'var(--color-text)',
+    red: 'var(--color-red)',
+    blue: 'var(--color-blue)',
+    highlight: 'var(--color-highlight)',
+    captureGlow: 'var(--color-capture-glow)',
+    discardGlow: 'var(--color-discard-glow)',
+    forcedGlow: 'var(--color-forced-glow)',
+    hoverGlow: 'var(--color-hover-glow)',
+    riverFrom: 'var(--color-river-from)',
+    riverMid: 'var(--color-river-mid)',
+    riverTo: 'var(--color-river-to)',
+    separator: 'var(--color-separator)',
+    cardShadow: 'var(--color-card-shadow)',
+    overlay: 'var(--color-overlay)',
 };
 
 // --- CARD COMPONENT ---
@@ -776,7 +785,7 @@ function CardView({ card, faceDown, onClick, selected, small, disabled, highligh
             ? `0 4px 16px ${COLORS.gold}`
             : highlighted
                 ? `0 0 10px 3px ${COLORS.captureGlow}`
-                : '0 1px 4px rgba(0,0,0,0.4)',
+                : `0 1px 4px ${COLORS.cardShadow}`,
         opacity: disabled ? 0.5 : 1,
         flexShrink: 0,
         ...extraStyle,
@@ -802,7 +811,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
         highlightType === 'capture' ? COLORS.captureGlow
             : highlightType === 'forced' ? COLORS.forcedGlow
                 : highlightType === 'place' ? COLORS.discardGlow
-                    : hoverHighlight ? 'rgba(46,204,113,0.35)'
+                    : hoverHighlight ? COLORS.hoverGlow
                         : 'transparent';
 
     const hasRainManCard = cards.some(isRainMan);
@@ -820,9 +829,8 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 gap: 4,
                 padding: '6px 10px',
                 minHeight: CARD_H_RIVER + 16,
-                background: hoverHighlight && !highlightType
-                    ? `linear-gradient(90deg, rgba(46,204,113,0.06), rgba(46,204,113,0.12))`
-                    : `linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.06))`,
+                background: `linear-gradient(160deg, ${COLORS.riverFrom}, ${COLORS.riverMid}, ${COLORS.riverTo})`,
+                opacity: hoverHighlight && !highlightType ? 0.85 : 1,
                 border: `2px solid ${borderColor}`,
                 borderRadius: 8,
                 cursor: onClick ? 'pointer' : 'default',
@@ -846,7 +854,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 {hasLightningCard && ' ⚡'}
             </span>
             {cards.length === 0 && (
-                <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: 13, marginTop: 14 }}>
+                <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: 13, marginTop: 14 }}>
                     empty
                 </span>
             )}
@@ -871,7 +879,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                         justifyContent: 'center',
                         fontSize: 11,
                         fontWeight: 600,
-                        background: 'rgba(52,152,219,0.15)',
+                        background: COLORS.discardGlow,
                         color: COLORS.white,
                         border: `2px dashed ${COLORS.discardGlow}`,
                         borderRadius: 4,
@@ -923,10 +931,10 @@ function CapturedView({ cards, label }) {
     const junk = cards.filter(c => c.type === 'junk');
 
     const groups = [
-        { name: 'Brights', cards: brights, color: '#ffd700' },
-        { name: 'Animals', cards: animals, color: '#e67e22' },
-        { name: 'Ribbons', cards: ribbons, color: '#e74c3c' },
-        { name: 'Junk', cards: junk, color: '#95a5a6' },
+        { name: 'Brights', cards: brights, color: 'var(--color-bright)' },
+        { name: 'Animals', cards: animals, color: 'var(--color-animal)' },
+        { name: 'Ribbons', cards: ribbons, color: 'var(--color-ribbon)' },
+        { name: 'Junk', cards: junk, color: 'var(--color-junk)' },
     ];
 
     return (
@@ -1303,7 +1311,7 @@ function FlowerRivers() {
             {/* Top Bar */}
             <div style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '6px 16px', background: 'rgba(0,0,0,0.3)',
+                padding: '6px 16px', background: COLORS.dark,
                 fontSize: 13, flexShrink: 0,
             }}>
                 <span style={{ color: COLORS.gold, fontWeight: 700 }}>Flower Rivers</span>
@@ -1319,7 +1327,7 @@ function FlowerRivers() {
             {/* AI Area */}
             <div style={{
                 padding: '4px 16px', flexShrink: 0,
-                borderBottom: '1px solid rgba(255,255,255,0.08)',
+                borderBottom: `1px solid ${COLORS.separator}`,
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
                     <span style={{ fontSize: 12, color: COLORS.goldDim, minWidth: 30 }}>AI</span>
@@ -1357,7 +1365,7 @@ function FlowerRivers() {
                         ) : (
                             <div style={{
                                 width: CARD_W, height: CARD_H,
-                                border: '2px dashed rgba(255,255,255,0.15)',
+                                    border: `2px dashed ${COLORS.separator}`,
                                 borderRadius: 4,
                             }} />
                         )}
@@ -1413,7 +1421,7 @@ function FlowerRivers() {
             <div style={{
                 padding: '6px 16px', textAlign: 'center',
                 fontSize: 14, fontWeight: 500,
-                background: 'rgba(0,0,0,0.2)',
+                background: COLORS.dark,
                 color: COLORS.white,
                 flexShrink: 0,
                 minHeight: 32,
@@ -1426,7 +1434,7 @@ function FlowerRivers() {
                 <div style={{
                     position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: 'rgba(0,0,0,0.6)', zIndex: 100,
+                    background: COLORS.overlay, zIndex: 100,
                 }}>
                     <div style={{
                         background: COLORS.felt, border: `2px solid ${COLORS.gold}`,
@@ -1477,7 +1485,7 @@ function FlowerRivers() {
             {/* Human Area */}
             <div style={{
                 padding: '4px 16px', flexShrink: 0,
-                borderTop: '1px solid rgba(255,255,255,0.08)',
+                borderTop: `1px solid ${COLORS.separator}`,
             }}>
                 <CapturedView cards={captured[0]} label="Your captured" />
                 <YakuList captured={captured[0]} label="Your yaku" />
