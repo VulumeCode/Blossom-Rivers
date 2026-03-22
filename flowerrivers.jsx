@@ -1099,7 +1099,7 @@ function FlowerRivers() {
             <div style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', height: '100vh', background: COLORS.bg,
-                fontFamily: "'Georgia', serif", color: COLORS.white,
+                fontFamily: "'Inter', sans-serif", color: COLORS.white,
             }}>
                 <div style={{ fontSize: 48, fontWeight: 700, color: COLORS.gold, marginBottom: 8 }}>
                     Flower Rivers
@@ -1128,7 +1128,7 @@ function FlowerRivers() {
             <div style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', height: '100vh', background: COLORS.bg,
-                fontFamily: "'Georgia', serif", color: COLORS.white,
+                fontFamily: "'Inter', sans-serif", color: COLORS.white,
             }}>
                 <div style={{ fontSize: 32, fontWeight: 700, color: COLORS.gold, marginBottom: 16 }}>
                     Round {round} Complete
@@ -1185,7 +1185,7 @@ function FlowerRivers() {
             <div style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', height: '100vh', background: COLORS.bg,
-                fontFamily: "'Georgia', serif", color: COLORS.white,
+                fontFamily: "'Inter', sans-serif", color: COLORS.white,
             }}>
                 <div style={{ fontSize: 36, fontWeight: 700, color: COLORS.gold, marginBottom: 8 }}>
                     Game Over
@@ -1297,7 +1297,7 @@ function FlowerRivers() {
         <div style={{
             display: 'flex', flexDirection: 'column',
             height: '100vh', background: COLORS.bg,
-            fontFamily: "'Georgia', serif", color: COLORS.white,
+            fontFamily: "'Inter', sans-serif", color: COLORS.white,
             overflow: 'hidden',
         }}>
             {/* Top Bar */}
