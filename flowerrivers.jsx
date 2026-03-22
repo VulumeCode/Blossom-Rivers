@@ -813,13 +813,14 @@ function CardView({ card, faceDown, onClick, selected, small, disabled, highligh
         cursor: onClick && !disabled ? 'pointer' : 'default',
         transition: 'transform 0.15s, box-shadow 0.15s',
         transform: selected ? 'translateY(-8px)' : 'none',
-        boxShadow: selected
-            ? `0 4px 16px ${COLORS.red}`
-            : highlighted
-                ? `0 0 10px 3px ${COLORS.captureGlow}`
-                : `0 1px 4px ${COLORS.cardShadow}`,
+        boxShadow: `0 1px 4px ${COLORS.cardShadow}`,
         opacity: disabled ? 0.5 : 1,
         flexShrink: 0,
+        ...(highlighted ? {
+            outlineColor: COLORS.captureGlow,
+            outlineStyle: "solid",
+            outlineWidth: "2px"
+        } : {}),
         ...extraStyle,
     };
 
