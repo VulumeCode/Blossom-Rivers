@@ -782,7 +782,7 @@ function CardView({ card, faceDown, onClick, selected, small, disabled, highligh
         transition: 'transform 0.15s, box-shadow 0.15s',
         transform: selected ? 'translateY(-8px)' : 'none',
         boxShadow: selected
-            ? `0 4px 16px ${COLORS.gold}`
+            ? `0 4px 16px ${COLORS.red}`
             : highlighted
                 ? `0 0 10px 3px ${COLORS.captureGlow}`
                 : `0 1px 4px ${COLORS.cardShadow}`,
@@ -945,7 +945,7 @@ function CapturedView({ cards, label }) {
             minHeight: CARD_H_SM + 8,
         }}>
             <span style={{
-                color: COLORS.gold,
+                color: COLORS.red,
                 fontSize: 11,
                 fontWeight: 600,
                 minWidth: 60,
@@ -972,7 +972,7 @@ function YakuList({ captured, label }) {
     const { yakuList, total } = computeYaku(captured);
     if (yakuList.length === 0) return null;
     return (
-        <div style={{ fontSize: 11, color: COLORS.gold, padding: '2px 8px' }}>
+        <div style={{ fontSize: 11, color: COLORS.red, padding: '2px 8px' }}>
             <span style={{ fontWeight: 600 }}>{label}: </span>
             {yakuList.map(y => `${y.name} (${y.points})`).join(', ')}
             <span style={{ marginLeft: 6, fontWeight: 700 }}>= {total}</span>
@@ -1108,7 +1108,7 @@ function FlowerRivers() {
                 justifyContent: 'center', height: '100vh', background: COLORS.bg,
                 fontFamily: "'Inter', sans-serif", color: COLORS.white,
             }}>
-                <div style={{ fontSize: 48, fontWeight: 700, color: COLORS.gold, marginBottom: 8 }}>
+                <div style={{ fontSize: 48, fontWeight: 700, color: COLORS.red, marginBottom: 8 }}>
                     Flower Rivers
                 </div>
                 <div style={{ fontSize: 16, color: COLORS.pink, marginBottom: 32 }}>
@@ -1118,7 +1118,7 @@ function FlowerRivers() {
                     onClick={() => dispatch({ type: 'START_GAME' })}
                     style={{
                         padding: '14px 48px', fontSize: 18, fontWeight: 600,
-                        background: COLORS.gold, color: COLORS.bg, border: 'none',
+                        background: COLORS.red, color: COLORS.bg, border: 'none',
                         borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
                     }}
                 >
@@ -1137,7 +1137,7 @@ function FlowerRivers() {
                 justifyContent: 'center', height: '100vh', background: COLORS.bg,
                 fontFamily: "'Inter', sans-serif", color: COLORS.white,
             }}>
-                <div style={{ fontSize: 32, fontWeight: 700, color: COLORS.gold, marginBottom: 16 }}>
+                <div style={{ fontSize: 32, fontWeight: 700, color: COLORS.red, marginBottom: 16 }}>
                     Round {round} Complete
                 </div>
                 {info.winner === -1 ? (
@@ -1150,7 +1150,7 @@ function FlowerRivers() {
                             {info.winner === 0 ? 'You' : 'AI'} won the round!
                         </div>
                         {info.yakuList.map(y => (
-                            <div key={y.name} style={{ fontSize: 14, color: COLORS.gold }}>
+                            <div key={y.name} style={{ fontSize: 14, color: COLORS.red }}>
                                 {y.name}: {y.points} pts
                             </div>
                         ))}
@@ -1160,7 +1160,7 @@ function FlowerRivers() {
                             {info.oppKoikoi > 0 && ` × ${Math.pow(2, info.oppKoikoi)} (opponent koi-koi)`}
                             {info.drawMultiplier > 1 && ` × ${info.drawMultiplier} (draw bonus)`}
                         </div>
-                        <div style={{ fontSize: 22, fontWeight: 700, color: COLORS.gold, marginTop: 6 }}>
+                            <div style={{ fontSize: 22, fontWeight: 700, color: COLORS.red, marginTop: 6 }}>
                             = {info.finalPoints} points
                         </div>
                     </div>
@@ -1172,7 +1172,7 @@ function FlowerRivers() {
                     onClick={() => dispatch({ type: 'NEXT_ROUND' })}
                     style={{
                         padding: '12px 40px', fontSize: 16, fontWeight: 600,
-                        background: COLORS.gold, color: COLORS.bg, border: 'none',
+                        background: COLORS.red, color: COLORS.bg, border: 'none',
                         borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
                     }}
                 >
@@ -1194,7 +1194,7 @@ function FlowerRivers() {
                 justifyContent: 'center', height: '100vh', background: COLORS.bg,
                 fontFamily: "'Inter', sans-serif", color: COLORS.white,
             }}>
-                <div style={{ fontSize: 36, fontWeight: 700, color: COLORS.gold, marginBottom: 8 }}>
+                <div style={{ fontSize: 36, fontWeight: 700, color: COLORS.red, marginBottom: 8 }}>
                     Game Over
                 </div>
                 {info && info.winner !== -1 && (
@@ -1203,7 +1203,7 @@ function FlowerRivers() {
                             {info.winner === 0 ? 'You' : 'AI'} won the final round with {info.finalPoints} pts
                         </div>
                         {info.yakuList.map(y => (
-                            <div key={y.name} style={{ fontSize: 13, color: COLORS.gold }}>
+                            <div key={y.name} style={{ fontSize: 13, color: COLORS.red }}>
                                 {y.name}: {y.points}
                             </div>
                         ))}
@@ -1215,14 +1215,14 @@ function FlowerRivers() {
                 <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>
                     You: {finalS0} — AI: {finalS1}
                 </div>
-                <div style={{ fontSize: 28, color: COLORS.gold, fontWeight: 700, marginBottom: 24 }}>
+                <div style={{ fontSize: 28, color: COLORS.red, fontWeight: 700, marginBottom: 24 }}>
                     {winner}
                 </div>
                 <button
                     onClick={() => dispatch({ type: 'START_GAME' })}
                     style={{
                         padding: '12px 40px', fontSize: 16, fontWeight: 600,
-                        background: COLORS.gold, color: COLORS.bg, border: 'none',
+                        background: COLORS.red, color: COLORS.bg, border: 'none',
                         borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
                     }}
                 >
@@ -1313,12 +1313,12 @@ function FlowerRivers() {
                 padding: '6px 16px', background: COLORS.dark,
                 fontSize: 13, flexShrink: 0,
             }}>
-                <span style={{ color: COLORS.gold, fontWeight: 700 }}>Flower Rivers</span>
+                <span style={{ color: COLORS.red, fontWeight: 700 }}>Flower Rivers</span>
                 <span>Round {round}/{TOTAL_ROUNDS} — Turn {turn}</span>
                 <span>
                     You: <b>{scores[0]}</b> | AI: <b>{scores[1]}</b>
                     {drawMultiplier > 1 && (
-                        <span style={{ color: COLORS.gold, marginLeft: 8 }}>×{drawMultiplier} next!</span>
+                        <span style={{ color: COLORS.red, marginLeft: 8 }}>×{drawMultiplier} next!</span>
                     )}
                 </span>
             </div>
@@ -1434,11 +1434,11 @@ function FlowerRivers() {
                     background: COLORS.overlay, zIndex: 100,
                 }}>
                     <div style={{
-                        background: COLORS.felt, border: `2px solid ${COLORS.gold}`,
+                        background: COLORS.felt, border: `2px solid ${COLORS.red}`,
                         borderRadius: 12, padding: 32, textAlign: 'center',
                         maxWidth: 400,
                     }}>
-                        <div style={{ fontSize: 22, fontWeight: 700, color: COLORS.gold, marginBottom: 12 }}>
+                        <div style={{ fontSize: 22, fontWeight: 700, color: COLORS.red, marginBottom: 12 }}>
                             Yaku!
                         </div>
                         {newYaku.map(y => (
@@ -1457,7 +1457,7 @@ function FlowerRivers() {
                                 onClick={() => dispatch({ type: 'CALL_STOP' })}
                                 style={{
                                     padding: '10px 28px', fontSize: 15, fontWeight: 600,
-                                    background: COLORS.gold, color: COLORS.bg, border: 'none',
+                                    background: COLORS.red, color: COLORS.bg, border: 'none',
                                     borderRadius: 6, cursor: 'pointer', fontFamily: 'inherit',
                                 }}
                             >
@@ -1467,8 +1467,8 @@ function FlowerRivers() {
                                 onClick={() => dispatch({ type: 'CALL_KOIKOI' })}
                                 style={{
                                     padding: '10px 28px', fontSize: 15, fontWeight: 600,
-                                    background: 'transparent', color: COLORS.gold,
-                                    border: `2px solid ${COLORS.gold}`, borderRadius: 6,
+                                    background: 'transparent', color: COLORS.red,
+                                    border: `2px solid ${COLORS.red}`, borderRadius: 6,
                                     cursor: 'pointer', fontFamily: 'inherit',
                                 }}
                             >
