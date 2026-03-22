@@ -874,54 +874,88 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 minWidth: 120,
             }}
         >
-            <span style={{
-                position: 'absolute',
-                top: 2,
-                left: 8,
-                fontSize: 10,
-                color: COLORS.pink,
-                fontWeight: 600,
-                letterSpacing: 1,
-                textTransform: 'uppercase',
-            }}>
-                {label}
-                {hasRainManCard && !hasLightningCard && ' 🌧'}
-                {hasLightningCard && ' ⚡'}
-            </span>
             {cards.length === 0 && (
-                <div style={{ width: CARD_W_RIVER, height: CARD_H_RIVER, marginTop: 12, flexShrink: 0 }} />
+                <div style={{ width: CARD_W_RIVER, height: CARD_H_RIVER, flexShrink: 0 }} />
             )}
             {cards.map(card => (
                 <CardView
                     key={card.id}
                     card={card}
                     small={false}
-                    style={{ width: CARD_W_RIVER, height: CARD_H_RIVER, marginTop: 12 }}
+                    style={{ width: CARD_W_RIVER, height: CARD_H_RIVER }}
                 />
             ))}
-            {showDiscard && (
+            {hasRainManCard && !hasLightningCard && (
                 <button
-                    onClick={(e) => { e.stopPropagation(); onDiscard(); }}
+                    id="hasRainMan"
+                    className="noto-emoji"
                     style={{
-                        marginTop: 13,
                         width: CARD_W_RIVER,
                         height: CARD_H_RIVER,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: 11,
+                        fontSize: 33,
                         fontWeight: 600,
                         background: 'transparent',
-                        color: COLORS.white,
+                        color: COLORS.discardGlow,
                         border: `2px dashed ${COLORS.discardGlow}`,
                         borderRadius: 4,
                         cursor: 'pointer',
-                        fontFamily: 'inherit',
                         whiteSpace: 'nowrap',
                         flexShrink: 0,
                     }}
                 >
-                    Discard
+                    ☔
+                </button>
+            )}
+            {hasLightningCard && (
+                <button
+                    id="hasLightning"
+                    className="noto-emoji"
+                    style={{
+                        width: CARD_W_RIVER,
+                        height: CARD_H_RIVER,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 33,
+                        fontWeight: 600,
+                        background: 'transparent',
+                        color: COLORS.forcedGlow,
+                        border: `2px dashed ${COLORS.forcedGlow}`,
+                        borderRadius: 4,
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0,
+                    }}
+                >
+                    ⚡
+                </button>
+            )}
+            {showDiscard && (
+                <button
+                    id="discard"
+                    className="noto-emoji"
+                    onClick={(e) => { e.stopPropagation(); onDiscard(); }}
+                    style={{
+                        width: CARD_W_RIVER,
+                        height: CARD_H_RIVER,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 33,
+                        fontWeight: 600,
+                        background: 'transparent',
+                        color: COLORS.discardGlow,
+                        border: `2px dashed ${COLORS.discardGlow}`,
+                        borderRadius: 4,
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0,
+                    }}
+                >
+                    🍂
                 </button>
             )}
         </div>
