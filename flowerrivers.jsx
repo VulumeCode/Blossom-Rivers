@@ -829,7 +829,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 gap: 4,
                 padding: '6px 10px',
                 minHeight: CARD_H_RIVER + 16,
-                background: `linear-gradient(160deg, ${COLORS.riverFrom}, ${COLORS.riverMid}, ${COLORS.riverTo})`,
+                background: `linear-gradient(160deg, ${COLORS.riverFrom}, ${COLORS.riverMid})`,
                 opacity: hoverHighlight && !highlightType ? 0.85 : 1,
                 border: `2px solid ${borderColor}`,
                 borderRadius: 8,
