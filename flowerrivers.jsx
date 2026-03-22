@@ -838,8 +838,8 @@ function CardView({ card, faceDown, onClick, selected, small, disabled, highligh
 }
 
 // --- RIVER COMPONENT ---
-function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighlight, showDiscard, label, onMouseEnter, onMouseLeave }) {
-    const borderColor =
+function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighlight, showDiscard, onMouseEnter, onMouseLeave }) {
+    const outlineColor =
         highlightType === 'capture' ? COLORS.captureGlow
             : highlightType === 'forced' ? COLORS.forcedGlow
                 : highlightType === 'place' ? COLORS.discardGlow
@@ -860,14 +860,18 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: 4,
-                padding: '6px 10px',
+                padding: '6px 6px',
                 minHeight: CARD_H_RIVER + 16,
                 background: `linear-gradient(160deg, ${COLORS.riverFrom}, ${COLORS.riverMid})`,
                 opacity: hoverHighlight && !highlightType ? 0.85 : 1,
-                borderStyle: 'solid',
-                borderColor: borderColor,
-                borderWidth: '2px 0 2px 2px',
+                outlineStyle: hasLightningCard || hasRainManCard
+                    ? "dashed"
+                    : 'solid',
+                borderWidth: '0',
                 borderRadius: '8px 0 0 8px',
+                outlineWidth: "2px",
+                marginLeft: "2px",
+                outlineColor: outlineColor,
                 cursor: onClick ? 'pointer' : 'default',
                 transition: 'border-color 0.2s, background 0.2s',
                 position: 'relative',
@@ -885,54 +889,6 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                     style={{ width: CARD_W_RIVER, height: CARD_H_RIVER }}
                 />
             ))}
-            {hasRainManCard && !hasLightningCard && (
-                <button
-                    id="hasRainMan"
-                    className="noto-emoji"
-                    style={{
-                        width: CARD_W_RIVER,
-                        height: CARD_H_RIVER,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 33,
-                        fontWeight: 600,
-                        background: 'transparent',
-                        color: COLORS.discardGlow,
-                        border: `2px dashed ${COLORS.discardGlow}`,
-                        borderRadius: 4,
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap',
-                        flexShrink: 0,
-                    }}
-                >
-                    ☔
-                </button>
-            )}
-            {hasLightningCard && (
-                <button
-                    id="hasLightning"
-                    className="noto-emoji"
-                    style={{
-                        width: CARD_W_RIVER,
-                        height: CARD_H_RIVER,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 33,
-                        fontWeight: 600,
-                        background: 'transparent',
-                        color: COLORS.forcedGlow,
-                        border: `2px dashed ${COLORS.forcedGlow}`,
-                        borderRadius: 4,
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap',
-                        flexShrink: 0,
-                    }}
-                >
-                    ⚡
-                </button>
-            )}
             {showDiscard && (
                 <button
                     id="discard"
@@ -1462,7 +1418,7 @@ function FlowerRivers() {
                 {/* Rivers */}
                 <div id="rivers-column" style={{
                     flex: 1, display: 'flex', flexDirection: 'column',
-                    gap: 8, justifyContent: 'center',
+                    gap: 12, justifyContent: 'center',
                     overflow: 'auto',
                 }}>
                     {rivers.map((river, ri) => (
@@ -1470,7 +1426,6 @@ function FlowerRivers() {
                             key={ri}
                             cards={river}
                             index={ri}
-                            label={`River ${ri + 1}`}
                             highlightType={getRiverHighlight(ri)}
                             hoverHighlight={highlightedRiverSet && highlightedRiverSet.has(ri)}
                             onClick={canHumanAct ? () => handleRiverClick(ri) : undefined}
