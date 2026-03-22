@@ -270,6 +270,7 @@ function startRound(state) {
 }
 
 function gameReducer(state, action) {
+    console.dir(action);
     switch (action.type) {
         case 'START_GAME': {
             const s = makeInitialState();
@@ -603,6 +604,7 @@ function aiScoreCapture(aiCaptured, riverCards, handCard) {
 }
 
 // AI chooses where to place a drawn card (dealing phase)
+// Does NOT look at opponent's hand — infers threat from their captured cards
 function aiChooseRiver(state) {
     const available = [0, 1, 2].filter(i => !state.riversUsedThisTurn[i]);
     if (available.length === 0) return 0;
@@ -610,9 +612,40 @@ function aiChooseRiver(state) {
 
     const card = state.drawnCard;
     const aiHand = state.hands[1];
+    const oppCaptured = state.captured[0];
 
-    // Prefer rivers that DON'T help the opponent (player 0) capture
-    // Also avoid creating easy matches for opponent's hand
+    // Infer which specific cards the opponent wants based on yaku progress
+    const oppWantedIds = new Set();
+    // Poetry Ribbons progress → they want the missing poetry ribbons
+    const poetryIds = ['1-ribbon', '2-ribbon', '3-ribbon'];
+    if (poetryIds.filter(id => hasCard(oppCaptured, id)).length >= 1) {
+        poetryIds.forEach(id => { if (!hasCard(oppCaptured, id)) oppWantedIds.add(id); });
+    }
+    // Blue Ribbons progress
+    const blueIds = ['6-ribbon', '9-ribbon', '10-ribbon'];
+    if (blueIds.filter(id => hasCard(oppCaptured, id)).length >= 1) {
+        blueIds.forEach(id => { if (!hasCard(oppCaptured, id)) oppWantedIds.add(id); });
+    }
+    // Boar-Deer-Butterfly progress
+    const bdbIds = ['7-animal', '10-animal', '6-animal'];
+    if (bdbIds.filter(id => hasCard(oppCaptured, id)).length >= 1) {
+        bdbIds.forEach(id => { if (!hasCard(oppCaptured, id)) oppWantedIds.add(id); });
+    }
+    // Viewing yaku progress
+    if (hasCard(oppCaptured, '3-bright') || hasCard(oppCaptured, '9-animal')) {
+        if (!hasCard(oppCaptured, '3-bright')) oppWantedIds.add('3-bright');
+        if (!hasCard(oppCaptured, '9-animal')) oppWantedIds.add('9-animal');
+    }
+    if (hasCard(oppCaptured, '8-bright') || hasCard(oppCaptured, '9-animal')) {
+        if (!hasCard(oppCaptured, '8-bright')) oppWantedIds.add('8-bright');
+        if (!hasCard(oppCaptured, '9-animal')) oppWantedIds.add('9-animal');
+    }
+    // Opponent wants brights if they already have some
+    const oppBrights = countType(oppCaptured, 'bright');
+    if (oppBrights >= 2) {
+        CARDS.filter(c => c.type === 'bright' && !hasCard(oppCaptured, c.id)).forEach(c => oppWantedIds.add(c.id));
+    }
+
     let bestIdx = available[0];
     let bestScore = -Infinity;
 
@@ -620,10 +653,12 @@ function aiChooseRiver(state) {
         let score = 0;
         const riverAfter = [...state.rivers[ri], card];
 
-        // Penalize if opponent could likely capture this river
-        const oppHand = state.hands[0];
-        const oppCanCapture = oppHand.some(hc => canCaptureRiver(hc, riverAfter));
-        if (oppCanCapture) score -= 5;
+        // Penalize if river contains cards the opponent needs for yaku
+        const oppWouldWant = riverAfter.some(c => oppWantedIds.has(c.id));
+        if (oppWouldWant) score -= 3;
+
+        // Bigger penalty for larger rivers (more cards = juicier target)
+        score -= state.rivers[ri].length;
 
         // Bonus if AI could capture this river later
         const aiCanCapture = aiHand.some(hc => canCaptureRiver(hc, riverAfter));
@@ -632,6 +667,9 @@ function aiChooseRiver(state) {
         // Prefer placing in already-matching rivers (month consolidation)
         const monthMatch = state.rivers[ri].some(c => c.month === card.month);
         if (monthMatch) score += 1;
+
+        // Prefer smaller rivers when discarding (less value given away)
+        if (!aiCanCapture) score -= state.rivers[ri].length;
 
         // Small random tiebreak
         score += Math.random() * 0.5;
