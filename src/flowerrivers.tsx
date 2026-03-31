@@ -14,8 +14,7 @@ import {
 } from './types';
 
 // --- DECK DEFINITION ---
-const getWikiUrl = (filename: string) =>
-    `https://commons.wikimedia.org/wiki/Special:FilePath/${filename}`;
+const getWikiUrl = (filename: string) => `/cards/${filename}`;
 
 const CARDS: Card[] = [
     // 1: Pine
@@ -82,15 +81,12 @@ const CARDS: Card[] = [
 
 const CARD_BACK_URL = getWikiUrl('Hanafuda_card_back.svg');
 
-// PRELOAD IMAGES immediately so they are cached by the time the user clicks Start
-// Keep references alive at module scope to prevent GC before download completes
-const _preloaded = typeof window !== 'undefined'
-    ? [...CARDS.map(c => c.img), CARD_BACK_URL].map(url => {
-        const img = new Image();
-        img.src = url;
-        return img;
-    })
-    : [];
+// Preload images so they are in the browser cache before the user clicks Start
+const _preloaded = [...CARDS.map(c => c.img), CARD_BACK_URL].map(url => {
+    const img = new Image();
+    img.src = url;
+    return img;
+});
 
 // --- CARD HELPERS ---
 const isLightning = (c: Card) => c.id === '11-junk-lightning';
@@ -1103,7 +1099,7 @@ function YakuList({ captured, label }: YakuListProps) {
 // --- MAIN COMPONENT ---
 export function FlowerRivers() {
     const [state, dispatch] = useReducer(gameReducer, makeInitialState());
-    const [aiDelay, setAiDelay] = useState<boolean>(false);
+    const [aiDelay] = useState(false);
     const [hoveredRiver, setHoveredRiver] = useState<number | null>(null);
     const [hoveredHandCard, setHoveredHandCard] = useState<Card | null>(null);
 
