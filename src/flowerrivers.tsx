@@ -1,9 +1,23 @@
-const { useEffect, useReducer, useState } = React;
+import { useEffect, useReducer, useState } from 'react';
+import React from 'react';
+import {
+    Card,
+    CardType,
+    YakuDef,
+    YakuEntry,
+    YakuResult,
+    GamePhase,
+    RiverHighlightType,
+    RoundScoreInfo,
+    GameState,
+    GameAction,
+} from './types';
 
 // --- DECK DEFINITION ---
-const getWikiUrl = (filename) => `https://commons.wikimedia.org/wiki/Special:FilePath/${filename}`;
+const getWikiUrl = (filename: string): string =>
+    `https://commons.wikimedia.org/wiki/Special:FilePath/${filename}`;
 
-const CARDS = [
+const CARDS: Card[] = [
     // 1: Pine
     { id: '1-bright', month: 1, type: 'bright', name: 'Pine Crane', img: getWikiUrl('Hanafuda_January_Hikari.svg') },
     { id: '1-ribbon', month: 1, type: 'ribbon', name: 'Pine Poetry', img: getWikiUrl('Hanafuda_January_Tanzaku.svg') },
@@ -63,7 +77,7 @@ const CARDS = [
     { id: '12-bright', month: 12, type: 'bright', name: 'Paulownia Phoenix', img: getWikiUrl('Hanafuda_December_Hikari.svg') },
     { id: '12-junk-1', month: 12, type: 'junk', name: 'Paulownia', img: getWikiUrl('Hanafuda_December_Kasu_1.svg') },
     { id: '12-junk-2', month: 12, type: 'junk', name: 'Paulownia', img: getWikiUrl('Hanafuda_December_Kasu_2.svg') },
-    { id: '12-junk-3', month: 12, type: 'junk', name: 'Paulownia', img: getWikiUrl('Hanafuda_December_Kasu_3.svg') }
+    { id: '12-junk-3', month: 12, type: 'junk', name: 'Paulownia', img: getWikiUrl('Hanafuda_December_Kasu_3.svg') },
 ];
 
 const CARD_BACK_URL = getWikiUrl('Hanafuda_card_back.svg');
@@ -79,15 +93,15 @@ const _preloaded = typeof window !== 'undefined'
     : [];
 
 // --- CARD HELPERS ---
-const isLightning = (c) => c.id === '11-junk-lightning';
-const isRainMan = (c) => c.id === '11-bright-rainman';
-const isWillow = (c) => c.month === 11;
+const isLightning = (c: Card): boolean => c.id === '11-junk-lightning';
+const isRainMan = (c: Card): boolean => c.id === '11-bright-rainman';
+const isWillow = (c: Card): boolean => c.month === 11;
 
-const hasCard = (cards, id) => cards.some(c => c.id === id);
-const countType = (cards, type) => cards.filter(c => c.type === type).length;
+const hasCard = (cards: Card[], id: string): boolean => cards.some(c => c.id === id);
+const countType = (cards: Card[], type: CardType): number => cards.filter(c => c.type === type).length;
 
 // --- YAKU DEFINITIONS ---
-const YAKU_DEFS = [
+const YAKU_DEFS: YakuDef[] = [
     {
         name: 'Five Brights', points: 15, isJunk: false,
         check: (c) => countType(c, 'bright') === 5,
@@ -145,13 +159,13 @@ const YAKU_DEFS = [
     },
 ];
 
-function computeYaku(captured) {
-    const matched = [];
-    let bestBright = null;
+export function computeYaku(captured: Card[]): YakuResult {
+    const matched: YakuEntry[] = [];
+    let bestBright: YakuDef | null = null;
     for (const y of YAKU_DEFS) {
         if (!y.check(captured)) continue;
         if (y.group === 'bright') {
-            if (!bestBright || y.rank > bestBright.rank) bestBright = y;
+            if (!bestBright || (y.rank !== undefined && bestBright.rank !== undefined && y.rank > bestBright.rank)) bestBright = y;
         } else {
             const pts = y.points + (y.extra ? y.extra(captured) : 0);
             matched.push({ name: y.name, points: pts, isJunk: y.isJunk });
@@ -164,12 +178,12 @@ function computeYaku(captured) {
     return { yakuList: matched, total };
 }
 
-function nonJunkPoints(yakuList) {
+function nonJunkPoints(yakuList: YakuEntry[]): number {
     return yakuList.filter(y => !y.isJunk).reduce((s, y) => s + y.points, 0);
 }
 
 // --- GAME HELPERS ---
-function shuffle(arr) {
+function shuffle(arr: Card[]): Card[] {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -178,7 +192,7 @@ function shuffle(arr) {
     return a;
 }
 
-function canCaptureRiver(handCard, river) {
+function canCaptureRiver(handCard: Card, river: Card[]): boolean {
     if (river.length === 0) return false;
     // Lightning from hand is wild — captures any river
     if (isLightning(handCard)) return true;
@@ -192,16 +206,22 @@ function canCaptureRiver(handCard, river) {
     return river.some(c => c.month === handCard.month);
 }
 
-function riverHasLightningCard(river) {
+function riverHasLightningCard(river: Card[]): boolean {
     return river.some(isLightning);
 }
 
-function dealNewRound(deckIn) {
+interface DealResult {
+    deck: Card[];
+    hands: [Card[], Card[]];
+    rivers: [Card[], Card[], Card[]];
+}
+
+function dealNewRound(deckIn: Card[]): DealResult {
     const d = shuffle(deckIn);
     return {
         deck: d.slice(12),
-        hands: [d.slice(0, 6), d.slice(6, 12)],
-        rivers: [[], [], []],
+        hands: [d.slice(0, 6), d.slice(6, 12)] as [Card[], Card[]],
+        rivers: [[], [], []] as [Card[], Card[], Card[]],
     };
 }
 
@@ -210,7 +230,7 @@ const TOTAL_ROUNDS = 3;
 const TURNS_PER_ROUND = 6; // each player has 6 hand cards, one used per turn
 
 // Phases: MENU, DEALING, CAPTURING, FORCED_CAPTURE, YAKU_CHOICE, ROUND_OVER, GAME_OVER
-function makeInitialState() {
+function makeInitialState(): GameState {
     return {
         phase: 'MENU',
         deck: [],
@@ -222,7 +242,7 @@ function makeInitialState() {
         dealStep: 0,
         drawnCard: null,
         riversUsedThisTurn: [false, false, false],
-        lightningRiver: null, // river index forced by lightning deal
+        lightningRiver: null,
         selectedHandCard: null,
         koikoiCounts: [0, 0],
         scores: [0, 0],
@@ -233,12 +253,12 @@ function makeInitialState() {
         newYaku: [],
         yakuPlayer: -1,
         message: '',
-        aiAction: null, // queued AI action descriptor
-        roundScoreInfo: null, // breakdown shown at round end
+        aiAction: null,
+        roundScoreInfo: null,
     };
 }
 
-function startRound(state) {
+function startRound(state: GameState): GameState {
     const deal = dealNewRound(CARDS);
     return {
         ...state,
@@ -265,7 +285,7 @@ function startRound(state) {
     };
 }
 
-function gameReducer(state, action) {
+function gameReducer(state: GameState, action: GameAction): GameState {
     console.dir(action);
     switch (action.type) {
         case 'START_GAME': {
@@ -293,10 +313,11 @@ function gameReducer(state, action) {
             if (state.riversUsedThisTurn[riverIdx]) return state;
 
             const newRivers = state.rivers.map((r, i) =>
-                i === riverIdx ? [...r, state.drawnCard] : [...r]
-            );
-            const newUsed = [...state.riversUsedThisTurn];
+                i === riverIdx ? [...r, state.drawnCard!] : [...r]
+            ) as [Card[], Card[], Card[]];
+            const newUsed = [...state.riversUsedThisTurn] as [boolean, boolean, boolean];
             newUsed[riverIdx] = true;
+
             const nextStep = state.dealStep + 1;
 
             // Check if lightning was dropped
@@ -373,16 +394,16 @@ function gameReducer(state, action) {
             // Remove card from hand
             const newHands = state.hands.map((h, i) =>
                 i === who ? h.filter(c => c.id !== card.id) : [...h]
-            );
+            ) as [Card[], Card[]];
             // Add river cards + hand card to captured
             const capturedCards = [...river, card];
             const newCaptured = state.captured.map((cp, i) =>
                 i === who ? [...cp, ...capturedCards] : [...cp]
-            );
+            ) as [Card[], Card[]];
             // Clear the river
             const newRivers = state.rivers.map((r, i) =>
                 i === riverIdx ? [] : [...r]
-            );
+            ) as [Card[], Card[], Card[]];
 
             // Check yaku — trigger choice if non-junk points increased
             const yaku = computeYaku(newCaptured[who]);
@@ -390,7 +411,7 @@ function gameReducer(state, action) {
             const improved = currentNonJunk > state.previousPoints[who];
 
             if (improved) {
-                const newPrev = [...state.previousPoints];
+                const newPrev = [...state.previousPoints] as [number, number];
                 newPrev[who] = currentNonJunk;
                 return {
                     ...state,
@@ -430,10 +451,10 @@ function gameReducer(state, action) {
 
             const newHands = state.hands.map((h, i) =>
                 i === who ? h.filter(c => c.id !== card.id) : [...h]
-            );
+            ) as [Card[], Card[]];
             const newRivers = state.rivers.map((r, i) =>
                 i === riverIdx ? [...r, card] : [...r]
-            );
+            ) as [Card[], Card[], Card[]];
 
             return advanceTurn({
                 ...state,
@@ -457,10 +478,10 @@ function gameReducer(state, action) {
             // Draw multiplier
             pts *= state.drawMultiplier;
 
-            const newScores = [...state.scores];
+            const newScores = [...state.scores] as [number, number];
             newScores[winner] += pts;
 
-            const roundScoreInfo = {
+            const roundScoreInfo: RoundScoreInfo = {
                 winner,
                 yakuList: yaku.yakuList,
                 basePoints: yaku.total,
@@ -493,7 +514,7 @@ function gameReducer(state, action) {
         case 'CALL_KOIKOI': {
             if (state.phase !== 'YAKU_CHOICE') return state;
             const who = state.yakuPlayer;
-            const newKoikoi = [...state.koikoiCounts];
+            const newKoikoi = [...state.koikoiCounts] as [number, number];
             newKoikoi[who] += 1;
 
             return advanceTurn({
@@ -523,13 +544,13 @@ function gameReducer(state, action) {
     }
 }
 
-function advanceTurn(state) {
+function advanceTurn(state: GameState): GameState {
     const nextTurn = state.turn + 1;
     // Check if round is over (both players out of cards)
     if (state.hands[0].length === 0 && state.hands[1].length === 0) {
         // Draw — no one stopped
         const drawMultiplier = state.drawMultiplier * 2;
-        const roundScoreInfo = {
+        const roundScoreInfo: RoundScoreInfo = {
             winner: -1,
             yakuList: [],
             basePoints: 0,
@@ -579,7 +600,7 @@ function advanceTurn(state) {
 
 // --- AI LOGIC ---
 // Score a potential capture for AI: how much yaku-building value does it add?
-function aiScoreCapture(aiCaptured, riverCards, handCard) {
+function aiScoreCapture(aiCaptured: Card[], riverCards: Card[], handCard: Card): number {
     const combined = [...aiCaptured, ...riverCards, handCard];
     const currentYaku = computeYaku(aiCaptured);
     const newYaku = computeYaku(combined);
@@ -598,17 +619,17 @@ function aiScoreCapture(aiCaptured, riverCards, handCard) {
 
 // AI chooses where to drop a drawn card (dealing phase)
 // Does NOT look at opponent's hand — infers threat from their captured cards
-function aiChooseRiver(state) {
+function aiChooseRiver(state: GameState): number {
     const available = [0, 1, 2].filter(i => !state.riversUsedThisTurn[i]);
     if (available.length === 0) return 0;
     if (available.length === 1) return available[0];
 
-    const card = state.drawnCard;
+    const card = state.drawnCard!;
     const aiHand = state.hands[1];
     const oppCaptured = state.captured[0];
 
     // Infer which specific cards the opponent wants based on yaku progress
-    const oppWantedIds = new Set();
+    const oppWantedIds = new Set<string>();
     // Poetry Ribbons progress → they want the missing poetry ribbons
     const poetryIds = ['1-ribbon', '2-ribbon', '3-ribbon'];
     if (poetryIds.filter(id => hasCard(oppCaptured, id)).length >= 1) {
@@ -675,12 +696,16 @@ function aiChooseRiver(state) {
     return bestIdx;
 }
 
+type AIAction =
+    | { type: 'capture'; card: Card; riverIdx: number }
+    | { type: 'discard'; card: Card; riverIdx: number };
+
 // AI chooses capture or discard action
-function aiChooseCaptureAction(state) {
+function aiChooseCaptureAction(state: GameState): AIAction {
     const aiHand = state.hands[1];
     const aiCaptured = state.captured[1];
 
-    let bestAction = null;
+    let bestAction: AIAction | null = null;
     let bestScore = -Infinity;
 
     // Evaluate each hand card × each river for capture
@@ -738,9 +763,9 @@ function aiChooseCaptureAction(state) {
 }
 
 // AI forced capture: choose which hand card to use
-function aiChooseForcedCaptureCard(state) {
+function aiChooseForcedCaptureCard(state: GameState): Card {
     const aiHand = state.hands[1];
-    const ri = state.lightningRiver;
+    const ri = state.lightningRiver!;
     const river = state.rivers[ri];
 
     // Pick card that benefits AI most (least valuable standalone card, to save good cards)
@@ -757,7 +782,7 @@ function aiChooseForcedCaptureCard(state) {
 }
 
 // AI koikoi decision: weighted by turns remaining
-function aiDecideKoikoi(state) {
+function aiDecideKoikoi(state: GameState): boolean {
     const yaku = computeYaku(state.captured[1]);
     const pts = yaku.total;
     if (pts >= 12) return false; // very high score — stop to lock it in
@@ -801,12 +826,25 @@ const COLORS = {
 };
 
 // --- CARD COMPONENT ---
-function CardView({ card, faceDown, onClick, selected, small, disabled, highlighted, onMouseEnter, onMouseLeave, style: extraStyle }) {
+interface CardViewProps {
+    card: Card;
+    faceDown?: boolean;
+    onClick?: () => void;
+    selected?: boolean;
+    small?: boolean;
+    disabled?: boolean;
+    highlighted?: boolean;
+    onMouseEnter?: () => void;
+    onMouseLeave?: () => void;
+    style?: React.CSSProperties;
+}
+
+function CardView({ card, faceDown, onClick, selected, small, disabled, highlighted, onMouseEnter, onMouseLeave, style: extraStyle }: CardViewProps) {
     const w = small ? CARD_W_SM : CARD_W;
     const h = small ? CARD_H_SM : CARD_H;
     const src = faceDown ? CARD_BACK_URL : card.img;
 
-    const baseStyle = {
+    const baseStyle: React.CSSProperties = {
         width: w,
         height: h,
         borderRadius: 4,
@@ -837,7 +875,19 @@ function CardView({ card, faceDown, onClick, selected, small, disabled, highligh
 }
 
 // --- RIVER COMPONENT ---
-function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighlight, showDiscard, onMouseEnter, onMouseLeave }) {
+interface RiverViewProps {
+    cards: Card[];
+    index: number;
+    onClick?: () => void;
+    onDiscard?: () => void;
+    highlightType?: RiverHighlightType;
+    hoverHighlight?: boolean | null;
+    showDiscard?: boolean;
+    onMouseEnter?: () => void;
+    onMouseLeave?: () => void;
+}
+
+function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighlight, showDiscard, onMouseEnter, onMouseLeave }: RiverViewProps) {
     const outlineColor =
         highlightType === 'capture' ? COLORS.captureGlow
             : highlightType === 'forced' ? COLORS.forcedGlow
@@ -892,7 +942,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 <button
                     id="discard"
                     className="noto-emoji"
-                    onClick={(e) => { e.stopPropagation(); onDiscard(); }}
+                    onClick={(e) => { e.stopPropagation(); onDiscard && onDiscard(); }}
                     style={{
                         width: CARD_W_RIVER,
                         height: CARD_H_RIVER,
@@ -942,7 +992,19 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
 }
 
 // --- HAND COMPONENT ---
-function HandView({ id, cards, faceDown, selectedCard, onSelect, disabled, highlightedIds, onCardHover, onCardLeave }) {
+interface HandViewProps {
+    id?: string;
+    cards: Card[];
+    faceDown?: boolean;
+    selectedCard?: Card | null;
+    onSelect?: (card: Card) => void;
+    disabled?: boolean;
+    highlightedIds?: Set<string> | null;
+    onCardHover?: (card: Card) => void;
+    onCardLeave?: () => void;
+}
+
+function HandView({ id, cards, faceDown, selectedCard, onSelect, disabled, highlightedIds, onCardHover, onCardLeave }: HandViewProps) {
     return (
         <div id={id} style={{
             display: 'flex',
@@ -956,8 +1018,8 @@ function HandView({ id, cards, faceDown, selectedCard, onSelect, disabled, highl
                     key={card.id}
                     card={card}
                     faceDown={faceDown}
-                    selected={selectedCard && selectedCard.id === card.id}
-                    highlighted={highlightedIds && highlightedIds.has(card.id)}
+                    selected={selectedCard && selectedCard.id === card.id ? true : false}
+                    highlighted={highlightedIds && highlightedIds.has(card.id) ? true : false}
                     onClick={!faceDown && onSelect ? () => onSelect(card) : undefined}
                     onMouseEnter={!faceDown && onCardHover ? () => onCardHover(card) : undefined}
                     onMouseLeave={onCardLeave}
@@ -969,7 +1031,13 @@ function HandView({ id, cards, faceDown, selectedCard, onSelect, disabled, highl
 }
 
 // --- CAPTURED AREA ---
-function CapturedView({ id, cards, label }) {
+interface CapturedViewProps {
+    id?: string;
+    cards: Card[];
+    label: string;
+}
+
+function CapturedView({ id, cards, label }: CapturedViewProps) {
     const brights = cards.filter(c => c.type === 'bright');
     const animals = cards.filter(c => c.type === 'animal');
     const ribbons = cards.filter(c => c.type === 'ribbon');
@@ -1015,7 +1083,12 @@ function CapturedView({ id, cards, label }) {
 }
 
 // --- YAKU DISPLAY ---
-function YakuList({ captured, label }) {
+interface YakuListProps {
+    captured: Card[];
+    label: string;
+}
+
+function YakuList({ captured, label }: YakuListProps) {
     const { yakuList, total } = computeYaku(captured);
     if (yakuList.length === 0) return null;
     return (
@@ -1028,11 +1101,11 @@ function YakuList({ captured, label }) {
 }
 
 // --- MAIN COMPONENT ---
-function FlowerRivers() {
-    const [state, dispatch] = useReducer(gameReducer, null, makeInitialState);
-    const [aiDelay, setAiDelay] = useState(false);
-    const [hoveredRiver, setHoveredRiver] = useState(null);   // river index
-    const [hoveredHandCard, setHoveredHandCard] = useState(null); // card object
+export function FlowerRivers() {
+    const [state, dispatch] = useReducer(gameReducer, makeInitialState());
+    const [aiDelay, setAiDelay] = useState<boolean>(false);
+    const [hoveredRiver, setHoveredRiver] = useState<number | null>(null);
+    const [hoveredHandCard, setHoveredHandCard] = useState<Card | null>(null);
 
     const {
         phase, deck, hands, captured, rivers, dealerIdx, capturerIdx,
@@ -1090,7 +1163,7 @@ function FlowerRivers() {
 
         const timer = setTimeout(() => {
             const card = aiChooseForcedCaptureCard(state);
-            dispatch({ type: 'CAPTURE_RIVER', riverIdx: lightningRiver, handCard: card });
+            dispatch({ type: 'CAPTURE_RIVER', riverIdx: lightningRiver!, handCard: card });
         }, 700);
 
         return () => clearTimeout(timer);
@@ -1109,19 +1182,19 @@ function FlowerRivers() {
     }, [phase, yakuPlayer]);
 
     // --- HUMAN HANDLERS ---
-    const handleDropInRiver = (ri) => {
+    const handleDropInRiver = (ri: number) => {
         if (phase === 'DEALING' && isHumanDealer && drawnCard) {
             dispatch({ type: 'DROP_IN_RIVER', riverIdx: ri });
         }
     };
 
-    const handleSelectCard = (card) => {
+    const handleSelectCard = (card: Card) => {
         if ((phase === 'CAPTURING' || phase === 'FORCED_CAPTURE') && isHumanCapturer) {
             dispatch({ type: 'SELECT_HAND_CARD', card });
         }
     };
 
-    const handleRiverClick = (ri) => {
+    const handleRiverClick = (ri: number) => {
         if (phase === 'DEALING' && isHumanDealer && drawnCard) {
             handleDropInRiver(ri);
             return;
@@ -1141,7 +1214,7 @@ function FlowerRivers() {
         }
     };
 
-    const handleDiscard = (ri) => {
+    const handleDiscard = (ri: number) => {
         if (phase !== 'CAPTURING' || !selectedHandCard || !isHumanCapturer) return;
         dispatch({ type: 'DISCARD_TO_RIVER', riverIdx: ri, handCard: selectedHandCard });
     };
@@ -1187,28 +1260,28 @@ function FlowerRivers() {
                 <div id="round-over-title" style={{ fontSize: 32, fontWeight: 700, color: COLORS.red, marginBottom: 16 }}>
                     Round {round} Complete
                 </div>
-                {info.winner === -1 ? (
+                {info && info.winner === -1 ? (
                     <div id="round-over-draw-info" style={{ fontSize: 18, marginBottom: 12 }}>
                         Draw! Points doubled next round.
                     </div>
                 ) : (
-                        <div id="round-over-winner-info" style={{ textAlign: 'center', marginBottom: 16 }}>
-                            <div id="round-over-winner-text" style={{ fontSize: 20, marginBottom: 8 }}>
-                            {info.winner === 0 ? 'You' : 'AI'} won the round!
+                    <div id="round-over-winner-info" style={{ textAlign: 'center', marginBottom: 16 }}>
+                        <div id="round-over-winner-text" style={{ fontSize: 20, marginBottom: 8 }}>
+                            {info && info.winner === 0 ? 'You' : 'AI'} won the round!
                         </div>
-                        {info.yakuList.map(y => (
+                        {info && info.yakuList.map(y => (
                             <div key={y.name} style={{ fontSize: 14, color: COLORS.red }}>
                                 {y.name}: {y.points} pts
                             </div>
                         ))}
-                            <div id="round-over-multiplier" style={{ marginTop: 8, fontSize: 13, color: COLORS.pink }}>
-                            Base: {info.basePoints}
-                            {info.sevenBonus && ' × 2 (7+ bonus)'}
-                            {info.oppKoikoi > 0 && ` × ${Math.pow(2, info.oppKoikoi)} (opponent koi-koi)`}
-                            {info.drawMultiplier > 1 && ` × ${info.drawMultiplier} (draw bonus)`}
+                        <div id="round-over-multiplier" style={{ marginTop: 8, fontSize: 13, color: COLORS.pink }}>
+                            Base: {info && info.basePoints}
+                            {info && info.sevenBonus && ' × 2 (7+ bonus)'}
+                            {info && info.oppKoikoi !== undefined && info.oppKoikoi > 0 && ` × ${Math.pow(2, info.oppKoikoi)} (opponent koi-koi)`}
+                            {info && info.drawMultiplier > 1 && ` × ${info.drawMultiplier} (draw bonus)`}
                         </div>
-                            <div id="round-over-final-points" style={{ fontSize: 22, fontWeight: 700, color: COLORS.red, marginTop: 6 }}>
-                            = {info.finalPoints} points
+                        <div id="round-over-final-points" style={{ fontSize: 22, fontWeight: 700, color: COLORS.red, marginTop: 6 }}>
+                            = {info && info.finalPoints} points
                         </div>
                     </div>
                 )}
@@ -1281,7 +1354,7 @@ function FlowerRivers() {
 
     // --- MAIN GAME BOARD ---
     // Determine river highlights
-    const getRiverHighlight = (ri) => {
+    const getRiverHighlight = (ri: number): RiverHighlightType => {
         if (phase === 'DEALING' && isHumanDealer && drawnCard && !riversUsedThisTurn[ri]) {
             return 'drop';
         }
@@ -1294,7 +1367,7 @@ function FlowerRivers() {
         return null;
     };
 
-    const showDiscardButton = (ri) => {
+    const showDiscardButton = (_ri: number): boolean => {
         return phase === 'CAPTURING' && isHumanCapturer && selectedHandCard !== null;
     };
 
@@ -1302,12 +1375,12 @@ function FlowerRivers() {
     const isCapturingPhase = (phase === 'CAPTURING' || phase === 'FORCED_CAPTURE') && isHumanCapturer;
 
     // Which hand card IDs to highlight (when hovering a river, or any-match when idle)
-    const highlightedHandIds = (() => {
+    const highlightedHandIds: Set<string> | null = (() => {
         if (!isCapturingPhase) return null;
         if (hoveredRiver !== null) {
             const river = rivers[hoveredRiver];
             if (river.length === 0) return null;
-            const ids = new Set();
+            const ids = new Set<string>();
             for (const card of hands[0]) {
                 if (canCaptureRiver(card, river)) ids.add(card.id);
             }
@@ -1315,7 +1388,7 @@ function FlowerRivers() {
         }
         // No river hovered — highlight cards that match any river
         if (!hoveredHandCard) {
-            const ids = new Set();
+            const ids = new Set<string>();
             for (const card of hands[0]) {
                 for (let ri = 0; ri < 3; ri++) {
                     if (rivers[ri].length > 0 && canCaptureRiver(card, rivers[ri])) {
@@ -1330,9 +1403,9 @@ function FlowerRivers() {
     })();
 
     // Which river indices to highlight (when hovering a hand card)
-    const highlightedRiverSet = (() => {
+    const highlightedRiverSet: Set<number> | null = (() => {
         if (!isCapturingPhase || !hoveredHandCard) return null;
-        const set = new Set();
+        const set = new Set<number>();
         for (let ri = 0; ri < 3; ri++) {
             if (rivers[ri].length > 0 && canCaptureRiver(hoveredHandCard, rivers[ri])) set.add(ri);
         }
@@ -1354,9 +1427,9 @@ function FlowerRivers() {
     } else if (phase === 'CAPTURING' && isHumanCapturer && selectedHandCard) {
         statusText = 'Click a river to capture or discard.';
     } else if (phase === 'FORCED_CAPTURE' && isHumanCapturer && !selectedHandCard) {
-        statusText = `Lightning! Select a card to capture River ${lightningRiver + 1}.`;
+        statusText = `Lightning! Select a card to capture River ${lightningRiver !== null ? lightningRiver + 1 : ''}.`;
     } else if (phase === 'FORCED_CAPTURE' && isHumanCapturer && selectedHandCard) {
-        statusText = `Click River ${lightningRiver + 1} to capture it.`;
+        statusText = `Click River ${lightningRiver !== null ? lightningRiver + 1 : ''} to capture it.`;
     } else if (phase === 'DEALING' && !isHumanDealer) {
         statusText = 'AI is dealing...';
     } else if ((phase === 'CAPTURING' || phase === 'FORCED_CAPTURE') && !isHumanCapturer) {
@@ -1426,9 +1499,9 @@ function FlowerRivers() {
                         {deck.length > 0 ? (
                             <CardView card={CARDS[0]} faceDown />
                         ) : (
-                                <div id="deck-empty" style={{
+                            <div id="deck-empty" style={{
                                 width: CARD_W, height: CARD_H,
-                                    border: `2px dashed ${COLORS.separator}`,
+                                border: `2px dashed ${COLORS.separator}`,
                                 borderRadius: 4,
                             }} />
                         )}
