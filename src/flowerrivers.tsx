@@ -14,7 +14,7 @@ import {
 } from './types';
 
 // --- DECK DEFINITION ---
-const getWikiUrl = (filename: string): string =>
+const getWikiUrl = (filename: string) =>
     `https://commons.wikimedia.org/wiki/Special:FilePath/${filename}`;
 
 const CARDS: Card[] = [
@@ -93,12 +93,12 @@ const _preloaded = typeof window !== 'undefined'
     : [];
 
 // --- CARD HELPERS ---
-const isLightning = (c: Card): boolean => c.id === '11-junk-lightning';
-const isRainMan = (c: Card): boolean => c.id === '11-bright-rainman';
-const isWillow = (c: Card): boolean => c.month === 11;
+const isLightning = (c: Card) => c.id === '11-junk-lightning';
+const isRainMan = (c: Card) => c.id === '11-bright-rainman';
+const isWillow = (c: Card) => c.month === 11;
 
-const hasCard = (cards: Card[], id: string): boolean => cards.some(c => c.id === id);
-const countType = (cards: Card[], type: CardType): number => cards.filter(c => c.type === type).length;
+const hasCard = (cards: Card[], id: string) => cards.some(c => c.id === id);
+const countType = (cards: Card[], type: CardType) => cards.filter(c => c.type === type).length;
 
 // --- YAKU DEFINITIONS ---
 const YAKU_DEFS: YakuDef[] = [
@@ -178,7 +178,7 @@ export function computeYaku(captured: Card[]): YakuResult {
     return { yakuList: matched, total };
 }
 
-function nonJunkPoints(yakuList: YakuEntry[]): number {
+function nonJunkPoints(yakuList: YakuEntry[]) {
     return yakuList.filter(y => !y.isJunk).reduce((s, y) => s + y.points, 0);
 }
 
@@ -192,7 +192,7 @@ function shuffle(arr: Card[]): Card[] {
     return a;
 }
 
-function canCaptureRiver(handCard: Card, river: Card[]): boolean {
+function canCaptureRiver(handCard: Card, river: Card[]) {
     if (river.length === 0) return false;
     // Lightning from hand is wild — captures any river
     if (isLightning(handCard)) return true;
@@ -206,7 +206,7 @@ function canCaptureRiver(handCard: Card, river: Card[]): boolean {
     return river.some(c => c.month === handCard.month);
 }
 
-function riverHasLightningCard(river: Card[]): boolean {
+function riverHasLightningCard(river: Card[]) {
     return river.some(isLightning);
 }
 
@@ -600,7 +600,7 @@ function advanceTurn(state: GameState): GameState {
 
 // --- AI LOGIC ---
 // Score a potential capture for AI: how much yaku-building value does it add?
-function aiScoreCapture(aiCaptured: Card[], riverCards: Card[], handCard: Card): number {
+function aiScoreCapture(aiCaptured: Card[], riverCards: Card[], handCard: Card) {
     const combined = [...aiCaptured, ...riverCards, handCard];
     const currentYaku = computeYaku(aiCaptured);
     const newYaku = computeYaku(combined);
@@ -619,7 +619,7 @@ function aiScoreCapture(aiCaptured: Card[], riverCards: Card[], handCard: Card):
 
 // AI chooses where to drop a drawn card (dealing phase)
 // Does NOT look at opponent's hand — infers threat from their captured cards
-function aiChooseRiver(state: GameState): number {
+function aiChooseRiver(state: GameState) {
     const available = [0, 1, 2].filter(i => !state.riversUsedThisTurn[i]);
     if (available.length === 0) return 0;
     if (available.length === 1) return available[0];
@@ -782,7 +782,7 @@ function aiChooseForcedCaptureCard(state: GameState): Card {
 }
 
 // AI koikoi decision: weighted by turns remaining
-function aiDecideKoikoi(state: GameState): boolean {
+function aiDecideKoikoi(state: GameState) {
     const yaku = computeYaku(state.captured[1]);
     const pts = yaku.total;
     if (pts >= 12) return false; // very high score — stop to lock it in
