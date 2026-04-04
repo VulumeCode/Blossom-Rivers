@@ -1,25 +1,139 @@
 import { describe, it, expect } from 'vitest';
-import { computeYaku } from './flowerrivers';
+import { computeYaku, CARDS } from './flowerrivers';
+import { AnimalCardName, BrightCardName, Card, RibbonCardName, JunkCardName } from './types';
+
+
+const brights = Object.fromEntries(CARDS.filter(c => c.type == "bright").map(c => [c.name, c])) as Record<BrightCardName, Card>;
+const ribbons = Object.fromEntries(CARDS.filter(c => c.type == "ribbon").map(c => [c.name, c])) as Record<RibbonCardName, Card>;
+const animals = Object.fromEntries(CARDS.filter(c => c.type == "animal").map(c => [c.name, c])) as Record<AnimalCardName, Card>;
+const junks = Object.fromEntries(CARDS.filter(c => c.type == "junk").map(c => [c.name, c])) as Record<JunkCardName, Card>;
+
+
 
 describe('computeYaku', () => {
-  it('returns empty yakuList and zero total for empty captured pile', () => {
+  it('returns nothing for empty captured pile', () => {
     const result = computeYaku([]);
     expect(result.yakuList).toEqual([]);
     expect(result.total).toBe(0);
   });
 
-  it.todo('returns Three Brights for 3 non-rainman brights');
-  it.todo('returns Rainy Four Brights when rain man + 3 other brights are captured');
-  it.todo('returns Four Brights for 4 brights without rain man');
-  it.todo('returns Five Brights for all 5 brights');
-  it.todo('returns Poetry Ribbons for months 1, 2, 3 ribbons');
-  it.todo('returns Blue Ribbons for months 6, 9, 10 ribbons');
-  it.todo('returns Boar-Deer-Butterfly for months 7, 10, 6 animals');
-  it.todo('returns Flower Viewing for Cherry Curtain + Chrysanthemum Sake');
-  it.todo('returns Moon Viewing for Pampas Moon + Chrysanthemum Sake');
-  it.todo('returns Animals yaku at 5+ animals');
-  it.todo('returns Ribbons yaku at 5+ ribbons');
-  it.todo('returns Junk yaku at 10+ junk');
+  it('returns Three Brights for 3 non-rainman brights', () => {
+    const result = computeYaku([
+      brights["Pine Crane"], brights["Cherry Curtain"], brights["Pampas Moon"]]);
+    expect(result.yakuList.map(y => y.name)).toEqual(["Three Brights"]);
+    expect(result.total).toBe(6);
+  });
+
+  it('returns Rainy Four Brights when rain man + 3 other brights are captured', () => {
+    const result = computeYaku([
+      brights["Pine Crane"], brights["Cherry Curtain"], brights["Pampas Moon"], brights["Willow Rain Man"]]);
+    expect(result.yakuList.map(y => y.name)).toEqual(["Rainy Four Brights"]);
+    expect(result.total).toBe(7);
+  });
+
+  it('returns Four Brights for 4 brights without rain man', () => {
+    const result = computeYaku([
+      brights["Pine Crane"], brights["Cherry Curtain"], brights["Pampas Moon"], brights["Paulownia Phoenix"]]);
+    expect(result.yakuList.map(y => y.name)).toEqual(["Four Brights"]);
+    expect(result.total).toBe(8);
+  });
+
+  it('returns Five Brights for all 5 brights', () => {
+    const result = computeYaku([
+      brights["Pine Crane"], brights["Cherry Curtain"], brights["Pampas Moon"], brights["Willow Rain Man"], brights["Paulownia Phoenix"]]);
+    expect(result.yakuList.map(y => y.name)).toEqual(["Five Brights"]);
+    expect(result.total).toBe(15);
+  });
+
+  it('returns Poetry Ribbons for months 1, 2, 3 ribbons', () => {
+    const result = computeYaku([
+      ribbons["Cherry Poetry"], ribbons["Pine Poetry"], ribbons["Plum Poetry"]]);
+    expect(result.yakuList.map(y => y.name)).toEqual(["Poetry Ribbons"]);
+    expect(result.total).toBe(5);
+  });
+
+  it('returns Poetry Ribbons for months 1, 2, 3 ribbons + other ribbons', () => {
+    const result = computeYaku([
+      ribbons["Cherry Poetry"], ribbons["Pine Poetry"], ribbons["Plum Poetry"],
+      ribbons["Chrysanthemum Blue"]]);
+    expect(result.yakuList.map(y => y.name)).toEqual(["Poetry Ribbons"]);
+    expect(result.total).toBe(5);
+  });
+
+  it('returns Blue Ribbons for months 6, 9, 10 ribbons', () => {
+    const result = computeYaku([
+      ribbons["Maple Blue"], ribbons["Peony Blue"], ribbons["Chrysanthemum Blue"]]);
+    expect(result.yakuList.map(y => y.name)).toEqual(["Blue Ribbons"]);
+    expect(result.total).toBe(5);
+  });
+
+  it('returns Blue Ribbons for months 6, 9, 10 ribbons + other ribbons', () => {
+    const result = computeYaku([
+      ribbons["Maple Blue"], ribbons["Peony Blue"], ribbons["Chrysanthemum Blue"],
+      ribbons["Cherry Poetry"]]);
+    expect(result.yakuList.map(y => y.name)).toEqual(["Blue Ribbons"]);
+    expect(result.total).toBe(5);
+  });
+
+  it('returns nothing for 3 random ribbons', () => {
+    const result = computeYaku([
+      ribbons["Maple Blue"],
+      ribbons["Iris Plain"],
+      ribbons["Cherry Poetry"]]);
+    expect(result.yakuList).toEqual([]);
+    expect(result.total).toBe(0);
+  });
+
+  it('returns Boar-Deer-Butterfly for months 7, 10, 6 animals', () => {
+    const result = computeYaku([
+      animals["Clover Boar"], animals["Maple Deer"], animals["Peony Butterflies"]]);
+    expect(result.yakuList.map(y => y.name)).toEqual(["Boar-Deer-Butterfly"]);
+    expect(result.total).toBe(5);
+  });
+
+  it('returns Flower Viewing for Cherry Curtain + Chrysanthemum Sake', () => {
+    const result = computeYaku([
+      brights["Cherry Curtain"], animals["Chrysanthemum Sake"]]);
+    expect(result.yakuList.map(y => y.name)).toEqual(["Flower Viewing"]);
+    expect(result.total).toBe(5);
+  });
+
+  it('returns Moon Viewing for Pampas Moon + Chrysanthemum Sake', () => {
+    const result = computeYaku([
+      brights["Pampas Moon"], animals["Chrysanthemum Sake"]]);
+    expect(result.yakuList.map(y => y.name)).toEqual(["Moon Viewing"]);
+    expect(result.total).toBe(5);
+  });
+
+  it('returns Animals yaku at 5+ animals', () => {
+    const result = computeYaku([
+      animals["Chrysanthemum Sake"],
+      animals["Maple Deer"],
+      animals["Peony Butterflies"],
+      animals["Iris Bridge"],
+      animals["Wisteria Cuckoo"],
+    ]);
+    expect(result.yakuList.map(y => y.name)).toEqual(["Animals"]);
+    expect(result.total).toBe(1);
+  });
+
+  it('returns Ribbons yaku at 5+ ribbons', () => {
+    const result = computeYaku([
+      ribbons["Cherry Poetry"],
+      ribbons["Chrysanthemum Blue"],
+      ribbons["Clover Plain"],
+      ribbons["Iris Plain"],
+      ribbons["Maple Blue"],
+    ]);
+    expect(result.yakuList.map(y => y.name)).toEqual(["Ribbons"]);
+    expect(result.total).toBe(1);
+  });
+
+  it('returns Junk yaku at 10+ junk', () => {
+    const result = computeYaku(Object.values(junks).slice(0, 10));
+    expect(result.yakuList.map(y => y.name)).toEqual(["Junk"]);
+    expect(result.total).toBe(1);
+  });
+
   it.todo('awards extra points for each card over threshold in Animals/Ribbons/Junk');
-  it.todo('only highest bright group counts, not multiple bright yaku');
 });

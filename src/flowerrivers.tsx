@@ -6,7 +6,6 @@ import {
     YakuDef,
     YakuEntry,
     YakuResult,
-    GamePhase,
     RiverHighlightType,
     RoundScoreInfo,
     GameState,
@@ -16,7 +15,7 @@ import {
 // --- DECK DEFINITION ---
 const getWikiUrl = (filename: string) => `/cards/${filename}`;
 
-const CARDS: Card[] = [
+export const CARDS: Card[] = [
     // 1: Pine
     { id: '1-bright', month: 1, type: 'bright', name: 'Pine Crane', img: getWikiUrl('Hanafuda_January_Hikari.svg') },
     { id: '1-ribbon', month: 1, type: 'ribbon', name: 'Pine Poetry', img: getWikiUrl('Hanafuda_January_Tanzaku.svg') },
@@ -131,11 +130,11 @@ const YAKU_DEFS: YakuDef[] = [
         check: (c) => hasCard(c, '7-animal') && hasCard(c, '10-animal') && hasCard(c, '6-animal'),
     },
     {
-        name: 'Flower Viewing', points: 3, isJunk: false,
+        name: 'Flower Viewing', points: 5, isJunk: false,
         check: (c) => hasCard(c, '3-bright') && hasCard(c, '9-animal'),
     },
     {
-        name: 'Moon Viewing', points: 3, isJunk: false,
+        name: 'Moon Viewing', points: 5, isJunk: false,
         check: (c) => hasCard(c, '8-bright') && hasCard(c, '9-animal'),
     },
     {

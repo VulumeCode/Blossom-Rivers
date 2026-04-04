@@ -1,15 +1,143 @@
-export type CardType = 'bright' | 'animal' | 'ribbon' | 'junk';
+export type CardType =
+  | 'bright'
+  | 'animal'
+  | 'ribbon'
+  | 'junk'
+
+export type CardId =
+  | '1-bright'
+  | '1-ribbon'
+  | '1-junk-1'
+  | '1-junk-2'
+  | '2-animal'
+  | '2-ribbon'
+  | '2-junk-1'
+  | '2-junk-2'
+  | '3-bright'
+  | '3-ribbon'
+  | '3-junk-1'
+  | '3-junk-2'
+  | '4-animal'
+  | '4-ribbon'
+  | '4-junk-1'
+  | '4-junk-2'
+  | '5-animal'
+  | '5-ribbon'
+  | '5-junk-1'
+  | '5-junk-2'
+  | '6-animal'
+  | '6-ribbon'
+  | '6-junk-1'
+  | '6-junk-2'
+  | '7-animal'
+  | '7-ribbon'
+  | '7-junk-1'
+  | '7-junk-2'
+  | '8-bright'
+  | '8-animal'
+  | '8-junk-1'
+  | '8-junk-2'
+  | '9-animal'
+  | '9-ribbon'
+  | '9-junk-1'
+  | '9-junk-2'
+  | '10-animal'
+  | '10-ribbon'
+  | '10-junk-1'
+  | '10-junk-2'
+  | '11-bright-rainman'
+  | '11-animal'
+  | '11-ribbon'
+  | '11-junk-lightning'
+  | '12-bright'
+  | '12-junk-1'
+  | '12-junk-2'
+  | '12-junk-3'
+
+export type BrightCardName =
+  | 'Pine Crane'
+  | 'Cherry Curtain'
+  | 'Pampas Moon'
+  | 'Willow Rain Man'
+  | 'Paulownia Phoenix'
+
+export type PoetyCardName =
+  | 'Pine Poetry'
+  | 'Plum Poetry'
+  | 'Cherry Poetry'
+
+export type BlueCardName =
+  | 'Peony Blue'
+  | 'Chrysanthemum Blue'
+  | 'Maple Blue'
+
+export type PlainCardName =
+  | 'Wisteria Plain'
+  | 'Iris Plain'
+  | 'Clover Plain'
+  | 'Willow Plain'
+
+export type RibbonCardName =
+  | PoetyCardName
+  | BlueCardName
+  | PlainCardName
+
+export type AnimalCardName =
+  | 'Plum Nightingale'
+  | 'Wisteria Cuckoo'
+  | 'Iris Bridge'
+  | 'Peony Butterflies'
+  | 'Clover Boar'
+  | 'Pampas Geese'
+  | 'Chrysanthemum Sake'
+  | 'Maple Deer'
+  | 'Willow Swallow'
+
+export type JunkCardName =
+  | 'Pine'
+  | 'Plum'
+  | 'Cherry'
+  | 'Wisteria'
+  | 'Iris'
+  | 'Peony'
+  | 'Clover'
+  | 'Pampas'
+  | 'Chrysanthemum'
+  | 'Maple'
+  | 'Willow Lightning'
+  | 'Paulownia';
+
+export type CardName =
+  | BrightCardName
+  | RibbonCardName
+  | AnimalCardName
+  | JunkCardName
+
 
 export interface Card {
-  id: string;
+  id: CardId;
   month: number;
   type: CardType;
-  name: string;
+  name: CardName;
   img: string;
 }
 
+export type YakuName =
+  | 'Five Brights'
+  | 'Four Brights'
+  | 'Rainy Four Brights'
+  | 'Three Brights'
+  | 'Poetry Ribbons'
+  | 'Blue Ribbons'
+  | 'Boar-Deer-Butterfly'
+  | 'Flower Viewing'
+  | 'Moon Viewing'
+  | 'Animals'
+  | 'Ribbons'
+  | 'Junk';
+
 export interface YakuEntry {
-  name: string;
+  name: YakuName;
   points: number;
   isJunk: boolean;
 }
@@ -20,11 +148,11 @@ export interface YakuResult {
 }
 
 export interface YakuDef {
-  name: string;
+  name: YakuName;
   points: number;
   isJunk: boolean;
   check: (cards: Card[]) => boolean;
-  group?: string;
+  group?: CardType;
   rank?: number;
   extra?: (cards: Card[]) => number;
 }
@@ -38,7 +166,8 @@ export type GamePhase =
   | 'ROUND_OVER'
   | 'GAME_OVER';
 
-export type RiverHighlightType = 'capture' | 'forced' | 'drop' | null;
+export type RiverHighlightType =
+  | 'capture' | 'forced' | 'drop' | null;
 
 export interface RoundScoreInfo {
   winner: number;
