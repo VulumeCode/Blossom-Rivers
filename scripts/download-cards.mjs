@@ -4,7 +4,7 @@ import { setTimeout } from 'timers/promises';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const OUT_DIR = resolve(__dirname, '../public/cards');
+const OUT_DIR = resolve(__dirname, '../src/cards');
 
 await mkdir(OUT_DIR, { recursive: true });
 

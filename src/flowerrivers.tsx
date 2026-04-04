@@ -11,81 +11,75 @@ import {
     GameState,
     GameAction,
 } from './types';
+import { CARD_SVGS } from './cardImages';
 
 // --- DECK DEFINITION ---
-const getWikiUrl = (filename: string) => `/cards/${filename}`;
+const getCardImg = (filename: string) => CARD_SVGS[filename];
 
 export const CARDS: Card[] = [
     // 1: Pine
-    { id: '1-bright', month: 1, type: 'bright', name: 'Pine Crane', img: getWikiUrl('Hanafuda_January_Hikari.svg') },
-    { id: '1-ribbon', month: 1, type: 'ribbon', name: 'Pine Poetry', img: getWikiUrl('Hanafuda_January_Tanzaku.svg') },
-    { id: '1-junk-1', month: 1, type: 'junk', name: 'Pine', img: getWikiUrl('Hanafuda_January_Kasu_1.svg') },
-    { id: '1-junk-2', month: 1, type: 'junk', name: 'Pine', img: getWikiUrl('Hanafuda_January_Kasu_2.svg') },
+    { id: '1-bright', month: 1, type: 'bright', name: 'Pine Crane', img: getCardImg('Hanafuda_January_Hikari.svg') },
+    { id: '1-ribbon', month: 1, type: 'ribbon', name: 'Pine Poetry', img: getCardImg('Hanafuda_January_Tanzaku.svg') },
+    { id: '1-junk-1', month: 1, type: 'junk', name: 'Pine', img: getCardImg('Hanafuda_January_Kasu_1.svg') },
+    { id: '1-junk-2', month: 1, type: 'junk', name: 'Pine', img: getCardImg('Hanafuda_January_Kasu_2.svg') },
     // 2: Plum
-    { id: '2-animal', month: 2, type: 'animal', name: 'Plum Nightingale', img: getWikiUrl('Hanafuda_February_Tane.svg') },
-    { id: '2-ribbon', month: 2, type: 'ribbon', name: 'Plum Poetry', img: getWikiUrl('Hanafuda_February_Tanzaku.svg') },
-    { id: '2-junk-1', month: 2, type: 'junk', name: 'Plum', img: getWikiUrl('Hanafuda_February_Kasu_1.svg') },
-    { id: '2-junk-2', month: 2, type: 'junk', name: 'Plum', img: getWikiUrl('Hanafuda_February_Kasu_2.svg') },
+    { id: '2-animal', month: 2, type: 'animal', name: 'Plum Nightingale', img: getCardImg('Hanafuda_February_Tane.svg') },
+    { id: '2-ribbon', month: 2, type: 'ribbon', name: 'Plum Poetry', img: getCardImg('Hanafuda_February_Tanzaku.svg') },
+    { id: '2-junk-1', month: 2, type: 'junk', name: 'Plum', img: getCardImg('Hanafuda_February_Kasu_1.svg') },
+    { id: '2-junk-2', month: 2, type: 'junk', name: 'Plum', img: getCardImg('Hanafuda_February_Kasu_2.svg') },
     // 3: Cherry
-    { id: '3-bright', month: 3, type: 'bright', name: 'Cherry Curtain', img: getWikiUrl('Hanafuda_March_Hikari.svg') },
-    { id: '3-ribbon', month: 3, type: 'ribbon', name: 'Cherry Poetry', img: getWikiUrl('Hanafuda_March_Tanzaku.svg') },
-    { id: '3-junk-1', month: 3, type: 'junk', name: 'Cherry', img: getWikiUrl('Hanafuda_March_Kasu_1.svg') },
-    { id: '3-junk-2', month: 3, type: 'junk', name: 'Cherry', img: getWikiUrl('Hanafuda_March_Kasu_2.svg') },
+    { id: '3-bright', month: 3, type: 'bright', name: 'Cherry Curtain', img: getCardImg('Hanafuda_March_Hikari.svg') },
+    { id: '3-ribbon', month: 3, type: 'ribbon', name: 'Cherry Poetry', img: getCardImg('Hanafuda_March_Tanzaku.svg') },
+    { id: '3-junk-1', month: 3, type: 'junk', name: 'Cherry', img: getCardImg('Hanafuda_March_Kasu_1.svg') },
+    { id: '3-junk-2', month: 3, type: 'junk', name: 'Cherry', img: getCardImg('Hanafuda_March_Kasu_2.svg') },
     // 4: Wisteria
-    { id: '4-animal', month: 4, type: 'animal', name: 'Wisteria Cuckoo', img: getWikiUrl('Hanafuda_April_Tane.svg') },
-    { id: '4-ribbon', month: 4, type: 'ribbon', name: 'Wisteria Plain', img: getWikiUrl('Hanafuda_April_Tanzaku.svg') },
-    { id: '4-junk-1', month: 4, type: 'junk', name: 'Wisteria', img: getWikiUrl('Hanafuda_April_Kasu_1.svg') },
-    { id: '4-junk-2', month: 4, type: 'junk', name: 'Wisteria', img: getWikiUrl('Hanafuda_April_Kasu_2.svg') },
+    { id: '4-animal', month: 4, type: 'animal', name: 'Wisteria Cuckoo', img: getCardImg('Hanafuda_April_Tane.svg') },
+    { id: '4-ribbon', month: 4, type: 'ribbon', name: 'Wisteria Plain', img: getCardImg('Hanafuda_April_Tanzaku.svg') },
+    { id: '4-junk-1', month: 4, type: 'junk', name: 'Wisteria', img: getCardImg('Hanafuda_April_Kasu_1.svg') },
+    { id: '4-junk-2', month: 4, type: 'junk', name: 'Wisteria', img: getCardImg('Hanafuda_April_Kasu_2.svg') },
     // 5: Iris
-    { id: '5-animal', month: 5, type: 'animal', name: 'Iris Bridge', img: getWikiUrl('Hanafuda_May_Tane.svg') },
-    { id: '5-ribbon', month: 5, type: 'ribbon', name: 'Iris Plain', img: getWikiUrl('Hanafuda_May_Tanzaku.svg') },
-    { id: '5-junk-1', month: 5, type: 'junk', name: 'Iris', img: getWikiUrl('Hanafuda_May_Kasu_1.svg') },
-    { id: '5-junk-2', month: 5, type: 'junk', name: 'Iris', img: getWikiUrl('Hanafuda_May_Kasu_2.svg') },
+    { id: '5-animal', month: 5, type: 'animal', name: 'Iris Bridge', img: getCardImg('Hanafuda_May_Tane.svg') },
+    { id: '5-ribbon', month: 5, type: 'ribbon', name: 'Iris Plain', img: getCardImg('Hanafuda_May_Tanzaku.svg') },
+    { id: '5-junk-1', month: 5, type: 'junk', name: 'Iris', img: getCardImg('Hanafuda_May_Kasu_1.svg') },
+    { id: '5-junk-2', month: 5, type: 'junk', name: 'Iris', img: getCardImg('Hanafuda_May_Kasu_2.svg') },
     // 6: Peony
-    { id: '6-animal', month: 6, type: 'animal', name: 'Peony Butterflies', img: getWikiUrl('Hanafuda_June_Tane.svg') },
-    { id: '6-ribbon', month: 6, type: 'ribbon', name: 'Peony Blue', img: getWikiUrl('Hanafuda_June_Tanzaku.svg') },
-    { id: '6-junk-1', month: 6, type: 'junk', name: 'Peony', img: getWikiUrl('Hanafuda_June_Kasu_1.svg') },
-    { id: '6-junk-2', month: 6, type: 'junk', name: 'Peony', img: getWikiUrl('Hanafuda_June_Kasu_2.svg') },
+    { id: '6-animal', month: 6, type: 'animal', name: 'Peony Butterflies', img: getCardImg('Hanafuda_June_Tane.svg') },
+    { id: '6-ribbon', month: 6, type: 'ribbon', name: 'Peony Blue', img: getCardImg('Hanafuda_June_Tanzaku.svg') },
+    { id: '6-junk-1', month: 6, type: 'junk', name: 'Peony', img: getCardImg('Hanafuda_June_Kasu_1.svg') },
+    { id: '6-junk-2', month: 6, type: 'junk', name: 'Peony', img: getCardImg('Hanafuda_June_Kasu_2.svg') },
     // 7: Bush Clover
-    { id: '7-animal', month: 7, type: 'animal', name: 'Clover Boar', img: getWikiUrl('Hanafuda_July_Tane.svg') },
-    { id: '7-ribbon', month: 7, type: 'ribbon', name: 'Clover Plain', img: getWikiUrl('Hanafuda_July_Tanzaku.svg') },
-    { id: '7-junk-1', month: 7, type: 'junk', name: 'Clover', img: getWikiUrl('Hanafuda_July_Kasu_1.svg') },
-    { id: '7-junk-2', month: 7, type: 'junk', name: 'Clover', img: getWikiUrl('Hanafuda_July_Kasu_2.svg') },
+    { id: '7-animal', month: 7, type: 'animal', name: 'Clover Boar', img: getCardImg('Hanafuda_July_Tane.svg') },
+    { id: '7-ribbon', month: 7, type: 'ribbon', name: 'Clover Plain', img: getCardImg('Hanafuda_July_Tanzaku.svg') },
+    { id: '7-junk-1', month: 7, type: 'junk', name: 'Clover', img: getCardImg('Hanafuda_July_Kasu_1.svg') },
+    { id: '7-junk-2', month: 7, type: 'junk', name: 'Clover', img: getCardImg('Hanafuda_July_Kasu_2.svg') },
     // 8: Pampas
-    { id: '8-bright', month: 8, type: 'bright', name: 'Pampas Moon', img: getWikiUrl('Hanafuda_August_Hikari.svg') },
-    { id: '8-animal', month: 8, type: 'animal', name: 'Pampas Geese', img: getWikiUrl('Hanafuda_August_Tane.svg') },
-    { id: '8-junk-1', month: 8, type: 'junk', name: 'Pampas', img: getWikiUrl('Hanafuda_August_Kasu_1.svg') },
-    { id: '8-junk-2', month: 8, type: 'junk', name: 'Pampas', img: getWikiUrl('Hanafuda_August_Kasu_2.svg') },
+    { id: '8-bright', month: 8, type: 'bright', name: 'Pampas Moon', img: getCardImg('Hanafuda_August_Hikari.svg') },
+    { id: '8-animal', month: 8, type: 'animal', name: 'Pampas Geese', img: getCardImg('Hanafuda_August_Tane.svg') },
+    { id: '8-junk-1', month: 8, type: 'junk', name: 'Pampas', img: getCardImg('Hanafuda_August_Kasu_1.svg') },
+    { id: '8-junk-2', month: 8, type: 'junk', name: 'Pampas', img: getCardImg('Hanafuda_August_Kasu_2.svg') },
     // 9: Chrysanthemum
-    { id: '9-animal', month: 9, type: 'animal', name: 'Chrysanthemum Sake', img: getWikiUrl('Hanafuda_September_Tane.svg') },
-    { id: '9-ribbon', month: 9, type: 'ribbon', name: 'Chrysanthemum Blue', img: getWikiUrl('Hanafuda_September_Tanzaku.svg') },
-    { id: '9-junk-1', month: 9, type: 'junk', name: 'Chrysanthemum', img: getWikiUrl('Hanafuda_September_Kasu_1.svg') },
-    { id: '9-junk-2', month: 9, type: 'junk', name: 'Chrysanthemum', img: getWikiUrl('Hanafuda_September_Kasu_2.svg') },
+    { id: '9-animal', month: 9, type: 'animal', name: 'Chrysanthemum Sake', img: getCardImg('Hanafuda_September_Tane.svg') },
+    { id: '9-ribbon', month: 9, type: 'ribbon', name: 'Chrysanthemum Blue', img: getCardImg('Hanafuda_September_Tanzaku.svg') },
+    { id: '9-junk-1', month: 9, type: 'junk', name: 'Chrysanthemum', img: getCardImg('Hanafuda_September_Kasu_1.svg') },
+    { id: '9-junk-2', month: 9, type: 'junk', name: 'Chrysanthemum', img: getCardImg('Hanafuda_September_Kasu_2.svg') },
     // 10: Maple
-    { id: '10-animal', month: 10, type: 'animal', name: 'Maple Deer', img: getWikiUrl('Hanafuda_October_Tane.svg') },
-    { id: '10-ribbon', month: 10, type: 'ribbon', name: 'Maple Blue', img: getWikiUrl('Hanafuda_October_Tanzaku.svg') },
-    { id: '10-junk-1', month: 10, type: 'junk', name: 'Maple', img: getWikiUrl('Hanafuda_October_Kasu_1.svg') },
-    { id: '10-junk-2', month: 10, type: 'junk', name: 'Maple', img: getWikiUrl('Hanafuda_October_Kasu_2.svg') },
+    { id: '10-animal', month: 10, type: 'animal', name: 'Maple Deer', img: getCardImg('Hanafuda_October_Tane.svg') },
+    { id: '10-ribbon', month: 10, type: 'ribbon', name: 'Maple Blue', img: getCardImg('Hanafuda_October_Tanzaku.svg') },
+    { id: '10-junk-1', month: 10, type: 'junk', name: 'Maple', img: getCardImg('Hanafuda_October_Kasu_1.svg') },
+    { id: '10-junk-2', month: 10, type: 'junk', name: 'Maple', img: getCardImg('Hanafuda_October_Kasu_2.svg') },
     // 11: Willow
-    { id: '11-bright-rainman', month: 11, type: 'bright', name: 'Willow Rain Man', img: getWikiUrl('Hanafuda_November_Hikari.svg') },
-    { id: '11-animal', month: 11, type: 'animal', name: 'Willow Swallow', img: getWikiUrl('Hanafuda_November_Tane.svg') },
-    { id: '11-ribbon', month: 11, type: 'ribbon', name: 'Willow Plain', img: getWikiUrl('Hanafuda_November_Tanzaku.svg') },
-    { id: '11-junk-lightning', month: 11, type: 'junk', name: 'Willow Lightning', img: getWikiUrl('Hanafuda_November_Kasu.svg') },
+    { id: '11-bright-rainman', month: 11, type: 'bright', name: 'Willow Rain Man', img: getCardImg('Hanafuda_November_Hikari.svg') },
+    { id: '11-animal', month: 11, type: 'animal', name: 'Willow Swallow', img: getCardImg('Hanafuda_November_Tane.svg') },
+    { id: '11-ribbon', month: 11, type: 'ribbon', name: 'Willow Plain', img: getCardImg('Hanafuda_November_Tanzaku.svg') },
+    { id: '11-junk-lightning', month: 11, type: 'junk', name: 'Willow Lightning', img: getCardImg('Hanafuda_November_Kasu.svg') },
     // 12: Paulownia
-    { id: '12-bright', month: 12, type: 'bright', name: 'Paulownia Phoenix', img: getWikiUrl('Hanafuda_December_Hikari.svg') },
-    { id: '12-junk-1', month: 12, type: 'junk', name: 'Paulownia', img: getWikiUrl('Hanafuda_December_Kasu_1.svg') },
-    { id: '12-junk-2', month: 12, type: 'junk', name: 'Paulownia', img: getWikiUrl('Hanafuda_December_Kasu_2.svg') },
-    { id: '12-junk-3', month: 12, type: 'junk', name: 'Paulownia', img: getWikiUrl('Hanafuda_December_Kasu_3.svg') },
+    { id: '12-bright', month: 12, type: 'bright', name: 'Paulownia Phoenix', img: getCardImg('Hanafuda_December_Hikari.svg') },
+    { id: '12-junk-1', month: 12, type: 'junk', name: 'Paulownia', img: getCardImg('Hanafuda_December_Kasu_1.svg') },
+    { id: '12-junk-2', month: 12, type: 'junk', name: 'Paulownia', img: getCardImg('Hanafuda_December_Kasu_2.svg') },
+    { id: '12-junk-3', month: 12, type: 'junk', name: 'Paulownia', img: getCardImg('Hanafuda_December_Kasu_3.svg') },
 ];
 
-const CARD_BACK_URL = getWikiUrl('Hanafuda_card_back.svg');
-
-// Preload images so they are in the browser cache before the user clicks Start
-const _preloaded = [...CARDS.map(c => c.img), CARD_BACK_URL].map(url => {
-    const img = new Image();
-    img.src = url;
-    return img;
-});
+const CARD_BACK_URL = getCardImg('Hanafuda_card_back.svg');
 
 // --- CARD HELPERS ---
 const isLightning = (c: Card) => c.id === '11-junk-lightning';
