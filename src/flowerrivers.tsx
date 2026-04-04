@@ -930,7 +930,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
             {showDiscard && (
                 <button
                     id="discard"
-                    className="noto-emoji"
+                    className="discard-card"
                     onClick={(e) => { e.stopPropagation(); onDiscard && onDiscard(); }}
                     style={{
                         width: CARD_W_RIVER,
@@ -953,27 +953,18 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 </button>
             )}
             {highlightType === 'capture' && (<div
-                className="noto-emoji"
+                className="river-icon"
                 style={{
-                    flexGrow: 1,
-                    textAlign: 'center',
-                    fontSize: 44,
                     color: COLORS.discardGlow,
                 }}>🫳</div>)}
             {highlightType === 'forced' && (<div
-                className="noto-emoji"
+                className="river-icon"
                 style={{
-                    flexGrow: 1,
-                    textAlign: 'center',
-                    fontSize: 44,
                     color: COLORS.forcedGlow,
                 }}>🫳</div>)}
             {highlightType === 'drop' && (<div
-                className="noto-emoji"
+                className="river-icon"
                 style={{
-                    flexGrow: 1,
-                    textAlign: 'center',
-                    fontSize: 44,
                     color: COLORS.discardGlow,
                 }}>🍂</div>)}
         </div>
