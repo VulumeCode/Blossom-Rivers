@@ -269,7 +269,7 @@ function startRound(state: GameState): GameState {
 }
 
 function gameReducer(state: GameState, action: GameAction): GameState {
-    console.dir(action);
+    console.log(action)
     switch (action.type) {
         case 'START_GAME': {
             const s = makeInitialState();
@@ -1092,6 +1092,8 @@ export function FlowerRivers() {
 
     const isHumanDealer = dealerIdx === 0;
     const isHumanCapturer = capturerIdx === 0;
+
+    useEffect(() => { if (message) console.log('message:', message); }, [message]);
 
     // --- AI EFFECTS ---
     // Auto-draw: whenever it's the dealing phase and no card is drawn yet, draw automatically
