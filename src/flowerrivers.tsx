@@ -984,19 +984,22 @@ function HandView({ id, cards, faceDown, selectedCard, onSelect, disabled, highl
             justifyContent: 'center',
             flexWrap: 'wrap',
         }}>
-            {cards.map(card => (
-                <CardView
-                    key={card.id}
-                    card={card}
-                    faceDown={faceDown}
-                    selected={selectedCard && selectedCard.id === card.id ? true : false}
-                    highlighted={!!(highlightedIds?.has(card.id))}
-                    onClick={!faceDown && onSelect ? () => onSelect(card) : undefined}
-                    onMouseEnter={!faceDown && onCardHover ? () => onCardHover(card) : undefined}
-                    onMouseLeave={onCardLeave}
-                    disabled={disabled}
-                />
-            ))}
+            {cards.map(card => {
+                const isRevealed = selectedCard && selectedCard.id === card.id;
+                return (
+                    <CardView
+                        key={card.id}
+                        card={card}
+                        faceDown={faceDown && !isRevealed}
+                        selected={!!isRevealed}
+                        highlighted={!!(highlightedIds?.has(card.id))}
+                        onClick={!faceDown && onSelect ? () => onSelect(card) : undefined}
+                        onMouseEnter={!faceDown && onCardHover ? () => onCardHover(card) : undefined}
+                        onMouseLeave={onCardLeave}
+                        disabled={disabled}
+                    />
+                );
+            })}
         </div>
     );
 }
@@ -1077,6 +1080,7 @@ export function FlowerRivers() {
     const [aiDelay] = useState(false);
     const [hoveredRiver, setHoveredRiver] = useState<number | null>(null);
     const [hoveredHandCard, setHoveredHandCard] = useState<Card | null>(null);
+    const [revealedAiCard, setRevealedAiCard] = useState<Card | null>(null);
 
     const resetHover = () => {
         setHoveredRiver(null);
@@ -1123,8 +1127,11 @@ export function FlowerRivers() {
     useEffect(() => {
         if (phase !== 'CAPTURING' || isHumanCapturer) return;
 
+        const action = aiChooseCaptureAction(state);
+        setRevealedAiCard(action.card);
+
         const timer = setTimeout(() => {
-            const action = aiChooseCaptureAction(state);
+            setRevealedAiCard(null);
             if (action.type === 'capture') {
                 dispatch({ type: 'CAPTURE_RIVER', riverIdx: action.riverIdx, handCard: action.card });
             } else {
@@ -1132,7 +1139,7 @@ export function FlowerRivers() {
             }
         }, 700);
 
-        return () => clearTimeout(timer);
+        return () => { clearTimeout(timer); setRevealedAiCard(null); };
     }, [phase, isHumanCapturer]);
 
     // AI forced capture
@@ -1450,7 +1457,9 @@ export function FlowerRivers() {
             }}>
                 <div id="ai-hand-row" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
                     <span style={{ fontSize: 12, color: COLORS.pink, minWidth: 30 }}>AI</span>
-                    <HandView id="ai-hand" cards={hands[1]} faceDown disabled />
+                    <HandView id="ai-hand" cards={hands[1]} faceDown disabled
+                        selectedCard={revealedAiCard}
+                    />
                     {koikoiCounts[1] > 0 && (
                         <span style={{ fontSize: 11, color: COLORS.red, fontWeight: 700 }}>
                             Koi-Koi ×{koikoiCounts[1]}
