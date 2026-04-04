@@ -798,22 +798,16 @@ const CARD_H_RIVER = Math.round(CARD_W_RIVER * 839 / 512);
 
 const COLORS = {
     bg: 'var(--color-bg)',
-    bgLight: 'var(--color-bg-light)',
     felt: 'var(--color-felt)',
     dark: 'var(--color-dark)',
-    darkOverlay: 'var(--color-dark-overlay)',
-    gold: 'var(--color-gold)',
     pink: 'var(--color-pink)',
     white: 'var(--color-text)',
     red: 'var(--color-red)',
-    blue: 'var(--color-blue)',
-    highlight: 'var(--color-highlight)',
     captureGlow: 'var(--color-capture-glow)',
     discardGlow: 'var(--color-discard-glow)',
     forcedGlow: 'var(--color-forced-glow)',
     hoverGlow: 'var(--color-hover-glow)',
     riverFrom: 'var(--color-river-from)',
-    riverMid: 'var(--color-river-mid)',
     riverTo: 'var(--color-river-to)',
     separator: 'var(--color-separator)',
     cardShadow: 'var(--color-card-shadow)',
@@ -906,7 +900,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 gap: 4,
                 padding: '6px 6px',
                 minHeight: CARD_H_RIVER + 16,
-                background: `linear-gradient(160deg, ${COLORS.riverFrom}, ${COLORS.riverMid})`,
+                background: `linear-gradient(160deg, ${COLORS.riverFrom}, ${COLORS.riverTo})`,
                 opacity: hoverHighlight && !highlightType ? 0.85 : 1,
                 outlineStyle: hasLightningCard || hasRainManCard
                     ? "dashed"
