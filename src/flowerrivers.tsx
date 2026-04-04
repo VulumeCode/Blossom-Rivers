@@ -982,7 +982,7 @@ interface HandViewProps {
     selectedCard?: Card | null;
     onSelect?: (card: Card) => void;
     disabled?: boolean;
-    highlightedIds?: Set<string> | null;
+    highlightedIds?: Set<string>;
     onCardHover?: (card: Card) => void;
     onCardLeave?: () => void;
 }
@@ -1002,7 +1002,7 @@ function HandView({ id, cards, faceDown, selectedCard, onSelect, disabled, highl
                     card={card}
                     faceDown={faceDown}
                     selected={selectedCard && selectedCard.id === card.id ? true : false}
-                    highlighted={highlightedIds && highlightedIds.has(card.id) ? true : false}
+                    highlighted={!!(highlightedIds?.has(card.id))}
                     onClick={!faceDown && onSelect ? () => onSelect(card) : undefined}
                     onMouseEnter={!faceDown && onCardHover ? () => onCardHover(card) : undefined}
                     onMouseLeave={onCardLeave}
@@ -1358,31 +1358,27 @@ export function FlowerRivers() {
     const isCapturingPhase = (phase === 'CAPTURING' || phase === 'FORCED_CAPTURE') && isHumanCapturer;
 
     // Which hand card IDs to highlight (when hovering a river, or any-match when idle)
-    const highlightedHandIds: Set<string> | null = (() => {
-        if (!isCapturingPhase) return null;
+    const highlightedHandIds: Set<string> = (() => {
+        const ids = new Set<string>();
+        if (!isCapturingPhase) return ids;
         if (hoveredRiver !== null) {
             const river = rivers[hoveredRiver];
-            if (river.length === 0) return null;
-            const ids = new Set<string>();
+            if (river.length === 0) return ids;
             for (const card of hands[0]) {
                 if (canCaptureRiver(card, river)) ids.add(card.id);
             }
-            return ids.size > 0 ? ids : null;
+            return ids;
         }
         // No river hovered — highlight cards that match any river
-        if (!hoveredHandCard) {
-            const ids = new Set<string>();
-            for (const card of hands[0]) {
-                for (let ri = 0; ri < 3; ri++) {
-                    if (rivers[ri].length > 0 && canCaptureRiver(card, rivers[ri])) {
-                        ids.add(card.id);
-                        break;
-                    }
+        for (const card of hands[0]) {
+            for (let ri = 0; ri < 3; ri++) {
+                if (rivers[ri].length > 0 && canCaptureRiver(card, rivers[ri])) {
+                    ids.add(card.id);
+                    break;
                 }
             }
-            return ids.size > 0 ? ids : null;
         }
-        return null;
+        return ids;
     })();
 
     // Which river indices to highlight (when hovering a hand card)
