@@ -837,7 +837,7 @@ function CardView({ card, faceDown, onClick, selected, small, disabled, highligh
         height: h,
         borderRadius: 4,
         cursor: onClick && !disabled ? 'pointer' : 'default',
-        transition: 'transform 0.15s, outline-color 0.15s',
+        transition: 'transform 0.2s, outline-color 0.2s',
         transform: selected ? 'translateY(-8px)' : 'none',
         boxShadow: `0 1px 4px ${COLORS.cardShadow}`,
         opacity: disabled ? 0.5 : 1,
@@ -909,7 +909,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 marginLeft: "2px",
                 outlineColor: outlineColor,
                 cursor: onClick ? 'pointer' : 'default',
-                transition: 'border-color 0.2s, background 0.2s',
+                transition: 'outline-color 0.2s',
                 position: 'relative',
                 minWidth: 120,
             }}
