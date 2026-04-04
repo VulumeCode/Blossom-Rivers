@@ -808,7 +808,6 @@ const COLORS = {
     forcedGlow: 'var(--color-forced-glow)',
     hoverGlow: 'var(--color-hover-glow)',
     riverFrom: 'var(--color-river-from)',
-    riverTo: 'var(--color-river-to)',
     separator: 'var(--color-separator)',
     cardShadow: 'var(--color-card-shadow)',
     overlay: 'var(--color-overlay)',
@@ -900,7 +899,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 gap: 4,
                 padding: '6px 6px',
                 minHeight: CARD_H_RIVER + 16,
-                background: `linear-gradient(160deg, ${COLORS.riverFrom}, ${COLORS.riverTo})`,
+                background: `var(--gradient-river)`,
                 opacity: hoverHighlight && !highlightType ? 0.85 : 1,
                 outlineStyle: hasLightningCard || hasRainManCard
                     ? "dashed"
