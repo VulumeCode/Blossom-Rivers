@@ -201,10 +201,6 @@ function canCaptureRiver(handCard: Card, river: Card[]) {
     return river.some(c => c.month === handCard.month);
 }
 
-function riverHasLightningCard(river: Card[]) {
-    return river.some(isLightning);
-}
-
 interface DealResult {
     deck: Card[];
     hands: [Card[], Card[]];
