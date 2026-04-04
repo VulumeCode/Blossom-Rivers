@@ -369,7 +369,11 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
         case 'SELECT_HAND_CARD': {
             if (state.phase !== 'CAPTURING' && state.phase !== 'FORCED_CAPTURE') return state;
-            return { ...state, selectedHandCard: action.card };
+            if (action.card == state.selectedHandCard) {
+                return { ...state, selectedHandCard: null };
+            } else {
+                return { ...state, selectedHandCard: action.card };
+            }
         }
 
         case 'CAPTURE_RIVER': {
