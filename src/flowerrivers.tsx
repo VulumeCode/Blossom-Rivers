@@ -900,7 +900,6 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 padding: '6px 6px',
                 minHeight: CARD_H_RIVER + 16,
                 background: `var(--gradient-river)`,
-                opacity: hoverHighlight && !highlightType ? 0.85 : 1,
                 outlineStyle: hasLightningCard || hasRainManCard
                     ? "dashed"
                     : 'solid',
@@ -1377,14 +1376,21 @@ export function FlowerRivers() {
         return ids;
     })();
 
-    // Which river indices to highlight (when hovering a hand card)
-    const highlightedRiverSet: Set<number> | null = (() => {
-        if (!isCapturingPhase || !hoveredHandCard) return null;
+    // Which river indices to highlight
+    const highlightedRiverSet: Set<number> = (() => {
         const set = new Set<number>();
-        for (let ri = 0; ri < 3; ri++) {
-            if (rivers[ri].length > 0 && canCaptureRiver(hoveredHandCard, rivers[ri])) set.add(ri);
+        if (!isCapturingPhase) return set;
+        if (hoveredHandCard) {
+            for (let ri = 0; ri < 3; ri++) {
+                if (rivers[ri].length > 0 && canCaptureRiver(hoveredHandCard, rivers[ri])) set.add(ri);
+            }
+            return set;
+        } else {
+            for (let ri = 0; ri < 3; ri++) {
+                if (rivers[ri].length > 0 && hands[0].some(c => canCaptureRiver(c, rivers[ri]))) set.add(ri);
+            }
+            return set;
         }
-        return set.size > 0 ? set : null;
     })();
 
     const canHumanAct =
@@ -1514,7 +1520,7 @@ export function FlowerRivers() {
                             cards={river}
                             index={ri}
                             highlightType={getRiverHighlight(ri)}
-                            hoverHighlight={highlightedRiverSet && highlightedRiverSet.has(ri)}
+                            hoverHighlight={!!(highlightedRiverSet?.has(ri))}
                             onClick={canHumanAct ? () => handleRiverClick(ri) : undefined}
                             onDiscard={() => handleDiscard(ri)}
                             showDiscard={showDiscardButton(ri)}
