@@ -1,1 +1,1 @@
-{"root":["./src/flowerrivers.tsx","./src/main.tsx","./src/types.ts","./src/yaku.test.ts","./vite.config.ts"],"version":"5.9.3"}
+{"root":["./src/cardimages.ts","./src/flowerrivers.tsx","./src/main.tsx","./src/types.ts","./src/vite-env.d.ts","./src/yaku.test.ts","./vite.config.ts"],"version":"5.9.3"}
