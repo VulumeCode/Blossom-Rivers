@@ -1085,6 +1085,11 @@ export function FlowerRivers() {
     const [hoveredRiver, setHoveredRiver] = useState<number | null>(null);
     const [hoveredHandCard, setHoveredHandCard] = useState<Card | null>(null);
 
+    const resetHover = () => {
+        setHoveredRiver(null);
+        setHoveredHandCard(null);
+    };
+
     const {
         phase, deck, hands, captured, rivers, dealerIdx, capturerIdx,
         dealStep, drawnCard, riversUsedThisTurn, lightningRiver,
@@ -1181,6 +1186,7 @@ export function FlowerRivers() {
 
         if (phase === 'FORCED_CAPTURE') {
             if (ri === lightningRiver) {
+                resetHover();
                 dispatch({ type: 'CAPTURE_RIVER', riverIdx: ri, handCard: selectedHandCard });
             }
             return;
@@ -1188,12 +1194,14 @@ export function FlowerRivers() {
 
         // Clicking the river body captures (if valid)
         if (phase === 'CAPTURING' && canCaptureRiver(selectedHandCard, rivers[ri])) {
+            resetHover();
             dispatch({ type: 'CAPTURE_RIVER', riverIdx: ri, handCard: selectedHandCard });
         }
     };
 
     const handleDiscard = (ri: number) => {
         if (phase !== 'CAPTURING' || !selectedHandCard || !isHumanCapturer) return;
+        resetHover();
         dispatch({ type: 'DISCARD_TO_RIVER', riverIdx: ri, handCard: selectedHandCard });
     };
 
