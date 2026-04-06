@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { computeYaku, CARDS } from './flowerrivers';
+import { computeYaku } from './yaku';
+import { CARDS } from './cards';
 import { AnimalCardName, BrightCardName, Card, RibbonCardName, JunkCardName, YakuName } from './types';
 
 
