@@ -134,6 +134,14 @@ describe('computeYaku', () => {
     expect(result.yakuList.map(y => y.name)).toEqual<YakuName[]>(["Junk"]);
     expect(result.total).toBe(1);
   });
+  it('returns Junk yaku at 10 junk with sake', () => {
+    const result = computeYaku([
+      ...Object.values(junks).slice(0, 9),
+      animals["Chrysanthemum Sake"]
+    ]);
+    expect(result.yakuList.map(y => y.name)).toEqual<YakuName[]>(["Junk"]);
+    expect(result.total).toBe(1);
+  });
 
   describe('awards extra points for each card over threshold in Animals/Ribbons/Junk', () => {
 
@@ -186,8 +194,23 @@ describe('computeYaku', () => {
       expect(result.total).toBe(3);
     });
   });
+
   describe('stacking yaku', () => {
     it('returns Junk & Animals yaku', () => {
+      const result = computeYaku([
+        ...Object.values(junks).slice(0, 10),
+
+        animals["Pampas Geese"],
+        animals["Maple Deer"],
+        animals["Peony Butterflies"],
+        animals["Iris Bridge"],
+        animals["Wisteria Cuckoo"],
+      ]);
+      expect(result.yakuList.map(y => y.name)).toEqual<YakuName[]>(["Animals", "Junk"]);
+      expect(result.total).toBe(2);
+    });
+
+    it('returns Junk & Animals yaku with sake doing double duty', () => {
       const result = computeYaku([
         ...Object.values(junks).slice(0, 10),
 
@@ -198,10 +221,10 @@ describe('computeYaku', () => {
         animals["Wisteria Cuckoo"],
       ]);
       expect(result.yakuList.map(y => y.name)).toEqual<YakuName[]>(["Animals", "Junk"]);
-      expect(result.total).toBe(2);
+      expect(result.total).toBe(3);
     });
 
-    it('returns Boar-Deer-Butterfly  & Animals yaku', () => {
+    it('returns Boar-Deer-Butterfly & Animals yaku', () => {
       const result = computeYaku([
         animals["Clover Boar"],
         animals["Maple Deer"],

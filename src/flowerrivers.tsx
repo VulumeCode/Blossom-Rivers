@@ -141,8 +141,8 @@ const YAKU_DEFS: YakuDef[] = [
     },
     {
         name: 'Junk', points: 1, isJunk: true,
-        check: (c) => countType(c, 'junk') >= 10,
-        extra: (c) => Math.max(0, countType(c, 'junk') - 10),
+        check: (c) => (countType(c, 'junk') + (+(hasCard(c, '9-animal')))) >= 10,
+        extra: (c) => Math.max(0, (countType(c, 'junk') + (+(hasCard(c, '9-animal')))) - 10),
     },
 ];
 
