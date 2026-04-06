@@ -876,7 +876,9 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
             }}>
                 {label} ({cards.length})
             </span>
-            <div id={id} style={{
+            <div id={id}
+                className='captured-card-group'
+                style={{
                 display: 'flex',
                 flexDirection: 'row',
                 gap: 12,
@@ -887,7 +889,7 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
             }}>
             {groups.map(g => g.cards.length > 0 && (
                 <div key={g.name}
-                    className='captured-card-groups'
+                    className='captured-card-group'
                     style={{
                         display: 'flex', gap: 2, alignItems: 'center',
                         flex: '0 1 20%'
@@ -900,7 +902,8 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
                     ))}
                 </div>
             ))}
-            </div></>
+            </div>
+        </>
     );
 }
 
