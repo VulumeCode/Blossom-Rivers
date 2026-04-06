@@ -827,7 +827,7 @@ interface CardViewProps {
 function CardView({ card, faceDown, onClick, selected, small, disabled, highlighted, onMouseEnter, onMouseLeave, style: extraStyle }: CardViewProps) {
     const w = small ? CARD_W_SM : CARD_W;
     const h = small ? CARD_H_SM : CARD_H;
-    const src = faceDown ? images.card_back : card.img;
+    const svgHtml = faceDown ? images.card_back : card.img;
 
     const baseStyle: React.CSSProperties = {
         width: w,
@@ -842,19 +842,23 @@ function CardView({ card, faceDown, onClick, selected, small, disabled, highligh
         outlineStyle: "solid",
         outlineWidth: "2px",
         outlineColor: highlighted ? COLORS.captureGlow : 'transparent',
+        overflow: 'hidden',
+        lineHeight: 0,
         ...extraStyle,
     };
 
     return (
-        <img
-            src={src}
-            alt={faceDown ? 'Card back' : card.name}
+        <div
+            className="card-svg-wrapper"
+            role="img"
+            aria-label={faceDown ? 'Card back' : card.name}
             title={faceDown ? '' : card.name}
             style={baseStyle}
             onClick={onClick && !disabled ? onClick : undefined}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
             draggable={false}
+            dangerouslySetInnerHTML={{ __html: svgHtml }}
         />
     );
 }
