@@ -837,7 +837,6 @@ function CardView({ card, faceDown, onClick, selected, small, disabled, highligh
         transition: 'transform 0.2s, outline-color 0.2s',
         transform: selected ? 'translateY(-8px)' : 'none',
         boxShadow: `0 1px 4px ${COLORS.cardShadow}`,
-        opacity: disabled ? 0.5 : 1,
         flexShrink: 0,
         outlineStyle: "solid",
         outlineWidth: "2px",
@@ -1029,14 +1028,7 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
     ];
 
     return (
-        <div id={id} style={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 12,
-            alignItems: 'flex-start',
-            padding: '4px 0',
-            minHeight: CARD_H_SM + 8,
-        }}>
+        <>
             <span style={{
                 color: COLORS.pink,
                 fontSize: 11,
@@ -1046,17 +1038,31 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
             }}>
                 {label} ({cards.length})
             </span>
+            <div id={id} style={{
+                display: 'flex',
+                flexDirection: 'row',
+                gap: 12,
+                alignItems: 'flex-start',
+                padding: '4px 0',
+                minHeight: (CARD_H_SM + 8) * 2,
+                flexWrap: 'wrap',
+            }}>
             {groups.map(g => g.cards.length > 0 && (
-                <div key={g.name} style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                <div key={g.name}
+                    className='captured-card-groups'
+                    style={{
+                        display: 'flex', gap: 2, alignItems: 'center',
+                        flex: '0 1 20%'
+                    }}>
                     <span style={{ fontSize: 9, color: g.color, marginRight: 2 }}>
-                        {g.name[0]}{g.cards.length}
+                        {g.cards.length}
                     </span>
                     {g.cards.map(c => (
                         <CardView key={c.id} card={c} small style={{ width: CARD_W_SM, height: CARD_H_SM }} />
                     ))}
                 </div>
             ))}
-        </div>
+            </div></>
     );
 }
 
@@ -1456,11 +1462,20 @@ export function FlowerRivers() {
 
             {/* AI Area */}
             <div id="ai-area" style={{
-                padding: '4px 16px', flexShrink: 0,
+                padding: '4px 16px',
+                gap: '16px',
+                flexShrink: 0,
                 borderBottom: `1px solid ${COLORS.separator}`,
+                display: 'flex',
             }}>
-                <div id="ai-hand-row" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
-                    <span style={{ fontSize: 12, color: COLORS.pink, minWidth: 30 }}>AI</span>
+                <div id="ai-hand-row" style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'end',
+                    gap: 12,
+                    marginBottom: 4,
+                    flex: '0 1 50%',
+                }}>
                     <HandView id="ai-hand" cards={hands[1]} faceDown disabled
                         selectedCard={revealedAiCard}
                     />
@@ -1470,8 +1485,12 @@ export function FlowerRivers() {
                         </span>
                     )}
                 </div>
-                <CapturedView id="ai-captured" cards={captured[1]} label="AI captured" />
-                <YakuList captured={captured[1]} label="AI yaku" />
+                <div id="ai-capture-row" style={{
+                    flex: '0 1 50%',
+                }}>
+                    <CapturedView id="ai-captured" cards={captured[1]} label="AI captured" />
+                    <YakuList captured={captured[1]} label="AI yaku" />
+                </div>
             </div>
 
             {/* Deck + Rivers area */}
@@ -1614,13 +1633,20 @@ export function FlowerRivers() {
 
             {/* Human Area */}
             <div id="human-area" style={{
-                padding: '4px 16px', flexShrink: 0,
+                padding: '4px 16px',
+                gap: '16px',
+                flexShrink: 0,
                 borderTop: `1px solid ${COLORS.separator}`,
+                display: 'flex',
             }}>
-                <CapturedView id="human-captured" cards={captured[0]} label="Your captured" />
-                <YakuList captured={captured[0]} label="Your yaku" />
-                <div id="human-hand-row" style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
-                    <span style={{ fontSize: 12, color: COLORS.pink, minWidth: 30 }}>You</span>
+                <div id="human-hand-row" style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'end',
+                    gap: 12,
+                    marginTop: 4,
+                    flex: '0 1 50%',
+                }}>
                     <HandView
                         id="human-hand"
                         cards={hands[0]}
@@ -1636,6 +1662,12 @@ export function FlowerRivers() {
                             Koi-Koi ×{koikoiCounts[0]}
                         </span>
                     )}
+                </div>
+                <div id="human-capture-row" style={{
+                    flex: '0 1 50%',
+                }}>
+                    <CapturedView id="human-captured" cards={captured[0]} label="Your captured" />
+                    <YakuList captured={captured[0]} label="Your yaku" />
                 </div>
             </div>
         </div>
