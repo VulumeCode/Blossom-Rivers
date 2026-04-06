@@ -75,10 +75,17 @@ describe('computeYaku', () => {
     expect(result.total).toBe(5);
   });
 
+  it('returns Grass Ribbons for months 4, 5, 7 ribbons', () => {
+    const result = computeYaku([
+      ribbons["Iris Grass"], ribbons["Clover Grass"], ribbons["Wisteria Grass"]]);
+    expect(result.yakuList.map(y => y.name)).toEqual<YakuName[]>(["Grass Ribbons"]);
+    expect(result.total).toBe(5);
+  });
+
   it('returns nothing for 3 random ribbons', () => {
     const result = computeYaku([
       ribbons["Maple Blue"],
-      ribbons["Iris Plain"],
+      ribbons["Iris Grass"],
       ribbons["Cherry Poetry"]]);
     expect(result.yakuList).toEqual<YakuName[]>([]);
     expect(result.total).toBe(0);
@@ -121,8 +128,8 @@ describe('computeYaku', () => {
     const result = computeYaku([
       ribbons["Cherry Poetry"],
       ribbons["Chrysanthemum Blue"],
-      ribbons["Clover Plain"],
-      ribbons["Iris Plain"],
+      ribbons["Clover Grass"],
+      ribbons["Iris Grass"],
       ribbons["Maple Blue"],
     ]);
     expect(result.yakuList.map(y => y.name)).toEqual<YakuName[]>(["Ribbons"]);
@@ -161,28 +168,28 @@ describe('computeYaku', () => {
       const result = computeYaku([
         ribbons["Cherry Poetry"],
         ribbons["Pine Poetry"],
-        ribbons["Clover Plain"],
-        ribbons["Iris Plain"],
+        ribbons["Clover Grass"],
+        ribbons["Iris Grass"],
         ribbons["Chrysanthemum Blue"],
         ribbons["Maple Blue"],
       ]);
       expect(result.yakuList.map(y => y.name)).toEqual<YakuName[]>(["Ribbons"]);
       expect(result.total).toBe(2);
     });
-    it('returns Ribbons yaku with extra points at 8 ribbons', () => {
+    it('returns Ribbons yaku with extra points at 7 ribbons', () => {
       const result = computeYaku([
         ribbons["Cherry Poetry"],
         ribbons["Pine Poetry"],
-        ribbons["Clover Plain"],
-        ribbons["Iris Plain"],
-        ribbons["Willow Plain"],
-        ribbons["Wisteria Plain"],
+        ribbons["Clover Grass"],
+        ribbons["Iris Grass"],
         ribbons["Chrysanthemum Blue"],
         ribbons["Maple Blue"],
+        ribbons["Willow Plain"],
       ]);
       expect(result.yakuList.map(y => y.name)).toEqual<YakuName[]>(["Ribbons"]);
-      expect(result.total).toBe(4);
+      expect(result.total).toBe(3);
     });
+
     it('returns Junk yaku with extra points at 11 junk', () => {
       const result = computeYaku(Object.values(junks).slice(0, 11));
       expect(result.yakuList.map(y => y.name)).toEqual<YakuName[]>(["Junk"]);

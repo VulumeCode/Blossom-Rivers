@@ -33,12 +33,12 @@ export const CARDS: Card[] = [
     { id: '3-junk-2', month: 3, type: 'junk', name: 'Cherry', img: images.march_kasu_2 },
     // 4: Wisteria
     { id: '4-animal', month: 4, type: 'animal', name: 'Wisteria Cuckoo', img: images.april_tane },
-    { id: '4-ribbon', month: 4, type: 'ribbon', name: 'Wisteria Plain', img: images.april_tanzaku },
+    { id: '4-ribbon', month: 4, type: 'ribbon', name: 'Wisteria Grass', img: images.april_tanzaku },
     { id: '4-junk-1', month: 4, type: 'junk', name: 'Wisteria', img: images.april_kasu_1 },
     { id: '4-junk-2', month: 4, type: 'junk', name: 'Wisteria', img: images.april_kasu_2 },
     // 5: Iris
     { id: '5-animal', month: 5, type: 'animal', name: 'Iris Bridge', img: images.may_tane },
-    { id: '5-ribbon', month: 5, type: 'ribbon', name: 'Iris Plain', img: images.may_tanzaku },
+    { id: '5-ribbon', month: 5, type: 'ribbon', name: 'Iris Grass', img: images.may_tanzaku },
     { id: '5-junk-1', month: 5, type: 'junk', name: 'Iris', img: images.may_kasu_1 },
     { id: '5-junk-2', month: 5, type: 'junk', name: 'Iris', img: images.may_kasu_2 },
     // 6: Peony
@@ -48,7 +48,7 @@ export const CARDS: Card[] = [
     { id: '6-junk-2', month: 6, type: 'junk', name: 'Peony', img: images.june_kasu_2 },
     // 7: Bush Clover
     { id: '7-animal', month: 7, type: 'animal', name: 'Clover Boar', img: images.july_tane },
-    { id: '7-ribbon', month: 7, type: 'ribbon', name: 'Clover Plain', img: images.july_tanzaku },
+    { id: '7-ribbon', month: 7, type: 'ribbon', name: 'Clover Grass', img: images.july_tanzaku },
     { id: '7-junk-1', month: 7, type: 'junk', name: 'Clover', img: images.july_kasu_1 },
     { id: '7-junk-2', month: 7, type: 'junk', name: 'Clover', img: images.july_kasu_2 },
     // 8: Pampas
@@ -116,6 +116,10 @@ const YAKU_DEFS: YakuDef[] = [
     {
         name: 'Blue Ribbons', points: 5, isJunk: false,
         check: (c) => hasCard(c, '6-ribbon') && hasCard(c, '9-ribbon') && hasCard(c, '10-ribbon'),
+    },
+    {
+        name: 'Grass Ribbons', points: 5, isJunk: false,
+        check: (c) => hasCard(c, '4-ribbon') && hasCard(c, '5-ribbon') && hasCard(c, '7-ribbon'),
     },
     {
         name: 'Boar-Deer-Butterfly', points: 5, isJunk: false,

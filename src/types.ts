@@ -71,16 +71,16 @@ export type BlueCardName =
   | 'Chrysanthemum Blue'
   | 'Maple Blue'
 
-export type PlainCardName =
-  | 'Wisteria Plain'
-  | 'Iris Plain'
-  | 'Clover Plain'
-  | 'Willow Plain'
+export type GrassCardName =
+  | 'Wisteria Grass'
+  | 'Iris Grass'
+  | 'Clover Grass'
 
 export type RibbonCardName =
   | PoetyCardName
   | BlueCardName
-  | PlainCardName
+  | GrassCardName
+  | 'Willow Plain'
 
 export type AnimalCardName =
   | 'Plum Nightingale'
@@ -129,6 +129,7 @@ export type YakuName =
   | 'Three Brights'
   | 'Poetry Ribbons'
   | 'Blue Ribbons'
+  | 'Grass Ribbons'
   | 'Boar-Deer-Butterfly'
   | 'Flower Viewing'
   | 'Moon Viewing'
