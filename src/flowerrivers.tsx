@@ -865,6 +865,27 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
         { name: 'Junk', cards: junk, color: 'var(--color-junk)' },
     ];
 
+    const groupSizes = groups.map(g => g.cards.length).filter(s => s > 0)
+
+    const groupsLength = groupSizes.length;
+
+    console.log(id, groupSizes, groupsLength)
+    const width: number = [
+        () => 0,
+        () => groupSizes[0],
+        () => Math.max(...groupSizes),
+        () => Math.min(
+            Math.max(groupSizes[0] + 0.5 + groupSizes[1], groupSizes[2]),
+            Math.max(groupSizes[0], groupSizes[1] + 0.5 + groupSizes[2])
+        ),
+        () => Math.min(
+            Math.max(groupSizes[0] + 0.5 + groupSizes[1] + 0.5 + groupSizes[2], groupSizes[3]),
+            Math.max(groupSizes[0] + 0.5 + groupSizes[1], groupSizes[2] + 0.5 + groupSizes[3]),
+            Math.max(groupSizes[0], groupSizes[1] + 0.5 + groupSizes[2] + 0.5 + groupSizes[3]),
+        ),
+    ][groupsLength]() + 0.5;
+    console.log(width)
+
     return (
         <>
             <span style={{
@@ -877,31 +898,35 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
                 {label} ({cards.length})
             </span>
             <div id={id}
-                className='captured-card-group'
+                className='captured-card-groups'
                 style={{
-                display: 'flex',
-                flexDirection: 'row',
-                gap: 12,
-                alignItems: 'flex-start',
-                padding: '4px 0',
-                minHeight: (CARD_H_SM + 8) * 2,
-                flexWrap: 'wrap',
-            }}>
-            {groups.map(g => g.cards.length > 0 && (
-                <div key={g.name}
-                    className='captured-card-group'
-                    style={{
-                        display: 'flex', gap: 2, alignItems: 'center',
-                        flex: '0 1 20%'
-                    }}>
-                    <span style={{ fontSize: 9, color: g.color, marginRight: 2 }}>
-                        {g.cards.length}
-                    </span>
-                    {g.cards.map(c => (
-                        <CardView key={c.id} card={c} small style={{ width: CARD_W_SM, height: CARD_H_SM }} />
-                    ))}
-                </div>
-            ))}
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: 12,
+                    alignItems: 'flex-start',
+                    padding: '4px 0',
+                    minHeight: ((CARD_H_SM + 8) * 2),
+                    flexWrap: 'wrap',
+                    width: (((width) * (CARD_W_SM + 2))),
+                    background: "#f0f"
+                }}>
+                {groups.map(g => g.cards.length > 0 && (
+                    <div key={g.name}
+                        className='captured-card-group'
+                        style={{
+                            gap: 2,
+                            display: 'flex',
+                            alignItems: 'center',
+                            flex: '0 1 auto'
+                        }}>
+                        <span style={{ fontSize: 9, color: g.color, marginRight: 2 }}>
+                            {g.cards.length}
+                        </span>
+                        {g.cards.map(c => (
+                            <CardView key={c.id} card={c} small style={{ width: CARD_W_SM, height: CARD_H_SM }} />
+                        ))}
+                    </div>
+                ))}
             </div>
         </>
     );
@@ -1486,7 +1511,7 @@ export function FlowerRivers() {
                     justifyContent: 'end',
                     gap: 12,
                     marginTop: 4,
-                    flex: '0 1 50%',
+                    flex: '1 1 50%',
                 }}>
                     <HandView
                         id="human-hand"
@@ -1505,7 +1530,7 @@ export function FlowerRivers() {
                     )}
                 </div>
                 <div id="human-capture-row" style={{
-                    flex: '0 1 50%',
+                    flex: '1 1 50%',
                 }}>
                     <CapturedView id="human-captured" cards={captured[0]} label="Yours captured" />
                     <YakuList captured={captured[0]} label="Your yaku" />
