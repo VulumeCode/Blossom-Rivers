@@ -56,21 +56,21 @@ describe('computeYaku', () => {
   it('returns Poetry Ribbons for months 1, 2, 3 ribbons + other ribbons', () => {
     const result = computeYaku([
       ribbons["Cherry Poetry"], ribbons["Pine Poetry"], ribbons["Plum Poetry"],
-      ribbons["Chrysanthemum Blue"]]);
+      ribbons["Chrysanthemum Blue Ribbon"]]);
     expect(result.yakuList.map(y => y.name)).toEqual<YakuName[]>(["Poetry Ribbons"]);
     expect(result.total).toBe(5);
   });
 
   it('returns Blue Ribbons for months 6, 9, 10 ribbons', () => {
     const result = computeYaku([
-      ribbons["Maple Blue"], ribbons["Peony Blue"], ribbons["Chrysanthemum Blue"]]);
+      ribbons["Maple Blue Ribbon"], ribbons["Peony Blue Ribbon"], ribbons["Chrysanthemum Blue Ribbon"]]);
     expect(result.yakuList.map(y => y.name)).toEqual<YakuName[]>(["Blue Ribbons"]);
     expect(result.total).toBe(5);
   });
 
   it('returns Blue Ribbons for months 6, 9, 10 ribbons + other ribbons', () => {
     const result = computeYaku([
-      ribbons["Maple Blue"], ribbons["Peony Blue"], ribbons["Chrysanthemum Blue"],
+      ribbons["Maple Blue Ribbon"], ribbons["Peony Blue Ribbon"], ribbons["Chrysanthemum Blue Ribbon"],
       ribbons["Cherry Poetry"]]);
     expect(result.yakuList.map(y => y.name)).toEqual<YakuName[]>(["Blue Ribbons"]);
     expect(result.total).toBe(5);
@@ -78,15 +78,15 @@ describe('computeYaku', () => {
 
   it('returns Grass Ribbons for months 4, 5, 7 ribbons', () => {
     const result = computeYaku([
-      ribbons["Iris Grass"], ribbons["Clover Grass"], ribbons["Wisteria Grass"]]);
+      ribbons["Iris Grass Ribbon"], ribbons["Clover Grass Ribbon"], ribbons["Wisteria Grass Ribbon"]]);
     expect(result.yakuList.map(y => y.name)).toEqual<YakuName[]>(["Grass Ribbons"]);
     expect(result.total).toBe(5);
   });
 
   it('returns nothing for 3 random ribbons', () => {
     const result = computeYaku([
-      ribbons["Maple Blue"],
-      ribbons["Iris Grass"],
+      ribbons["Maple Blue Ribbon"],
+      ribbons["Iris Grass Ribbon"],
       ribbons["Cherry Poetry"]]);
     expect(result.yakuList).toEqual<YakuName[]>([]);
     expect(result.total).toBe(0);
@@ -128,10 +128,10 @@ describe('computeYaku', () => {
   it('returns Ribbons yaku at 5+ ribbons', () => {
     const result = computeYaku([
       ribbons["Cherry Poetry"],
-      ribbons["Chrysanthemum Blue"],
-      ribbons["Clover Grass"],
-      ribbons["Iris Grass"],
-      ribbons["Maple Blue"],
+      ribbons["Chrysanthemum Blue Ribbon"],
+      ribbons["Clover Grass Ribbon"],
+      ribbons["Iris Grass Ribbon"],
+      ribbons["Maple Blue Ribbon"],
     ]);
     expect(result.yakuList.map(y => y.name)).toEqual<YakuName[]>(["Ribbons"]);
     expect(result.total).toBe(1);
@@ -169,10 +169,10 @@ describe('computeYaku', () => {
       const result = computeYaku([
         ribbons["Cherry Poetry"],
         ribbons["Pine Poetry"],
-        ribbons["Clover Grass"],
-        ribbons["Iris Grass"],
-        ribbons["Chrysanthemum Blue"],
-        ribbons["Maple Blue"],
+        ribbons["Clover Grass Ribbon"],
+        ribbons["Iris Grass Ribbon"],
+        ribbons["Chrysanthemum Blue Ribbon"],
+        ribbons["Maple Blue Ribbon"],
       ]);
       expect(result.yakuList.map(y => y.name)).toEqual<YakuName[]>(["Ribbons"]);
       expect(result.total).toBe(2);
@@ -181,11 +181,11 @@ describe('computeYaku', () => {
       const result = computeYaku([
         ribbons["Cherry Poetry"],
         ribbons["Pine Poetry"],
-        ribbons["Clover Grass"],
-        ribbons["Iris Grass"],
-        ribbons["Chrysanthemum Blue"],
-        ribbons["Maple Blue"],
-        ribbons["Willow Plain"],
+        ribbons["Clover Grass Ribbon"],
+        ribbons["Iris Grass Ribbon"],
+        ribbons["Chrysanthemum Blue Ribbon"],
+        ribbons["Maple Blue Ribbon"],
+        ribbons["Willow Ribbon"],
       ]);
       expect(result.yakuList.map(y => y.name)).toEqual<YakuName[]>(["Ribbons"]);
       expect(result.total).toBe(3);
@@ -246,9 +246,9 @@ describe('computeYaku', () => {
       expect(result.total).toBe(7);
     });
 
-    it('returns Poetry & Blue yaku', () => {
+    it('returns Poetry & Blue Ribbon yaku', () => {
       const result = computeYaku([
-        ribbons["Maple Blue"], ribbons["Peony Blue"], ribbons["Chrysanthemum Blue"],
+        ribbons["Maple Blue Ribbon"], ribbons["Peony Blue Ribbon"], ribbons["Chrysanthemum Blue Ribbon"],
 
         ribbons["Cherry Poetry"], ribbons["Pine Poetry"], ribbons["Plum Poetry"],
 

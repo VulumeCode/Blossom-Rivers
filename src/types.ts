@@ -67,20 +67,20 @@ export type PoetyCardName =
   | 'Cherry Poetry'
 
 export type BlueCardName =
-  | 'Peony Blue'
-  | 'Chrysanthemum Blue'
-  | 'Maple Blue'
+  | 'Peony Blue Ribbon'
+  | 'Chrysanthemum Blue Ribbon'
+  | 'Maple Blue Ribbon'
 
 export type GrassCardName =
-  | 'Wisteria Grass'
-  | 'Iris Grass'
-  | 'Clover Grass'
+  | 'Wisteria Grass Ribbon'
+  | 'Iris Grass Ribbon'
+  | 'Clover Grass Ribbon'
 
 export type RibbonCardName =
   | PoetyCardName
   | BlueCardName
   | GrassCardName
-  | 'Willow Plain'
+  | 'Willow Ribbon'
 
 export type AnimalCardName =
   | 'Plum Nightingale'
