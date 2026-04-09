@@ -1,5 +1,5 @@
-import { useEffect, useReducer, useState } from 'react';
-import React from 'react';
+import { useEffect, useReducer, useState } from 'preact/hooks';
+import { type CSSProperties } from 'preact';
 import {
     Card,
     RiverHighlightType,
@@ -658,7 +658,7 @@ interface CardViewProps {
     highlighted?: boolean;
     onMouseEnter?: () => void;
     onMouseLeave?: () => void;
-    style?: React.CSSProperties;
+    style?: CSSProperties;
 }
 
 
@@ -667,7 +667,7 @@ function CardView({ card, faceDown, onClick, selected, small, disabled, highligh
     const h = small ? CARD_H_SM : CARD_H;
     const src = faceDown ? images.card_back : card.img;
 
-    const baseStyle: React.CSSProperties = {
+    const baseStyle: CSSProperties = {
         width: w,
         height: h,
         borderRadius: 4,
@@ -762,7 +762,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
             {showDiscard && (
                 <button
                     id="discard"
-                    className="discard-card"
+                    class="discard-card"
                     onClick={(e) => { e.stopPropagation(); onDiscard && onDiscard(); }}
                     style={{
                         width: CARD_W_RIVER,
@@ -785,17 +785,17 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 </button>
             )}
             {highlightType === 'capture' && (<div
-                className="river-icon"
+                class="river-icon"
                 style={{
                     color: COLORS.discardGlow,
                 }}>🫳</div>)}
             {highlightType === 'forced' && (<div
-                className="river-icon"
+                class="river-icon"
                 style={{
                     color: COLORS.forcedGlow,
                 }}>🫳</div>)}
             {highlightType === 'drop' && (<div
-                className="river-icon"
+                class="river-icon"
                 style={{
                     color: COLORS.discardGlow,
                 }}>🍂</div>)}
@@ -898,7 +898,7 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
                 {label} ({cards.length})
             </span>
             <div id={id}
-                className='captured-card-groups'
+                class='captured-card-groups'
                 style={{
                     display: 'flex',
                     flexDirection: 'row',
@@ -912,7 +912,7 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
                 }}>
                 {groups.map(g => g.cards.length > 0 && (
                     <div key={g.name}
-                        className='captured-card-group'
+                        class='captured-card-group'
                         style={{
                             gap: 2,
                             display: 'flex',

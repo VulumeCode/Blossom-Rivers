@@ -1,9 +1,4 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { render } from 'preact';
 import { FlowerRivers } from './flowerrivers';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <FlowerRivers />
-  </React.StrictMode>
-);
+render(<FlowerRivers />, document.getElementById('root')!);

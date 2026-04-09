@@ -10,17 +10,14 @@
     "test": "vitest",
     "setup": "node scripts/download-cards.mjs"
   },
-  "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  },
   "devDependencies": {
-    "@types/react": "^18.3.1",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@preact/preset-vite": "^2.10.5",
+    "jsdom": "^25.0.1",
     "typescript": "^5.6.2",
     "vite": "^6.0.1",
-    "vitest": "^2.1.4",
-    "jsdom": "^25.0.1"
+    "vitest": "^2.1.4"
+  },
+  "dependencies": {
+    "preact": "^10.29.1"
   }
 }
