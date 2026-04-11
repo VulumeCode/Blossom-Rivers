@@ -901,7 +901,7 @@ function CapturedView(props: CapturedViewProps) {
                     "min-height": `${(CARD_H_SM + 8) * 2}px`,
                     "flex-wrap": 'wrap',
                     width: `${computed().width * (CARD_W_SM + 2)}px`,
-                    // background: "#f0f"
+                    background: "#f0f"
                 }}>
                 {computed().groups.map(g => (
                     <Show when={g.cards.length > 0}>

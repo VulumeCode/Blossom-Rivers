@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "jsdom": "^25.0.1",
+    "solid-better-refresh": "^0.0.4",
     "typescript": "^5.6.2",
     "vite": "^6.0.1",
     "vite-plugin-solid": "^2.11.12",
