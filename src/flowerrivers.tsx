@@ -62,8 +62,8 @@ function makeInitialState(): GameState {
         hands: [[], []],
         captured: [[], []],
         rivers: [[], [], []],
-        dealerIdx: 0,
-        capturerIdx: 1,
+        dealerIdx: 1,
+        capturerIdx: 0,
         dealStep: 0,
         drawnCard: null,
         riversUsedThisTurn: [false, false, false],
@@ -92,8 +92,6 @@ function startRound(state: GameState): GameState {
         hands: deal.hands,
         captured: [[], []],
         rivers: deal.rivers,
-        dealerIdx: state.round % 2,
-        capturerIdx: (state.round + 1) % 2,
         dealStep: 0,
         drawnCard: null,
         riversUsedThisTurn: [false, false, false],
@@ -297,12 +295,13 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         case 'CALL_STOP': {
             if (state.phase !== 'YAKU_CHOICE') return state;
             const winner = state.yakuPlayer;
+            const loser = 1 - winner;
             const yaku = computeYaku(state.captured[winner]);
             let pts = yaku.total;
             // 7+ doubling
             if (pts >= 7) pts *= 2;
             // Opponent's koikoi count doubles winner's points
-            const oppKoikoi = state.koikoiCounts[1 - winner];
+            const oppKoikoi = state.koikoiCounts[loser];
             pts *= Math.pow(2, oppKoikoi);
             // Draw multiplier
             pts *= state.drawMultiplier;
@@ -336,6 +335,8 @@ function gameReducer(state: GameState, action: GameAction): GameState {
                 scores: newScores,
                 roundScoreInfo,
                 drawMultiplier: 1,
+                dealerIdx: loser,
+                capturerIdx: winner,
                 message: `Round over! ${winner === 0 ? 'You' : 'AI'} scored ${pts} points!`,
             };
         }
@@ -375,6 +376,11 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
 function advanceTurn(state: GameState): GameState {
     const nextTurn = state.turn + 1;
+
+    // Swap roles
+    const newDealer = state.capturerIdx;
+    const newCapturer = state.dealerIdx;
+
     // Check if round is over (both players out of cards)
     if (state.hands[0].length === 0 && state.hands[1].length === 0) {
         // Draw — no one stopped
@@ -400,13 +406,12 @@ function advanceTurn(state: GameState): GameState {
             phase: 'ROUND_OVER',
             drawMultiplier,
             roundScoreInfo,
+            dealerIdx: newDealer,
+            capturerIdx: newCapturer,
             message: 'Round drawn! Points doubled next round.',
         };
     }
 
-    // Swap roles
-    const newDealer = state.capturerIdx;
-    const newCapturer = state.dealerIdx;
 
     return {
         ...state,
