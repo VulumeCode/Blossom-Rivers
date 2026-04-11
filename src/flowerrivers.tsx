@@ -1487,6 +1487,7 @@ export function FlowerRivers() {
                                 Stop
                             </button>
                             <button
+                                disabled={hands[0].length == 0}
                                 onClick={() => dispatch({ type: 'CALL_KOIKOI' })}
                                 style={{
                                     padding: '10px 28px', fontSize: 15, fontWeight: 600,
