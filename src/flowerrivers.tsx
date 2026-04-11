@@ -683,9 +683,9 @@ function CardView(props: CardViewProps) {
             alt={props.faceDown ? 'Card back' : props.card.name}
             title={props.faceDown ? '' : props.card.name}
             style={baseStyle()}
-            onClick={props.onClick && !props.disabled ? props.onClick : undefined}
-            onMouseEnter={props.onMouseEnter}
-            onMouseLeave={props.onMouseLeave}
+            onClick={() => { if (props.onClick && !props.disabled) props.onClick(); }}
+            onMouseEnter={() => props.onMouseEnter?.()}
+            onMouseLeave={() => props.onMouseLeave?.()}
             draggable={false}
         />
     );
@@ -718,9 +718,9 @@ function RiverView(props: RiverViewProps) {
     return (
         <div
             id={`river-${props.index}`}
-            onClick={props.onClick}
-            onMouseEnter={props.onMouseEnter}
-            onMouseLeave={props.onMouseLeave}
+            onClick={() => props.onClick?.()}
+            onMouseEnter={() => props.onMouseEnter?.()}
+            onMouseLeave={() => props.onMouseLeave?.()}
             style={{
                 display: 'flex',
                 "flex-direction": 'row',
@@ -757,7 +757,7 @@ function RiverView(props: RiverViewProps) {
                 <button
                     id="discard"
                     class="discard-card"
-                    onClick={(e: MouseEvent) => { e.stopPropagation(); props.onDiscard && props.onDiscard(); }}
+                    onClick={() => { props.onDiscard && props.onDiscard(); }}
                     style={{
                         width: `${CARD_W_RIVER}px`,
                         height: `${CARD_H_RIVER}px`,
@@ -823,8 +823,8 @@ function HandView(props: HandViewProps) {
                         faceDown={props.faceDown && !isRevealed()}
                         selected={!!isRevealed()}
                         highlighted={!!(props.highlightedIds?.has(card.id))}
-                        onClick={!props.faceDown && props.onSelect ? () => props.onSelect!(card) : undefined}
-                        onMouseEnter={!props.faceDown && props.onCardHover ? () => props.onCardHover!(card) : undefined}
+                        onClick={props.onSelect ? () => { if (!props.faceDown) props.onSelect!(card); } : undefined}
+                        onMouseEnter={props.onCardHover ? () => { if (!props.faceDown) props.onCardHover!(card); } : undefined}
                         onMouseLeave={props.onCardLeave}
                         disabled={props.disabled}
                     />
@@ -1042,6 +1042,7 @@ export function FlowerRivers() {
     };
 
     const handleSelectCard = (card: Card) => {
+        console.log("handleSelectCard")
         if ((state.phase === 'CAPTURING' || state.phase === 'FORCED_CAPTURE') && isHumanCapturer()) {
             dispatch({ type: 'SELECT_HAND_CARD', card });
         }
