@@ -1,4 +1,4 @@
-import { render } from 'preact';
+import { render } from 'solid-js/web';
 import { FlowerRivers } from './flowerrivers';
 
-render(<FlowerRivers />, document.getElementById('root')!);
+render(() => <FlowerRivers />, document.getElementById('root')!);
