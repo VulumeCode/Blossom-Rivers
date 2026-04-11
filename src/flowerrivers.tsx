@@ -1098,10 +1098,10 @@ export function FlowerRivers() {
                 fontFamily: "'Inter', sans-serif", color: COLORS.white,
             }}>
                 <div id="menu-title" style={{ fontSize: 48, fontWeight: 700, color: COLORS.red, marginBottom: 8 }}>
-                    Flower Rivers
+                    花川
                 </div>
                 <div id="menu-subtitle" style={{ fontSize: 16, color: COLORS.pink, marginBottom: 32 }}>
-                    A Hanafuda game for two
+                    Blossom Rivers
                 </div>
                 <button
                     onClick={() => dispatch({ type: 'START_GAME' })}
@@ -1321,7 +1321,7 @@ export function FlowerRivers() {
                 padding: '6px 16px', background: COLORS.dark,
                 fontSize: 13, flexShrink: 0,
             }}>
-                <span style={{ color: COLORS.pink, fontWeight: 700 }}>Flower Rivers</span>
+                <span style={{ color: COLORS.pink, fontWeight: 700 }}>花川 - Blossom Rivers</span>
                 <span>Round {round}/{TOTAL_ROUNDS} — Turn {turn}</span>
                 <span>
                     You: <b>{scores[0]}</b> | AI: <b>{scores[1]}</b>
