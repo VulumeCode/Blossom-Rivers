@@ -1,0 +1,92 @@
+:root {
+    /* Card SVG colors */
+    --card-paper: #f4f3ef;
+    --card-green: #50b271;
+    --card-frame-outer: #592116;
+    --card-frame-inner: #992d17;
+    --card-red: #d81e1e;
+    --card-amber: #ffb85a;
+    --card-bark: #997664;
+    --card-purple: #6060bf;
+    --card-pink: #ff8db6;
+    --card-teal: #82d8d0;
+
+
+    --color-bg: #0e421b;
+    --color-dark: var(--card-bark);
+    --color-felt: var(--card-bark);
+    --color-separator: rgba(255, 255, 255, 0.08);
+    --color-card-shadow: rgba(0, 0, 0, 0.4);
+    --color-overlay: rgba(0, 0, 0, 0.6);
+
+    --color-pink: var(--card-pink);
+    --color-text: var(--card-paper);
+    --color-red: var(--card-red);
+    --color-drop: var(--card-pink);
+    --color-forced: var(--card-red);
+    --color-discard: var(--card-red);
+    --color-capture: var(--card-amber);
+    --color-river-from: var(--card-purple);
+    --color-river-to: var(--card-teal);
+    --color-bright: var(--card-amber);
+    --color-animal: var(--card-bark);
+    --color-ribbon: var(--card-purple);
+    --color-junk: var(--card-teal);
+
+    --gradient-river: linear-gradient(160deg, var(--color-river-from), var(--color-river-from), var(--color-river-to), var(--color-river-to));
+}
+
+:root,
+button {
+    /* https: //www.recursive.design/  */
+    font-family: "Recursive", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 200;
+    font-style: normal;
+    font-variation-settings:
+        "slnt" 0,
+        "CASL" 1,
+        "CRSV" 0,
+        "MONO" 0;
+}
+
+#menu-title {
+    font-size: 28px;
+
+    .kanji {
+        font-size: 72px;
+        font-weight: bold;
+        font-family: sans;
+    }
+
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.card-button,
+.river-icon {
+    font-family: "Noto Emoji", sans-serif;
+    font-weight: normal;
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+
+.river-icon {
+    font-size: 44px;
+    margin-left: auto;
+    margin-right: 33%;
+    width: 33%;
+    padding-left: 1em;
+}
