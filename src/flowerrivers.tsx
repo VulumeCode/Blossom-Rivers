@@ -21,6 +21,10 @@ function shuffle(arr: Card[]): Card[] {
     return a;
 }
 
+function playerName(p: number): string {
+    return p === 0 ? 'You' : 'AI';
+}
+
 function canCaptureRiver(handCard: Card, river: Card[]) {
     if (river.length === 0) return false;
     // Lightning from hand is wild — captures any river
@@ -326,7 +330,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
                     phase: 'GAME_OVER',
                     scores: newScores,
                     roundScoreInfo,
-                    message: `Round over! ${winner === 0 ? 'You' : 'AI'} scored ${pts} points!`,
+                    message: `Round over! ${playerName(winner)} scored ${pts} points!`,
                 };
             }
 
@@ -338,7 +342,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
                 drawMultiplier: 1,
                 dealerIdx: loser,
                 capturerIdx: winner,
-                message: `Round over! ${winner === 0 ? 'You' : 'AI'} scored ${pts} points!`,
+                message: `Round over! ${playerName(winner)} scored ${pts} points!`,
             };
         }
 
@@ -352,7 +356,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
             return advanceTurn({
                 ...state,
                 koikoiCounts: newKoikoi,
-                message: `${who === 0 ? 'You' : 'AI'} called Koi-Koi!`,
+                message: `${playerName(who)} called Koi-Koi!`,
             });
         }
 
@@ -1161,7 +1165,7 @@ export function FlowerRivers() {
                 ) : (
                     <div id="round-over-winner-info" style={{ textAlign: 'center', marginBottom: 16 }}>
                         <div id="round-over-winner-text" style={{ fontSize: 20, marginBottom: 8 }}>
-                            {info && info.winner === 0 ? 'You' : 'AI'} won the round!
+                                {info && playerName(info.winner)} won the round!
                         </div>
                         {info && info.yakuList.map(y => (
                             <div key={y.name} style={{ fontSize: 14, color: COLORS.red }}>
@@ -1214,7 +1218,7 @@ export function FlowerRivers() {
                 {info && info.winner !== -1 && (
                     <div id="game-over-round-info" style={{ textAlign: 'center', marginBottom: 12 }}>
                         <div id="game-over-round-text" style={{ fontSize: 16, marginBottom: 6 }}>
-                            {info.winner === 0 ? 'You' : 'AI'} won the final round with {info.finalPoints} pts
+                            {playerName(info.winner)} won the final round with {info.finalPoints} pts
                         </div>
                         {info.yakuList.map(y => (
                             <div key={y.name} style={{ fontSize: 13, color: COLORS.red }}>
