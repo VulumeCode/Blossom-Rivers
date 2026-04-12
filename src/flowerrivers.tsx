@@ -118,8 +118,8 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         }
 
         case 'DRAW_CARD': {
-            if (state.phase !== 'DEALING' || state.drawnCard) return state;
-            if (state.deck.length === 0) return state;
+            if (state.phase !== 'DEALING' || state.drawnCard) throw "Can't draw a card right now.";
+            if (state.deck.length === 0) throw "Can't draw from an empty deck.";
             const card = state.deck[0];
             return {
                 ...state,
@@ -132,9 +132,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         }
 
         case 'DROP_IN_RIVER': {
-            if (state.phase !== 'DEALING' || !state.drawnCard) return state;
+            if (state.phase !== 'DEALING' || !state.drawnCard) throw "Can't drop right now.";
             const { riverIdx } = action;
-            if (state.riversUsedThisTurn[riverIdx]) return state;
+            if (state.riversUsedThisTurn[riverIdx]) throw "Can't drop in this river anymore.";
 
             const newRivers = state.rivers.map((r, i) =>
                 i === riverIdx ? [state.drawnCard!, ...r] : [...r]
@@ -197,7 +197,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         }
 
         case 'SELECT_HAND_CARD': {
-            if (state.phase !== 'CAPTURING' && state.phase !== 'FORCED_CAPTURE') return state;
+            if (state.phase !== 'CAPTURING' && state.phase !== 'FORCED_CAPTURE') throw "Can't select right now.";
             if (action.card == state.selectedHandCard) {
                 return { ...state, selectedHandCard: null };
             } else {
@@ -209,14 +209,14 @@ function gameReducer(state: GameState, action: GameAction): GameState {
             const { riverIdx, handCard } = action;
             const who = state.capturerIdx;
             const card = handCard || state.selectedHandCard;
-            if (!card) return state;
+            if (!card) throw "Can't capture without a selected card.";
             const river = state.rivers[riverIdx];
 
             // For forced capture, any card works (lightning in river matches all)
             if (state.phase === 'FORCED_CAPTURE') {
-                if (riverIdx !== state.lightningRiver) return state;
+                if (riverIdx !== state.lightningRiver) throw "Must capture the lightning river.";
             } else {
-                if (!canCaptureRiver(card, river)) return state;
+                if (!canCaptureRiver(card, river)) throw "Can't capture this river with selected card.";
             }
 
             // Remove card from hand
@@ -270,12 +270,12 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         }
 
         case 'DISCARD_TO_RIVER': {
-            if (state.phase === 'FORCED_CAPTURE') return state; // can't discard during forced capture
-            if (state.phase !== 'CAPTURING') return state;
+            if (state.phase === 'FORCED_CAPTURE') throw "Can't discard during forced capture.";
+            if (state.phase !== 'CAPTURING') throw "Can't discard right now.";
             const { riverIdx, handCard } = action;
             const who = state.capturerIdx;
             const card = handCard || state.selectedHandCard;
-            if (!card) return state;
+            if (!card) throw "Must select a card to discard.";
 
             const newHands = state.hands.map((h, i) =>
                 i === who ? h.filter(c => c.id !== card.id) : [...h]
@@ -294,7 +294,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         }
 
         case 'CALL_STOP': {
-            if (state.phase !== 'YAKU_CHOICE') return state;
+            if (state.phase !== 'YAKU_CHOICE') throw "Can't call stop right now.";
             const winner = state.yakuPlayer;
             const loser = 1 - winner;
             const yaku = computeYaku(state.captured[winner]);
@@ -343,7 +343,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         }
 
         case 'CALL_KOIKOI': {
-            if (state.phase !== 'YAKU_CHOICE') return state;
+            if (state.phase !== 'YAKU_CHOICE') throw "Can't call koikoi right now.";;
             const who = state.yakuPlayer;
             const newKoikoi = [...state.koikoiCounts] as [number, number];
             newKoikoi[who] += 1;
@@ -371,7 +371,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         }
 
         default:
-            return state;
+            throw "Unknown action.";
     }
 }
 
