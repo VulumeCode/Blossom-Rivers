@@ -810,25 +810,30 @@ interface CardButtonProps {
     onClick?: () => void;
 }
 
+import { cx, css } from '@emotion/css'
+
 function CardButton({ color, icon, onClick }: CardButtonProps) {
     return (<button
-        class="card-button"
         onClick={onClick}
+        class={cx("card-button",
+            css({
+                width: CARD_W_RIVER,
+                height: CARD_H_RIVER,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 33,
+                fontWeight: 600,
+                background: 'transparent',
+                borderRadius: 4,
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+                border: `2px dashed`,
+            }))}
         style={{
-            width: CARD_W_RIVER,
-            height: CARD_H_RIVER,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 33,
-            fontWeight: 600,
-            background: 'transparent',
             color: color,
-            border: `2px dashed ${color}`,
-            borderRadius: 4,
-            cursor: 'pointer',
-            whiteSpace: 'nowrap',
-            flexShrink: 0,
+            borderColor: color,
         }}
     >
         {icon}
