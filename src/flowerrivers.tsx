@@ -1119,25 +1119,25 @@ export function FlowerRivers() {
             <div id="menu-screen" style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', height: '100vh', background: COLORS.bg,
-                fontFamily: "'Inter', sans-serif", color: COLORS.white,
+                color: COLORS.white,
             }}>
                 <div id="menu-title" style={{
                     display: 'grid', gridTemplateColumns: '1fr auto 1fr',
                     fontWeight: 700, marginBottom: 32, lineHeight: 1,
                 }}>
-                    <span style={{ color: COLORS.pink, fontSize: 28, alignSelf: 'end', paddingRight: 4 }}>Blossom</span>
-                    <span style={{ color: COLORS.pink, fontSize: 72 }}>花</span>
+                    <span style={{ color: COLORS.pink, alignSelf: 'end', paddingRight: 4 }}>Blossom</span>
+                    <span class="kanji" style={{ color: COLORS.pink }}>花</span>
                     <span />
                     <span />
-                    <span style={{ color: COLORS.riverFrom, fontSize: 72 }}>川</span>
-                    <span style={{ color: COLORS.riverFrom, fontSize: 28, alignSelf: 'start', paddingLeft: 4 }}>Rivers</span>
+                    <span class="kanji" style={{ color: COLORS.riverFrom }}>川</span>
+                    <span style={{ color: COLORS.riverFrom, alignSelf: 'start', paddingLeft: 4 }}>Rivers</span>
                 </div>
                 <button
                     onClick={() => dispatch({ type: 'START_GAME' })}
                     style={{
                         padding: '14px 48px', fontSize: 18, fontWeight: 600,
                         background: COLORS.riverFrom, color: COLORS.bg, border: 'none',
-                        borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
+                        borderRadius: 8, cursor: 'pointer',
                     }}
                 >
                     Start Game
@@ -1153,7 +1153,7 @@ export function FlowerRivers() {
             <div id="round-over-screen" style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', height: '100vh', background: COLORS.bg,
-                fontFamily: "'Inter', sans-serif", color: COLORS.white,
+                color: COLORS.white,
             }}>
                 <div id="round-over-title" style={{ fontSize: 32, fontWeight: 700, color: COLORS.red, marginBottom: 16 }}>
                     Round {round} Complete
@@ -1191,7 +1191,7 @@ export function FlowerRivers() {
                     style={{
                         padding: '12px 40px', fontSize: 16, fontWeight: 600,
                         background: COLORS.red, color: COLORS.bg, border: 'none',
-                        borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
+                        borderRadius: 8, cursor: 'pointer',
                     }}
                 >
                     Next Round
@@ -1210,7 +1210,7 @@ export function FlowerRivers() {
             <div id="game-over-screen" style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', height: '100vh', background: COLORS.bg,
-                fontFamily: "'Inter', sans-serif", color: COLORS.white,
+                color: COLORS.white,
             }}>
                 <div id="game-over-title" style={{ fontSize: 36, fontWeight: 700, color: COLORS.red, marginBottom: 8 }}>
                     Game Over
@@ -1241,7 +1241,7 @@ export function FlowerRivers() {
                     style={{
                         padding: '12px 40px', fontSize: 16, fontWeight: 600,
                         background: COLORS.red, color: COLORS.bg, border: 'none',
-                        borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
+                        borderRadius: 8, cursor: 'pointer',
                     }}
                 >
                     Play Again
@@ -1341,7 +1341,7 @@ export function FlowerRivers() {
         <div id="game-board" style={{
             display: 'flex', flexDirection: 'column',
             height: '100vh', background: COLORS.bg,
-            fontFamily: "'Inter', sans-serif", color: COLORS.white,
+            color: COLORS.white,
             overflow: 'hidden',
         }}>
             {/* Top Bar */}
@@ -1425,24 +1425,20 @@ export function FlowerRivers() {
                                 borderRadius: 4,
                             }} />
                         )}
-                        <span style={{
-                            position: 'absolute', bottom: -14, left: '50%',
-                            transform: 'translateX(-50%)',
-                            fontSize: 10, color: COLORS.pink,
-                        }}>
-                            {deck.length} left
-                        </span>
+                    </div>
+                    <div style={{ fontSize: 11, color: COLORS.pink, textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        {deck.length} left
                     </div>
 
                     {/* Drawn card */}
-                    <div id="drawn-card" style={{ marginTop: 8, width: CARD_W, height: CARD_H, flexShrink: 0 }}>
+                    <div id="drawn-card" style={{ width: CARD_W, height: CARD_H, flexShrink: 0 }}>
                         {drawnCard && <CardView card={drawnCard} />}
                     </div>
 
                     {/* Dealing indicator */}
                     {phase === 'DEALING' && (
                         <div id="deal-indicator" style={{ fontSize: 11, color: COLORS.pink, textAlign: 'center', whiteSpace: 'nowrap' }}>
-                            Deal {dealStep + 1}/3
+                            Drop {dealStep + 1}/3
                         </div>
                     )}
                 </div>
@@ -1514,7 +1510,7 @@ export function FlowerRivers() {
                                 style={{
                                     padding: '10px 28px', fontSize: 15, fontWeight: 600,
                                     background: COLORS.red, color: COLORS.bg, border: 'none',
-                                    borderRadius: 6, cursor: 'pointer', fontFamily: 'inherit',
+                                    borderRadius: 6, cursor: 'pointer',
                                 }}
                             >
                                 Stop
@@ -1526,7 +1522,7 @@ export function FlowerRivers() {
                                     padding: '10px 28px', fontSize: 15, fontWeight: 600,
                                     background: 'transparent', color: COLORS.red,
                                     border: `2px solid ${COLORS.red}`, borderRadius: 6,
-                                    cursor: 'pointer', fontFamily: 'inherit',
+                                    cursor: 'pointer',
                                 }}
                             >
                                 Koi-Koi!
