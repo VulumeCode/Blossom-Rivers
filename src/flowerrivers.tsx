@@ -137,7 +137,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
             if (state.riversUsedThisTurn[riverIdx]) return state;
 
             const newRivers = state.rivers.map((r, i) =>
-                i === riverIdx ? [...r, state.drawnCard!] : [...r]
+                i === riverIdx ? [state.drawnCard!, ...r] : [...r]
             ) as [Card[], Card[], Card[]];
             const newUsed = [...state.riversUsedThisTurn] as [boolean, boolean, boolean];
             newUsed[riverIdx] = true;
@@ -281,7 +281,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
                 i === who ? h.filter(c => c.id !== card.id) : [...h]
             ) as [Card[], Card[]];
             const newRivers = state.rivers.map((r, i) =>
-                i === riverIdx ? [...r, card] : [...r]
+                i === riverIdx ? [card, ...r] : [...r]
             ) as [Card[], Card[], Card[]];
 
             return advanceTurn({
@@ -641,10 +641,10 @@ const COLORS = {
     pink: 'var(--color-pink)',
     white: 'var(--color-text)',
     red: 'var(--color-red)',
-    captureGlow: 'var(--color-capture-glow)',
-    discardGlow: 'var(--color-discard-glow)',
-    forcedGlow: 'var(--color-forced-glow)',
-    hoverGlow: 'var(--color-hover-glow)',
+    capture: 'var(--color-capture)',
+    discard: 'var(--color-discard)',
+    forced: 'var(--color-forced)',
+    drop: 'var(--color-drop)',
     riverFrom: 'var(--color-river-from)',
     separator: 'var(--color-separator)',
     cardShadow: 'var(--color-card-shadow)',
@@ -682,7 +682,7 @@ function CardView({ card, faceDown, onClick, selected, small, disabled, highligh
         flexShrink: 0,
         outlineStyle: "solid",
         outlineWidth: "2px",
-        outlineColor: highlighted ? COLORS.captureGlow : 'transparent',
+        outlineColor: highlighted ? COLORS.capture : 'transparent',
         ...extraStyle,
     };
 
@@ -713,12 +713,13 @@ interface RiverViewProps {
     onMouseLeave?: () => void;
 }
 
+
 function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighlight, showDiscard, onMouseEnter, onMouseLeave }: RiverViewProps) {
     const outlineColor =
-        highlightType === 'capture' ? COLORS.captureGlow
-            : highlightType === 'forced' ? COLORS.forcedGlow
-                : highlightType === 'drop' ? COLORS.discardGlow
-                    : hoverHighlight ? COLORS.hoverGlow
+        highlightType === 'capture' ? COLORS.capture
+            : highlightType === 'forced' ? COLORS.forced
+                : highlightType === 'drop' ? COLORS.drop
+                    : hoverHighlight ? COLORS.capture
                         : COLORS.riverFrom;
 
     const hasRainManCard = cards.some(isRainMan);
@@ -752,9 +753,20 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 minWidth: 120,
             }}
         >
-            {cards.length === 0 && (
-                <div style={{ width: CARD_W_RIVER, height: CARD_H_RIVER, flexShrink: 0 }} />
-            )}
+
+
+            {showDiscard
+                ? <CardButton
+                    icon="🍂"
+                    color={COLORS.discard}
+                    onClick={() => { onDiscard && onDiscard(); }} />
+                : highlightType === 'drop' ? (
+                    <CardButton
+                        icon="🍂"
+                        color={COLORS.drop} />
+                ) :
+                    <div style={{ width: CARD_W_RIVER, height: CARD_H_RIVER, flexShrink: 0 }} />}
+
             {cards.map(card => (
                 <CardView
                     key={card.id}
@@ -763,48 +775,51 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                     style={{ width: CARD_W_RIVER, height: CARD_H_RIVER }}
                 />
             ))}
-            {showDiscard && (
-                <button
-                    id="discard"
-                    class="discard-card"
-                    onClick={(e) => { e.stopPropagation(); onDiscard && onDiscard(); }}
-                    style={{
-                        width: CARD_W_RIVER,
-                        height: CARD_H_RIVER,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 33,
-                        fontWeight: 600,
-                        background: 'transparent',
-                        color: COLORS.forcedGlow,
-                        border: `2px dashed ${COLORS.forcedGlow}`,
-                        borderRadius: 4,
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap',
-                        flexShrink: 0,
-                    }}
-                >
-                    🍂
-                </button>
-            )}
+
+
             {highlightType === 'capture' && (<div
                 class="river-icon"
                 style={{
-                    color: COLORS.hoverGlow,
+                    color: COLORS.capture,
                 }}>🫳</div>)}
             {highlightType === 'forced' && (<div
                 class="river-icon"
                 style={{
-                    color: COLORS.forcedGlow,
+                    color: COLORS.forced,
                 }}>🫳</div>)}
-            {highlightType === 'drop' && (<div
-                class="river-icon"
-                style={{
-                    color: COLORS.discardGlow,
-                }}>🍂</div>)}
         </div>
     );
+}
+
+interface CardButtonProps {
+    color: string;
+    icon: string;
+    onClick?: () => void;
+}
+
+function CardButton({ color, icon, onClick }: CardButtonProps) {
+    return (<button
+        class="card-button"
+        onClick={onClick}
+        style={{
+            width: CARD_W_RIVER,
+            height: CARD_H_RIVER,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 33,
+            fontWeight: 600,
+            background: 'transparent',
+            color: color,
+            border: `2px dashed ${color}`,
+            borderRadius: 4,
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+        }}
+    >
+        {icon}
+    </button>)
 }
 
 // --- HAND COMPONENT ---
@@ -1344,7 +1359,11 @@ export function FlowerRivers() {
                     marginBottom: 4,
                     flex: '0 1 50%',
                 }}>
-                    <HandView id="ai-hand" cards={hands[1]} faceDown disabled
+                    <HandView
+                        id="ai-hand"
+                        cards={hands[1]}
+                        faceDown
+                        disabled
                         selectedCard={revealedAiCard}
                     />
                     {koikoiCounts[1] > 0 && (
