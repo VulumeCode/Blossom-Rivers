@@ -343,8 +343,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         }
 
         case 'CALL_KOIKOI': {
-            if (state.phase !== 'YAKU_CHOICE') throw "Can't call koikoi right now.";;
+            if (state.phase !== 'YAKU_CHOICE') throw "Can't call koikoi right now.";
             const who = state.yakuPlayer;
+            if (state.hands[who].length == 0) throw "Can't call koikoi with an empty hand.";
             const newKoikoi = [...state.koikoiCounts] as [number, number];
             newKoikoi[who] += 1;
 
@@ -475,7 +476,11 @@ function getAIActions(state: GameState): GameAction[] {
         return state.hands[1].map(card => ({ type: 'CAPTURE_RIVER' as const, riverIdx: ri, handCard: card }));
     }
     if (state.phase === 'YAKU_CHOICE' && state.yakuPlayer === 1) {
-        return [{ type: 'CALL_STOP' }, { type: 'CALL_KOIKOI' }];
+        const actions: GameAction[] = [{ type: 'CALL_STOP' }];
+        if (state.hands[1].length > 0) {
+            actions.push({ type: 'CALL_KOIKOI' })
+        }
+        return actions;
     }
     return [];
 }
@@ -512,7 +517,11 @@ function getSimAction(state: GameState): GameAction | null {
         return { type: 'CAPTURE_RIVER', riverIdx: state.lightningRiver!, handCard: hand[Math.floor(Math.random() * hand.length)] };
     }
     if (state.phase === 'YAKU_CHOICE') {
-        return Math.random() < 0.5 ? { type: 'CALL_STOP' } : { type: 'CALL_KOIKOI' };
+        if (state.hands[state.yakuPlayer].length == 0) {
+            return { type: 'CALL_STOP' };
+        } else {
+            return Math.random() < 0.5 ? { type: 'CALL_STOP' } : { type: 'CALL_KOIKOI' };
+        }
     }
     return null;
 }
@@ -542,7 +551,7 @@ function mctsChooseAction(state: GameState, simCount: number): GameAction {
     const C = 1.41; // UCB1 exploration constant
 
     _simMode = true;
-    try {
+    {
         for (let sim = 0; sim < simCount; sim++) {
             // Determinize: randomly assign hidden cards for this simulation
             const detState = randomizeHiddenCards(state);
@@ -578,9 +587,8 @@ function mctsChooseAction(state: GameState, simCount: number): GameAction {
             wins[ai] += score;
             visits[ai]++;
         }
-    } finally {
-        _simMode = false;
     }
+    _simMode = false;
 
     // Return the action with the highest win rate
     let bestIdx = 0, bestRate = -1;
