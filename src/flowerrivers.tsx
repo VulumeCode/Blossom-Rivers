@@ -1117,17 +1117,22 @@ export function FlowerRivers() {
                 justifyContent: 'center', height: '100vh', background: COLORS.bg,
                 fontFamily: "'Inter', sans-serif", color: COLORS.white,
             }}>
-                <div id="menu-title" style={{ fontSize: 48, fontWeight: 700, color: COLORS.red, marginBottom: 8 }}>
-                    花川
-                </div>
-                <div id="menu-subtitle" style={{ fontSize: 16, color: COLORS.pink, marginBottom: 32 }}>
-                    Blossom Rivers
+                <div id="menu-title" style={{
+                    display: 'grid', gridTemplateColumns: '1fr auto 1fr',
+                    fontWeight: 700, marginBottom: 32, lineHeight: 1,
+                }}>
+                    <span style={{ color: COLORS.pink, fontSize: 28, alignSelf: 'end', paddingRight: 4 }}>Blossom</span>
+                    <span style={{ color: COLORS.pink, fontSize: 72 }}>花</span>
+                    <span />
+                    <span />
+                    <span style={{ color: COLORS.riverFrom, fontSize: 72 }}>川</span>
+                    <span style={{ color: COLORS.riverFrom, fontSize: 28, alignSelf: 'start', paddingLeft: 4 }}>Rivers</span>
                 </div>
                 <button
                     onClick={() => dispatch({ type: 'START_GAME' })}
                     style={{
                         padding: '14px 48px', fontSize: 18, fontWeight: 600,
-                        background: COLORS.red, color: COLORS.bg, border: 'none',
+                        background: COLORS.riverFrom, color: COLORS.bg, border: 'none',
                         borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
                     }}
                 >
