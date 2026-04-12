@@ -681,34 +681,35 @@ interface CardViewProps {
 function CardView({ card, faceDown, onClick, selected, small, disabled, highlighted, onMouseEnter, onMouseLeave, style: extraStyle }: CardViewProps) {
     const w = small ? CARD_W_SM : CARD_W;
     const h = small ? CARD_H_SM : CARD_H;
-    const src = faceDown ? images.card_back : card.img;
-
-    const baseStyle: CSSProperties = {
-        width: w,
-        height: h,
-        borderRadius: 4,
-        cursor: onClick && !disabled ? 'pointer' : 'default',
-        transition: 'transform 0.2s, outline-color 0.2s',
-        transform: selected ? 'translateY(-8px)' : 'none',
-        boxShadow: `0 1px 4px ${COLORS.cardShadow}`,
-        flexShrink: 0,
-        outlineStyle: "solid",
-        outlineWidth: "2px",
-        outlineColor: highlighted ? COLORS.capture : 'transparent',
-        ...extraStyle,
-    };
+    const Svg = faceDown ? images.card_back : card.img;
 
     return (
-        <img
-            src={src}
-            alt={faceDown ? 'Card back' : card.name}
-            title={faceDown ? '' : card.name}
-            style={baseStyle}
+        <span
+            title={faceDown ? undefined : card.name}
+            style={{ display: 'inline-block', flexShrink: 0 }}
             onClick={onClick && !disabled ? onClick : undefined}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
-            draggable={false}
-        />
+        >
+            <Svg
+                style={{
+                    width: w,
+                    height: h,
+                    borderRadius: 4,
+                    cursor: onClick && !disabled ? 'pointer' : 'default',
+                    transition: 'transform 0.2s, outline-color 0.2s',
+                    transform: selected ? 'translateY(-8px)' : 'none',
+                    boxShadow: `0 1px 4px ${COLORS.cardShadow}`,
+                    flexShrink: 0,
+                    outlineStyle: "solid",
+                    outlineWidth: "2px",
+                    outlineColor: highlighted ? COLORS.capture : 'transparent',
+                    display: 'block',
+                    overflow: 'hidden',
+                    ...extraStyle,
+                }}
+            />
+        </span>
     );
 }
 
