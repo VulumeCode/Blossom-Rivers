@@ -775,8 +775,8 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                         fontSize: 33,
                         fontWeight: 600,
                         background: 'transparent',
-                        color: COLORS.discardGlow,
-                        border: `2px dashed ${COLORS.discardGlow}`,
+                        color: COLORS.forcedGlow,
+                        border: `2px dashed ${COLORS.forcedGlow}`,
                         borderRadius: 4,
                         cursor: 'pointer',
                         whiteSpace: 'nowrap',
@@ -789,7 +789,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
             {highlightType === 'capture' && (<div
                 class="river-icon"
                 style={{
-                    color: COLORS.discardGlow,
+                    color: COLORS.hoverGlow,
                 }}>🫳</div>)}
             {highlightType === 'forced' && (<div
                 class="river-icon"
@@ -908,7 +908,7 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
                     minHeight: ((CARD_H_SM + 8) * 2),
                     flexWrap: 'wrap',
                     width: (((width) * (CARD_W_SM + 2))),
-                    background: "#f0f"
+                    // background: "#f0f"
                 }}>
                 {groups.map(g => g.cards.length > 0 && (
                     <div key={g.name}
