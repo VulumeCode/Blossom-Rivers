@@ -8,7 +8,7 @@ import {
     GameAction,
 } from './types';
 import { images } from './cardImages';
-import { CARDS, countType, hasCard, isLightning, isRainMan, isWillow } from './cards';
+import { CARDS, isLightning, isRainMan, isWillow } from './cards';
 import { computeYaku, nonJunkPoints, } from './yaku';
 
 // --- GAME HELPERS ---
@@ -52,7 +52,6 @@ function dealNewRound(deckIn: Card[]): DealResult {
 
 // --- CONSTANTS ---
 const TOTAL_ROUNDS = 3;
-const TURNS_PER_ROUND = 6; // each player has 6 hand cards, one used per turn
 
 // Phases: MENU, DEALING, CAPTURING, FORCED_CAPTURE, YAKU_CHOICE, ROUND_OVER, GAME_OVER
 function makeInitialState(): GameState {
@@ -108,8 +107,10 @@ function startRound(state: GameState): GameState {
     };
 }
 
+let _simMode = false;
+
 function gameReducer(state: GameState, action: GameAction): GameState {
-    console.log(action)
+    if (!_simMode) console.log(action)
     switch (action.type) {
         case 'START_GAME': {
             const s = makeInitialState();
@@ -432,199 +433,195 @@ function advanceTurn(state: GameState): GameState {
     };
 }
 
-// --- AI LOGIC ---
-// Score a potential capture for AI: how much yaku-building value does it add?
-function aiScoreCapture(aiCaptured: Card[], riverCards: Card[], handCard: Card) {
-    const combined = [...aiCaptured, ...riverCards, handCard];
-    const currentYaku = computeYaku(aiCaptured);
-    const newYaku = computeYaku(combined);
-    let score = (newYaku.total - currentYaku.total) * 10;
-    // Value non-junk types higher
-    for (const c of [...riverCards, handCard]) {
-        if (c.type === 'bright') score += 8;
-        else if (c.type === 'animal') score += 4;
-        else if (c.type === 'ribbon') score += 3;
-        else score += 1;
-    }
-    // Bonus for river size (bigger captures = more value)
-    score += riverCards.length * 2;
-    return score;
+// --- AI LOGIC (Monte Carlo Tree Search) ---
+
+// Randomize cards unknown to AI (player 1): opponent's hand and the deck
+function randomizeHiddenCards(state: GameState): GameState {
+    const hidden = [...state.deck, ...state.hands[0]];
+    const shuffled = shuffle(hidden);
+    const oppSize = state.hands[0].length;
+    return {
+        ...state,
+        hands: [shuffled.slice(0, oppSize), state.hands[1]] as [Card[], Card[]],
+        deck: shuffled.slice(oppSize),
+    };
 }
 
-// AI chooses where to drop a drawn card (dealing phase)
-// Does NOT look at opponent's hand — infers threat from their captured cards
-function aiChooseRiver(state: GameState) {
-    const available = [0, 1, 2].filter(i => !state.riversUsedThisTurn[i]);
-    if (available.length === 0) return 0;
-    if (available.length === 1) return available[0];
-
-    const card = state.drawnCard!;
-    const aiHand = state.hands[1];
-    const oppCaptured = state.captured[0];
-
-    // Infer which specific cards the opponent wants based on yaku progress
-    const oppWantedIds = new Set<string>();
-    // Poetry Ribbons progress → they want the missing poetry ribbons
-    const poetryIds = ['1-ribbon', '2-ribbon', '3-ribbon'];
-    if (poetryIds.filter(id => hasCard(oppCaptured, id)).length >= 1) {
-        poetryIds.forEach(id => { if (!hasCard(oppCaptured, id)) oppWantedIds.add(id); });
+// Enumerate valid actions for AI (player 1) in the given state
+function getAIActions(state: GameState): GameAction[] {
+    if (state.phase === 'DEALING' && state.dealerIdx === 1 && state.drawnCard !== null) {
+        const avail = [0, 1, 2].filter(i => !state.riversUsedThisTurn[i]);
+        return avail.map(riverIdx => ({ type: 'DROP_IN_RIVER' as const, riverIdx }));
     }
-    // Blue Ribbons progress
-    const blueIds = ['6-ribbon', '9-ribbon', '10-ribbon'];
-    if (blueIds.filter(id => hasCard(oppCaptured, id)).length >= 1) {
-        blueIds.forEach(id => { if (!hasCard(oppCaptured, id)) oppWantedIds.add(id); });
+    if (state.phase === 'CAPTURING' && state.capturerIdx === 1) {
+        const actions: GameAction[] = [];
+        for (const card of state.hands[1]) {
+            for (let ri = 0; ri < 3; ri++) {
+                if (state.rivers[ri].length > 0 && canCaptureRiver(card, state.rivers[ri])) {
+                    actions.push({ type: 'CAPTURE_RIVER', riverIdx: ri, handCard: card });
+                }
+            }
+        }
+        // One discard per card: always to the smallest river to keep action space bounded
+        const smallestRi = ([0, 1, 2] as const).reduce((a, b) =>
+            state.rivers[a].length <= state.rivers[b].length ? a : b);
+        for (const card of state.hands[1]) {
+            actions.push({ type: 'DISCARD_TO_RIVER', riverIdx: smallestRi, handCard: card });
+        }
+        return actions;
     }
-    // Boar-Deer-Butterfly progress
-    const bdbIds = ['7-animal', '10-animal', '6-animal'];
-    if (bdbIds.filter(id => hasCard(oppCaptured, id)).length >= 1) {
-        bdbIds.forEach(id => { if (!hasCard(oppCaptured, id)) oppWantedIds.add(id); });
+    if (state.phase === 'FORCED_CAPTURE' && state.capturerIdx === 1) {
+        const ri = state.lightningRiver!;
+        return state.hands[1].map(card => ({ type: 'CAPTURE_RIVER' as const, riverIdx: ri, handCard: card }));
     }
-    // Viewing yaku progress
-    if (hasCard(oppCaptured, '3-bright') || hasCard(oppCaptured, '9-animal')) {
-        if (!hasCard(oppCaptured, '3-bright')) oppWantedIds.add('3-bright');
-        if (!hasCard(oppCaptured, '9-animal')) oppWantedIds.add('9-animal');
+    if (state.phase === 'YAKU_CHOICE' && state.yakuPlayer === 1) {
+        return [{ type: 'CALL_STOP' }, { type: 'CALL_KOIKOI' }];
     }
-    if (hasCard(oppCaptured, '8-bright') || hasCard(oppCaptured, '9-animal')) {
-        if (!hasCard(oppCaptured, '8-bright')) oppWantedIds.add('8-bright');
-        if (!hasCard(oppCaptured, '9-animal')) oppWantedIds.add('9-animal');
+    return [];
+}
+
+// Get a random valid action for whichever player needs to act (used in rollouts)
+function getSimAction(state: GameState): GameAction | null {
+    if (state.phase === 'GAME_OVER') return null;
+    if (state.phase === 'ROUND_OVER') return { type: 'NEXT_ROUND' };
+    if (state.phase === 'DEALING') {
+        if (!state.drawnCard) return { type: 'DRAW_CARD' };
+        const avail = [0, 1, 2].filter(i => !state.riversUsedThisTurn[i]);
+        if (avail.length === 0) return null;
+        return { type: 'DROP_IN_RIVER', riverIdx: avail[Math.floor(Math.random() * avail.length)] };
     }
-    // Opponent wants brights if they already have some
-    const oppBrights = countType(oppCaptured, 'bright');
-    if (oppBrights >= 2) {
-        CARDS.filter(c => c.type === 'bright' && !hasCard(oppCaptured, c.id)).forEach(c => oppWantedIds.add(c.id));
+    if (state.phase === 'CAPTURING') {
+        const who = state.capturerIdx;
+        const hand = state.hands[who];
+        if (hand.length === 0) return null;
+        const caps: GameAction[] = [];
+        for (const card of hand) {
+            for (let ri = 0; ri < 3; ri++) {
+                if (state.rivers[ri].length > 0 && canCaptureRiver(card, state.rivers[ri])) {
+                    caps.push({ type: 'CAPTURE_RIVER', riverIdx: ri, handCard: card });
+                }
+            }
+        }
+        if (caps.length > 0) return caps[Math.floor(Math.random() * caps.length)];
+        const card = hand[Math.floor(Math.random() * hand.length)];
+        return { type: 'DISCARD_TO_RIVER', riverIdx: Math.floor(Math.random() * 3), handCard: card };
+    }
+    if (state.phase === 'FORCED_CAPTURE') {
+        const hand = state.hands[state.capturerIdx];
+        if (hand.length === 0) return null;
+        return { type: 'CAPTURE_RIVER', riverIdx: state.lightningRiver!, handCard: hand[Math.floor(Math.random() * hand.length)] };
+    }
+    if (state.phase === 'YAKU_CHOICE') {
+        return Math.random() < 0.5 ? { type: 'CALL_STOP' } : { type: 'CALL_KOIKOI' };
+    }
+    return null;
+}
+
+// Fast random rollout from a state to game over
+function rolloutToEnd(state: GameState): GameState {
+    let s = state;
+    for (let i = 0; i < 600 && s.phase !== 'GAME_OVER'; i++) {
+        const action = getSimAction(s);
+        if (!action) break;
+        const next = gameReducer(s, action);
+        if (next === s) break; // action rejected — avoid infinite loop
+        s = next;
+    }
+    return s;
+}
+
+// MCTS: choose the best action for AI given the current (partially observable) state.
+// Uses determinization: hidden cards are randomized once per simulation.
+function mctsChooseAction(state: GameState, simCount: number): GameAction {
+    const actions = getAIActions(state);
+    if (actions.length === 0) return { type: 'DRAW_CARD' };
+    if (actions.length === 1) return actions[0];
+
+    const wins = new Float64Array(actions.length);
+    const visits = new Int32Array(actions.length);
+    const C = 1.41; // UCB1 exploration constant
+
+    _simMode = true;
+    try {
+        for (let sim = 0; sim < simCount; sim++) {
+            // Determinize: randomly assign hidden cards for this simulation
+            const detState = randomizeHiddenCards(state);
+
+            // Select action via UCB1 (round-robin for the first pass)
+            let ai: number;
+            if (sim < actions.length) {
+                ai = sim;
+            } else {
+                const logTotal = Math.log(sim);
+                let bestUCB = -Infinity;
+                ai = 0;
+                for (let i = 0; i < actions.length; i++) {
+                    const ucb = wins[i] / visits[i] + C * Math.sqrt(logTotal / visits[i]);
+                    if (ucb > bestUCB) { bestUCB = ucb; ai = i; }
+                }
+            }
+
+            // Apply chosen action then roll out to game over
+            const next = gameReducer(detState, actions[ai]);
+            const terminal = rolloutToEnd(next);
+
+            if (terminal.scores[1] === terminal.scores[0]) {
+                console.log("tie", terminal.scores)
+            }
+
+            // Score: win = 1, tie = 0.5, loss = 0
+            const score = terminal.scores[1] > terminal.scores[0] ? 1
+                : terminal.scores[1] === terminal.scores[0] ? 0.5 : 0;
+
+            wins[ai] += score;
+            visits[ai]++;
+        }
+    } finally {
+        _simMode = false;
     }
 
-    let bestIdx = available[0];
-    let bestScore = -Infinity;
-
-    for (const ri of available) {
-        let score = 0;
-        const riverAfter = [...state.rivers[ri], card];
-
-        // Penalize if river contains cards the opponent needs for yaku
-        const oppWouldWant = riverAfter.some(c => oppWantedIds.has(c.id));
-        if (oppWouldWant) score -= 3;
-
-        // Bigger penalty for larger rivers (more cards = juicier target)
-        score -= state.rivers[ri].length;
-
-        // Bonus if AI could capture this river later
-        const aiCanCapture = aiHand.some(hc => canCaptureRiver(hc, riverAfter));
-        if (aiCanCapture) score += 3;
-
-        // Prefer dropping in already-matching rivers (month consolidation)
-        const monthMatch = state.rivers[ri].some(c => c.month === card.month);
-        if (monthMatch) score += 1;
-
-        // Prefer smaller rivers when discarding (less value given away)
-        if (!aiCanCapture) score -= state.rivers[ri].length;
-
-        // Small random tiebreak
-        score += Math.random() * 0.5;
-
-        if (score > bestScore) {
-            bestScore = score;
-            bestIdx = ri;
+    // Return the action with the highest win rate
+    let bestIdx = 0, bestRate = -1;
+    for (let i = 0; i < actions.length; i++) {
+        if (visits[i] > 0) {
+            const rate = wins[i] / visits[i];
+            if (rate > bestRate) { bestRate = rate; bestIdx = i; }
         }
     }
-    return bestIdx;
+    console.log("bestRate", bestRate)
+    return actions[bestIdx];
 }
 
 type AIAction =
     | { type: 'capture'; card: Card; riverIdx: number }
     | { type: 'discard'; card: Card; riverIdx: number };
 
-// AI chooses capture or discard action
+function aiChooseRiver(state: GameState): number {
+    const action = mctsChooseAction(state, 2000);
+    if (action.type === 'DROP_IN_RIVER') return action.riverIdx;
+    return [0, 1, 2].find(i => !state.riversUsedThisTurn[i]) ?? 0;
+}
+
 function aiChooseCaptureAction(state: GameState): AIAction {
-    const aiHand = state.hands[1];
-    const aiCaptured = state.captured[1];
-
-    let bestAction: AIAction | null = null;
-    let bestScore = -Infinity;
-
-    // Evaluate each hand card × each river for capture
-    for (const card of aiHand) {
-        for (let ri = 0; ri < 3; ri++) {
-            if (state.rivers[ri].length === 0) continue;
-            if (!canCaptureRiver(card, state.rivers[ri])) continue;
-
-            const score = aiScoreCapture(aiCaptured, state.rivers[ri], card);
-            if (score > bestScore) {
-                bestScore = score;
-                bestAction = { type: 'capture', card, riverIdx: ri };
-            }
-        }
+    const action = mctsChooseAction(state, 4000);
+    if (action.type === 'CAPTURE_RIVER' && action.handCard) {
+        return { type: 'capture', card: action.handCard, riverIdx: action.riverIdx };
     }
-
-    // If no capture found or best capture is low value, consider discarding
-    if (!bestAction || bestScore < 2) {
-        // Find least valuable card to discard
-        const cardValues = aiHand.map(c => {
-            let v = 0;
-            if (c.type === 'bright') v = 8;
-            else if (c.type === 'animal') v = 4;
-            else if (c.type === 'ribbon') v = 3;
-            else v = 1;
-            // Keep cards that could capture in future
-            const futureCapture = state.rivers.some(r => r.length > 0 && canCaptureRiver(c, r));
-            if (futureCapture) v += 2;
-            return { card: c, value: v };
-        });
-        cardValues.sort((a, b) => a.value - b.value);
-        const discardCard = cardValues[0].card;
-
-        // Discard to river that benefits AI least / hurts opponent most
-        let bestRiver = 0;
-        let bestRiverScore = -Infinity;
-        for (let ri = 0; ri < 3; ri++) {
-            let rs = 0;
-            // Prefer smaller rivers (don't give opponent big captures)
-            rs -= state.rivers[ri].length;
-            rs += Math.random() * 0.5;
-            if (rs > bestRiverScore) {
-                bestRiverScore = rs;
-                bestRiver = ri;
-            }
-        }
-
-        // Only discard if no capture exists or capture is really bad
-        if (!bestAction) {
-            return { type: 'discard', card: discardCard, riverIdx: bestRiver };
-        }
+    if (action.type === 'DISCARD_TO_RIVER' && action.handCard) {
+        return { type: 'discard', card: action.handCard, riverIdx: action.riverIdx };
     }
-
-    return bestAction;
+    return { type: 'discard', card: state.hands[1][0], riverIdx: 0 };
 }
 
-// AI forced capture: choose which hand card to use
 function aiChooseForcedCaptureCard(state: GameState): Card {
-    const aiHand = state.hands[1];
-    const ri = state.lightningRiver!;
-    const river = state.rivers[ri];
-
-    // Pick card that benefits AI most (least valuable standalone card, to save good cards)
-    let bestCard = aiHand[0];
-    let bestScore = -Infinity;
-    for (const card of aiHand) {
-        const score = aiScoreCapture(state.captured[1], river, card);
-        if (score > bestScore) {
-            bestScore = score;
-            bestCard = card;
-        }
-    }
-    return bestCard;
+    const action = mctsChooseAction(state, 2000);
+    if (action.type === 'CAPTURE_RIVER' && action.handCard) return action.handCard;
+    return state.hands[1][0];
 }
 
-// AI koikoi decision: weighted by turns remaining
-function aiDecideKoikoi(state: GameState) {
-    const yaku = computeYaku(state.captured[1]);
-    const pts = yaku.total;
-    if (pts >= 12) return false; // very high score — stop to lock it in
-    if (pts < 5) return true;   // low score — always continue
-    const turnsLeft = TURNS_PER_ROUND - state.turn;
-    if (turnsLeft <= 1) return false; // last turn — take what you have
-    const prob = (turnsLeft / TURNS_PER_ROUND) * 0.85;
-    return Math.random() < prob;
+function aiDecideKoikoi(state: GameState): boolean {
+    const action = mctsChooseAction(state, 2000);
+    return action.type === 'CALL_KOIKOI';
 }
 
 // --- STYLE CONSTANTS ---
@@ -874,7 +871,6 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
 
     const groupsLength = groupSizes.length;
 
-    console.log(id, groupSizes, groupsLength)
     const width: number = [
         () => 0,
         () => groupSizes[0],
@@ -889,7 +885,6 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
             Math.max(groupSizes[0], groupSizes[1] + 0.5 + groupSizes[2] + 0.5 + groupSizes[3]),
         ),
     ][groupsLength]() + 0.5;
-    console.log(width)
 
     return (
         <>
