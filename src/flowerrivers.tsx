@@ -565,13 +565,15 @@ function mctsChooseAction(state: GameState, simCount: number): GameAction {
             const next = gameReducer(detState, actions[ai]);
             const terminal = rolloutToEnd(next);
 
-            if (terminal.scores[1] === terminal.scores[0]) {
-                console.log("tie", terminal.scores)
-            }
+            // // Score: win = 1, tie = 0.5, loss = 0
+            // const score = terminal.scores[1] > terminal.scores[0] ? 1
+            //     : terminal.scores[1] === terminal.scores[0] ? 0.5 : 0;
 
-            // Score: win = 1, tie = 0.5, loss = 0
-            const score = terminal.scores[1] > terminal.scores[0] ? 1
-                : terminal.scores[1] === terminal.scores[0] ? 0.5 : 0;
+            // Score with a sigmoid
+            const points = terminal.scores[1] - terminal.scores[0];
+            const score = points > 0
+                ? points / (1 + Math.abs(points))
+                : 0;
 
             wins[ai] += score;
             visits[ai]++;
