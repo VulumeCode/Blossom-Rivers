@@ -13,7 +13,7 @@
 
 
     --color-bg: #0e421b;
-    --color-dark: var(--card-bark);
+    --color-dark: var(--card-frame-outer);
     --color-felt: var(--card-bark);
     --color-separator: rgba(255, 255, 255, 0.08);
     --color-card-shadow: rgba(0, 0, 0, 0.4);

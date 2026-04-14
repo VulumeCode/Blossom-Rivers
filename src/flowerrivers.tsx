@@ -1159,7 +1159,7 @@ export function FlowerRivers() {
                 justifyContent: 'center', height: '100vh', background: COLORS.bg,
                 color: COLORS.white,
             }}>
-                <div id="round-over-title" style={{ fontSize: 32, fontWeight: 700, color: COLORS.red, marginBottom: 16 }}>
+                <div id="round-over-title" style={{ fontSize: 32, fontWeight: 700, color: COLORS.pink, marginBottom: 16 }}>
                     Round {round} Complete
                 </div>
                 {info && info.winner === -1 ? (
@@ -1172,7 +1172,7 @@ export function FlowerRivers() {
                                 {info && playerName(info.winner)} won the round!
                         </div>
                         {info && info.yakuList.map(y => (
-                            <div key={y.name} style={{ fontSize: 14, color: COLORS.red }}>
+                            <div key={y.name} style={{ fontSize: 14, color: COLORS.purple }}>
                                 {y.name}: {y.points} pts
                             </div>
                         ))}
@@ -1182,7 +1182,7 @@ export function FlowerRivers() {
                             {info && info.oppKoikoi !== undefined && info.oppKoikoi > 0 && ` × ${Math.pow(2, info.oppKoikoi)} (opponent koi-koi)`}
                             {info && info.drawMultiplier > 1 && ` × ${info.drawMultiplier} (draw bonus)`}
                         </div>
-                        <div id="round-over-final-points" style={{ fontSize: 22, fontWeight: 700, color: COLORS.red, marginTop: 6 }}>
+                            <div id="round-over-final-points" style={{ fontSize: 22, fontWeight: 700, color: COLORS.pink, marginTop: 6 }}>
                             = {info && info.finalPoints} points
                         </div>
                     </div>
@@ -1194,7 +1194,7 @@ export function FlowerRivers() {
                     onClick={() => dispatch({ type: 'NEXT_ROUND' })}
                     style={{
                         padding: '12px 40px', fontSize: 16, fontWeight: 600,
-                        background: COLORS.red, color: COLORS.bg, border: 'none',
+                        background: COLORS.purple, color: COLORS.bg, border: 'none',
                         borderRadius: 8, cursor: 'pointer',
                     }}
                 >
@@ -1216,7 +1216,7 @@ export function FlowerRivers() {
                 justifyContent: 'center', height: '100vh', background: COLORS.bg,
                 color: COLORS.white,
             }}>
-                <div id="game-over-title" style={{ fontSize: 36, fontWeight: 700, color: COLORS.red, marginBottom: 8 }}>
+                <div id="game-over-title" style={{ fontSize: 36, fontWeight: 700, color: COLORS.pink, marginBottom: 8 }}>
                     Game Over
                 </div>
                 {info && info.winner !== -1 && (
@@ -1225,7 +1225,7 @@ export function FlowerRivers() {
                             {playerName(info.winner)} won the final round with {info.finalPoints} pts
                         </div>
                         {info.yakuList.map(y => (
-                            <div key={y.name} style={{ fontSize: 13, color: COLORS.red }}>
+                            <div key={y.name} style={{ fontSize: 13, color: COLORS.purple }}>
                                 {y.name}: {y.points}
                             </div>
                         ))}
@@ -1237,14 +1237,14 @@ export function FlowerRivers() {
                 <div id="game-over-scores" style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>
                     You: {finalS0} — AI: {finalS1}
                 </div>
-                <div id="game-over-winner" style={{ fontSize: 28, color: COLORS.red, fontWeight: 700, marginBottom: 24 }}>
+                <div id="game-over-winner" style={{ fontSize: 28, color: COLORS.pink, fontWeight: 700, marginBottom: 24 }}>
                     {winner}
                 </div>
                 <button
                     onClick={() => dispatch({ type: 'START_GAME' })}
                     style={{
                         padding: '12px 40px', fontSize: 16, fontWeight: 600,
-                        background: COLORS.red, color: COLORS.bg, border: 'none',
+                        background: COLORS.pink, color: COLORS.bg, border: 'none',
                         borderRadius: 8, cursor: 'pointer',
                     }}
                 >
@@ -1388,7 +1388,7 @@ export function FlowerRivers() {
                         selectedCard={revealedAiCard}
                     />
                     {koikoiCounts[1] > 0 && (
-                        <span style={{ fontSize: 11, color: COLORS.red, fontWeight: 700 }}>
+                        <span style={{ fontSize: 11, color: COLORS.pink, fontWeight: 700 }}>
                             Koi-Koi ×{koikoiCounts[1]}
                         </span>
                     )}
@@ -1490,11 +1490,12 @@ export function FlowerRivers() {
                     background: COLORS.overlay, zIndex: 100,
                 }}>
                     <div id="yaku-dialog" style={{
-                        background: COLORS.felt, border: `2px solid ${COLORS.red}`,
+                        background: COLORS.dark,
+                        border: `2px solid ${COLORS.dark}`,
                         borderRadius: 12, padding: 32, textAlign: 'center',
                         maxWidth: 400,
                     }}>
-                        <div id="yaku-dialog-title" style={{ fontSize: 22, fontWeight: 700, color: COLORS.red, marginBottom: 12 }}>
+                        <div id="yaku-dialog-title" style={{ fontSize: 22, fontWeight: 700, color: COLORS.pink, marginBottom: 12 }}>
                             Yaku!
                         </div>
                         {newYaku.map(y => (
@@ -1513,7 +1514,7 @@ export function FlowerRivers() {
                                 onClick={() => dispatch({ type: 'CALL_STOP' })}
                                 style={{
                                     padding: '10px 28px', fontSize: 15, fontWeight: 600,
-                                    background: COLORS.red, color: COLORS.bg, border: 'none',
+                                    background: COLORS.purple, color: COLORS.dark, border: 'none',
                                     borderRadius: 6, cursor: 'pointer',
                                 }}
                             >
@@ -1524,8 +1525,8 @@ export function FlowerRivers() {
                                 onClick={() => dispatch({ type: 'CALL_KOIKOI' })}
                                 style={{
                                     padding: '10px 28px', fontSize: 15, fontWeight: 600,
-                                    background: 'transparent', color: COLORS.red,
-                                    border: `2px solid ${COLORS.red}`, borderRadius: 6,
+                                    background: 'transparent', color: COLORS.capture,
+                                    border: `2px solid ${COLORS.capture}`, borderRadius: 6,
                                     cursor: 'pointer',
                                 }}
                             >
@@ -1563,7 +1564,7 @@ export function FlowerRivers() {
                         onCardLeave={isCapturingPhase ? () => setHoveredHandCard(null) : undefined}
                     />
                     {koikoiCounts[0] > 0 && (
-                        <span style={{ fontSize: 11, color: COLORS.red, fontWeight: 700 }}>
+                        <span style={{ fontSize: 11, color: COLORS.pink, fontWeight: 700 }}>
                             Koi-Koi ×{koikoiCounts[0]}
                         </span>
                     )}
