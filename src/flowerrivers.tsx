@@ -685,6 +685,7 @@ function CardView({ card, faceDown, onClick, selected, small, disabled, highligh
 
     return (
         <span
+            id={card.id}
             title={faceDown ? undefined : card.name}
             style={{ display: 'inline-block', flexShrink: 0 }}
             onClick={onClick && !disabled ? onClick : undefined}
