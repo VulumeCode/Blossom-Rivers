@@ -652,12 +652,12 @@ const COLORS = {
     dark: 'var(--color-dark)',
     pink: 'var(--color-pink)',
     white: 'var(--color-text)',
-    red: 'var(--color-red)',
+    red: 'var(--color-red)',    
+    purple: 'var(--color-purple)',    
     capture: 'var(--color-capture)',
     discard: 'var(--color-discard)',
     forced: 'var(--color-forced)',
     drop: 'var(--color-drop)',
-    riverFrom: 'var(--color-river-from)',
     separator: 'var(--color-separator)',
     cardShadow: 'var(--color-card-shadow)',
     overlay: 'var(--color-overlay)',
@@ -734,7 +734,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
             : highlightType === 'forced' ? COLORS.forced
                 : highlightType === 'drop' ? COLORS.drop
                     : hoverHighlight ? COLORS.capture
-                        : COLORS.riverFrom;
+                        : COLORS.purple;
 
     const hasRainManCard = cards.some(isRainMan);
     const hasLightningCard = cards.some(isLightning);
@@ -767,7 +767,6 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 minWidth: 120,
             }}
         >
-
 
             {showDiscard
                 ? <CardButton
@@ -973,7 +972,7 @@ function YakuList({ captured, label }: YakuListProps) {
     const { yakuList, total } = computeYaku(captured);
     if (yakuList.length === 0) return null;
     return (
-        <div style={{ fontSize: 11, color: COLORS.red, padding: '2px 8px' }}>
+        <div style={{ fontSize: 11, color: COLORS.purple, padding: '2px 8px' }}>
             <span style={{ fontWeight: 600 }}>{label}: </span>
             {yakuList.map(y => `${y.name} (${y.points})`).join(', ')}
             <span style={{ marginLeft: 6, fontWeight: 700 }}>= {total}</span>
@@ -1134,14 +1133,14 @@ export function FlowerRivers() {
                     <span class="kanji" style={{ color: COLORS.pink }}>花</span>
                     <span />
                     <span />
-                    <span class="kanji" style={{ color: COLORS.riverFrom }}>川</span>
-                    <span style={{ color: COLORS.riverFrom, alignSelf: 'start', paddingLeft: 4 }}>Rivers</span>
+                    <span class="kanji" style={{ color: COLORS.purple }}>川</span>
+                    <span style={{ color: COLORS.purple, alignSelf: 'start', paddingLeft: 4 }}>Rivers</span>
                 </div>
                 <button
                     onClick={() => dispatch({ type: 'START_GAME' })}
                     style={{
                         padding: '14px 48px', fontSize: 18, fontWeight: 600,
-                        background: COLORS.riverFrom, color: COLORS.bg, border: 'none',
+                        background: COLORS.purple, color: COLORS.bg, border: 'none',
                         borderRadius: 8, cursor: 'pointer',
                     }}
                 >
