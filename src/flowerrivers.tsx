@@ -1052,12 +1052,15 @@ export function FlowerRivers() {
     useEffect(() => {
         if (phase !== 'FORCED_CAPTURE' || isHumanCapturer) return;
 
+        const card = aiChooseForcedCaptureCard(state);
+        setRevealedAiCard(card);
+
         const timer = setTimeout(() => {
-            const card = aiChooseForcedCaptureCard(state);
+            setRevealedAiCard(null);
             dispatch({ type: 'CAPTURE_RIVER', riverIdx: lightningRiver!, handCard: card });
         }, 700);
 
-        return () => clearTimeout(timer);
+        return () => { clearTimeout(timer); setRevealedAiCard(null); };
     }, [phase, isHumanCapturer, lightningRiver]);
 
     // AI yaku choice (koikoi or stop)
