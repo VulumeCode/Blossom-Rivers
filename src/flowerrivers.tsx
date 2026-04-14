@@ -10,6 +10,7 @@ import {
 import { images } from './cardImages';
 import { CARDS, isLightning, isRainMan, isWillow } from './cards';
 import { computeYaku, nonJunkPoints, } from './yaku';
+import { cx, css } from '@emotion/css';
 
 // --- GAME HELPERS ---
 function shuffle(arr: Card[]): Card[] {
@@ -686,26 +687,28 @@ function CardView({ card, faceDown, onClick, selected, small, disabled, highligh
     return (
         <span
             title={faceDown ? undefined : card.name}
-            style={{ display: 'inline-block', flexShrink: 0 }}
+            class={css({ display: 'inline-block', flexShrink: 0 })}
             onClick={onClick && !disabled ? onClick : undefined}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
         >
             <Svg
+                class={css({
+                    borderRadius: 4,
+                    transition: 'transform 0.2s, outline-color 0.2s',
+                    flexShrink: 0,
+                    outlineStyle: 'solid',
+                    outlineWidth: '2px',
+                    display: 'block',
+                    overflow: 'hidden',
+                    boxShadow: `0 1px 4px ${COLORS.cardShadow}`,
+                })}
                 style={{
                     width: w,
                     height: h,
-                    borderRadius: 4,
                     cursor: onClick && !disabled ? 'pointer' : 'default',
-                    transition: 'transform 0.2s, outline-color 0.2s',
                     transform: selected ? 'translateY(-8px)' : 'none',
-                    boxShadow: `0 1px 4px ${COLORS.cardShadow}`,
-                    flexShrink: 0,
-                    outlineStyle: "solid",
-                    outlineWidth: "2px",
                     outlineColor: highlighted ? COLORS.capture : 'transparent',
-                    display: 'block',
-                    overflow: 'hidden',
                     ...extraStyle,
                 }}
             />
@@ -744,7 +747,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
             onClick={onClick}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
-            style={{
+            class={css({
                 display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -752,18 +755,18 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                 padding: '6px 6px',
                 minHeight: CARD_H_RIVER + 16,
                 background: `var(--gradient-river)`,
-                outlineStyle: hasLightningCard || hasRainManCard
-                    ? "dashed"
-                    : 'solid',
                 borderWidth: '0',
                 borderRadius: '8px 0 0 8px',
-                outlineWidth: "2px",
-                marginLeft: "2px",
-                outlineColor: outlineColor,
-                cursor: onClick ? 'pointer' : 'default',
+                outlineWidth: '2px',
+                marginLeft: '2px',
                 transition: 'outline-color 0.2s',
                 position: 'relative',
                 minWidth: 120,
+            })}
+            style={{
+                outlineStyle: hasLightningCard || hasRainManCard ? 'dashed' : 'solid',
+                outlineColor: outlineColor,
+                cursor: onClick ? 'pointer' : 'default',
             }}
         >
 
@@ -778,7 +781,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                         icon="🍂"
                         color={COLORS.drop} />
                 ) :
-                    <div style={{ width: CARD_W_RIVER, height: CARD_H_RIVER, flexShrink: 0 }} />}
+                    <div class={css({ width: CARD_W_RIVER, height: CARD_H_RIVER, flexShrink: 0 })} />}
 
             {cards.map(card => (
                 <CardView
@@ -791,15 +794,9 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
 
 
             {highlightType === 'capture' && (<div
-                class="river-icon"
-                style={{
-                    color: COLORS.capture,
-                }}>🫳</div>)}
+                class={cx("river-icon", css({ color: COLORS.capture }))}>🫳</div>)}
             {highlightType === 'forced' && (<div
-                class="river-icon"
-                style={{
-                    color: COLORS.forced,
-                }}>🫳</div>)}
+                class={cx("river-icon", css({ color: COLORS.forced }))}>🫳</div>)}
         </div>
     );
 }
@@ -809,8 +806,6 @@ interface CardButtonProps {
     icon: string;
     onClick?: () => void;
 }
-
-import { cx, css } from '@emotion/css'
 
 function CardButton({ color, icon, onClick }: CardButtonProps) {
     return (<button
@@ -855,13 +850,13 @@ interface HandViewProps {
 
 function HandView({ id, cards, faceDown, selectedCard, onSelect, disabled, highlightedIds, onCardHover, onCardLeave }: HandViewProps) {
     return (
-        <div id={id} style={{
+        <div id={id} class={css({
             display: 'flex',
             flexDirection: 'row',
             gap: 6,
             justifyContent: 'center',
             flexWrap: 'wrap',
-        }}>
+        })}>
             {cards.map(card => {
                 const isRevealed = selectedCard && selectedCard.id === card.id;
                 return (
@@ -923,18 +918,17 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
 
     return (
         <>
-            <span style={{
+            <span class={css({
                 color: COLORS.pink,
                 fontSize: 11,
                 fontWeight: 600,
                 minWidth: 60,
                 paddingTop: 2,
-            }}>
+            })}>
                 {label} ({cards.length})
             </span>
             <div id={id}
-                class='captured-card-groups'
-                style={{
+                class={cx('captured-card-groups', css({
                     display: 'flex',
                     flexDirection: 'row',
                     gap: 12,
@@ -942,19 +936,18 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
                     padding: '4px 0',
                     minHeight: ((CARD_H_SM + 8) * 2),
                     flexWrap: 'wrap',
-                    width: (((width) * (CARD_W_SM + 2))),
-                    // background: "#f0f"
-                }}>
+                }))}
+                style={{ width: (width * (CARD_W_SM + 2)) }}
+            >
                 {groups.map(g => g.cards.length > 0 && (
                     <div key={g.name}
-                        class='captured-card-group'
-                        style={{
+                        class={cx('captured-card-group', css({
                             gap: 2,
                             display: 'flex',
                             alignItems: 'center',
-                            flex: '0 1 auto'
-                        }}>
-                        <span style={{ fontSize: 9, color: g.color, marginRight: 2 }}>
+                            flex: '0 1 auto',
+                        }))}>
+                        <span class={css({ fontSize: 9, marginRight: 2 })} style={{ color: g.color }}>
                             {g.cards.length}
                         </span>
                         {g.cards.map(c => (
@@ -977,10 +970,10 @@ function YakuList({ captured, label }: YakuListProps) {
     const { yakuList, total } = computeYaku(captured);
     if (yakuList.length === 0) return null;
     return (
-        <div style={{ fontSize: 11, color: COLORS.red, padding: '2px 8px' }}>
-            <span style={{ fontWeight: 600 }}>{label}: </span>
+        <div class={css({ fontSize: 11, color: COLORS.red, padding: '2px 8px' })}>
+            <span class={css({ fontWeight: 600 })}>{label}: </span>
             {yakuList.map(y => `${y.name} (${y.points})`).join(', ')}
-            <span style={{ marginLeft: 6, fontWeight: 700 }}>= {total}</span>
+            <span class={css({ marginLeft: 6, fontWeight: 700 })}>= {total}</span>
         </div>
     );
 }
