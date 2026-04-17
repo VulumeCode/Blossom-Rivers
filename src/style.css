@@ -59,21 +59,6 @@ button {
         "MONO" 0;
 }
 
-#menu-title {
-    font-size: 28px;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    font-weight: 700;
-    margin-bottom: 32px;
-    line-height: 1;
-
-    .kanji {
-        font-size: 72px;
-        font-weight: bold;
-        font-family: sans;
-    }
-}
-
 * {
     margin: 0;
     padding: 0;
@@ -88,41 +73,26 @@ body,
     overflow: hidden;
 }
 
-.card-button,
-.river-icon {
+button[data-role="card-button"],
+river-icon {
     font-family: "Noto Emoji", sans-serif;
     font-weight: normal;
     font-optical-sizing: auto;
     font-style: normal;
 }
 
-.river-icon {
-    font-size: 44px;
-    margin-left: auto;
-    margin-right: 33%;
-    width: 33%;
-    padding-left: 1em;
-}
-
-.river-icon[data-highlight="capture"] {
-    color: var(--color-capture);
-}
-
-.river-icon[data-highlight="forced"] {
-    color: var(--color-forced);
-}
-
 /* --- CARD VIEW --- */
-.card-wrapper {
+card-view {
     display: inline-block;
     flex-shrink: 0;
+    cursor: default;
 }
 
-.card-img {
+card-view svg {
     width: var(--card-w);
     height: var(--card-h);
     border-radius: 4px;
-    cursor: default;
+    cursor: inherit;
     transition: transform 0.2s, outline-color 0.2s;
     transform: none;
     box-shadow: 0 1px 4px var(--color-card-shadow);
@@ -132,30 +102,30 @@ body,
     overflow: hidden;
 }
 
-.card-img[data-size="sm"] {
+card-view[data-size="sm"] svg {
     width: var(--card-w-sm);
     height: var(--card-h-sm);
 }
 
-.card-img[data-size="river"] {
+card-view[data-size="river"] svg {
     width: var(--card-w-river);
     height: var(--card-h-river);
 }
 
-.card-img[data-clickable="true"] {
+card-view[data-clickable] {
     cursor: pointer;
 }
 
-.card-img[data-selected="true"] {
+card-view[data-selected] svg {
     transform: translateY(-8px);
 }
 
-.card-img[data-highlighted="true"] {
+card-view[data-highlighted] svg {
     outline-color: var(--color-capture);
 }
 
 /* --- RIVER --- */
-.river {
+river-lane {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -173,38 +143,56 @@ body,
     min-width: 120px;
 }
 
-.river[data-has-special="true"] {
+river-lane[data-has-special] {
     outline-style: dashed;
 }
 
-.river[data-clickable="true"] {
+river-lane[data-clickable] {
     cursor: pointer;
 }
 
-.river[data-hover-highlight="true"] {
+river-lane[data-hover-highlight] {
     outline-color: var(--color-capture);
 }
 
-.river[data-highlight="capture"] {
+river-lane[data-highlight="capture"] {
     outline-color: var(--color-capture);
 }
 
-.river[data-highlight="forced"] {
+river-lane[data-highlight="forced"] {
     outline-color: var(--color-forced);
 }
 
-.river[data-highlight="drop"] {
+river-lane[data-highlight="drop"] {
     outline-color: var(--color-drop);
 }
 
-.river-spacer {
+river-spacer {
+    display: block;
     width: var(--card-w-river);
     height: var(--card-h-river);
     flex-shrink: 0;
 }
 
-/* --- CARD BUTTON --- */
-.card-button {
+river-icon {
+    display: block;
+    font-size: 44px;
+    margin-left: auto;
+    margin-right: 33%;
+    width: 33%;
+    padding-left: 1em;
+}
+
+river-icon[data-highlight="capture"] {
+    color: var(--color-capture);
+}
+
+river-icon[data-highlight="forced"] {
+    color: var(--color-forced);
+}
+
+/* --- CARD BUTTON (used inside a river) --- */
+button[data-role="card-button"] {
     width: var(--card-w-river);
     height: var(--card-h-river);
     display: flex;
@@ -220,16 +208,16 @@ body,
     flex-shrink: 0;
 }
 
-.card-button[data-variant="discard"] {
+button[data-role="card-button"][data-variant="discard"] {
     color: var(--color-discard);
 }
 
-.card-button[data-variant="drop"] {
+button[data-role="card-button"][data-variant="drop"] {
     color: var(--color-drop);
 }
 
 /* --- HAND --- */
-.hand {
+hand-view {
     display: flex;
     flex-direction: row;
     gap: 6px;
@@ -238,7 +226,8 @@ body,
 }
 
 /* --- CAPTURED --- */
-.captured-label {
+captured-label {
+    display: block;
     color: var(--color-pink);
     font-size: 11px;
     font-weight: 600;
@@ -246,7 +235,7 @@ body,
     padding-top: 2px;
 }
 
-.captured-card-groups {
+captured-view {
     display: flex;
     flex-direction: row;
     gap: 12px;
@@ -256,52 +245,56 @@ body,
     flex-wrap: wrap;
 }
 
-.captured-card-group {
+captured-group {
     gap: 2px;
     display: flex;
     align-items: center;
     flex: 0 1 auto;
 }
 
-.captured-card-group-count {
+group-count {
+    display: inline-block;
     font-size: 9px;
     margin-right: 2px;
 }
 
-.captured-card-group[data-type="bright"] .captured-card-group-count {
+captured-group[data-type="bright"] group-count {
     color: var(--color-bright);
 }
 
-.captured-card-group[data-type="animal"] .captured-card-group-count {
+captured-group[data-type="animal"] group-count {
     color: var(--color-animal);
 }
 
-.captured-card-group[data-type="ribbon"] .captured-card-group-count {
+captured-group[data-type="ribbon"] group-count {
     color: var(--color-ribbon);
 }
 
-.captured-card-group[data-type="junk"] .captured-card-group-count {
+captured-group[data-type="junk"] group-count {
     color: var(--color-junk);
 }
 
 /* --- YAKU LIST --- */
-.yaku-list {
+yaku-list {
+    display: block;
     font-size: 11px;
     color: var(--color-purple);
     padding: 2px 8px;
 }
 
-.yaku-list-label {
+yaku-label {
     font-weight: 600;
 }
 
-.yaku-list-total {
+yaku-total {
     margin-left: 6px;
     font-weight: 700;
 }
 
 /* --- FULLSCREEN SCREENS (menu / round over / game over) --- */
-.fullscreen-center {
+#menu-screen,
+#round-over-screen,
+#game-over-screen {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -311,27 +304,40 @@ body,
     color: var(--color-text);
 }
 
-.menu-title-blossom {
+#menu-title {
+    font-size: 28px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    font-weight: 700;
+    margin-bottom: 32px;
+    line-height: 1;
+}
+
+#menu-title [data-kanji] {
+    font-size: 72px;
+    font-weight: bold;
+    font-family: sans;
+}
+
+#menu-title [data-side="left"] {
     color: var(--color-pink);
+}
+
+#menu-title [data-side="left"]:not([data-kanji]) {
     align-self: end;
     padding-right: 4px;
 }
 
-.menu-title-rivers {
+#menu-title [data-side="right"] {
     color: var(--color-purple);
+}
+
+#menu-title [data-side="right"]:not([data-kanji]) {
     align-self: start;
     padding-left: 4px;
 }
 
-.menu-title-kanji-left {
-    color: var(--color-pink);
-}
-
-.menu-title-kanji-right {
-    color: var(--color-purple);
-}
-
-.start-button {
+#start-button {
     padding: 14px 48px;
     font-size: 18px;
     font-weight: 600;
@@ -365,7 +371,7 @@ body,
     margin-bottom: 8px;
 }
 
-.round-over-yaku {
+#round-over-winner-info [data-row="yaku"] {
     font-size: 14px;
     color: var(--color-purple);
 }
@@ -388,7 +394,7 @@ body,
     margin-bottom: 20px;
 }
 
-.next-round-button {
+#next-round-button {
     padding: 12px 40px;
     font-size: 16px;
     font-weight: 600;
@@ -417,7 +423,7 @@ body,
     margin-bottom: 6px;
 }
 
-.game-over-yaku {
+#game-over-round-info [data-row="yaku"] {
     font-size: 13px;
     color: var(--color-purple);
 }
@@ -440,7 +446,7 @@ body,
     margin-bottom: 24px;
 }
 
-.play-again-button {
+#play-again-button {
     padding: 12px 40px;
     font-size: 16px;
     font-weight: 600;
@@ -471,12 +477,12 @@ body,
     flex-shrink: 0;
 }
 
-.top-bar-title {
+top-title {
     color: var(--color-pink);
     font-weight: 700;
 }
 
-.top-bar-multiplier {
+draw-multiplier {
     color: var(--color-pink);
     margin-left: 8px;
 }
@@ -523,7 +529,8 @@ body,
     flex: 1 1 50%;
 }
 
-.koikoi-indicator {
+koikoi-indicator {
+    display: inline-block;
     font-size: 11px;
     color: var(--color-pink);
     font-weight: 700;
@@ -559,7 +566,8 @@ body,
     border-radius: 4px;
 }
 
-.deck-label {
+deck-label {
+    display: block;
     font-size: 11px;
     color: var(--color-pink);
     text-align: center;
@@ -629,7 +637,7 @@ body,
     margin-bottom: 12px;
 }
 
-.yaku-dialog-entry {
+#yaku-dialog [data-row="yaku"] {
     font-size: 16px;
     margin-bottom: 4px;
 }
@@ -647,7 +655,7 @@ body,
     margin-top: 16px;
 }
 
-.stop-button {
+#stop-button {
     padding: 10px 28px;
     font-size: 15px;
     font-weight: 600;
@@ -658,7 +666,7 @@ body,
     cursor: pointer;
 }
 
-.koikoi-button {
+#koikoi-button {
     padding: 10px 28px;
     font-size: 15px;
     font-weight: 600;

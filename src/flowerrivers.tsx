@@ -55,6 +55,7 @@ function dealNewRound(deckIn: Card[]): DealResult {
 
 // --- CONSTANTS ---
 const TOTAL_ROUNDS = 3;
+const CARD_W_SM = 44;
 
 // Phases: MENU, DEALING, CAPTURING, FORCED_CAPTURE, YAKU_CHOICE, ROUND_OVER, GAME_OVER
 function makeInitialState(): GameState {
@@ -652,28 +653,24 @@ interface CardViewProps {
     onMouseLeave?: () => void;
 }
 
-
 function CardView({ card, faceDown, onClick, selected, size = 'default', disabled, highlighted, onMouseEnter, onMouseLeave }: CardViewProps) {
     const Svg = faceDown ? images.card_back : card.img;
     const clickable = !!(onClick && !disabled);
 
     return (
-        <span
-            class="card-wrapper"
+        <card-view
             id={card.id}
             title={faceDown ? undefined : card.name}
+            data-size={size === 'default' ? undefined : size}
+            data-clickable={clickable || undefined}
+            data-selected={selected || undefined}
+            data-highlighted={highlighted || undefined}
             onClick={clickable ? onClick : undefined}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
         >
-            <Svg
-                class="card-img"
-                data-size={size === 'default' ? undefined : size}
-                data-clickable={clickable || undefined}
-                data-selected={selected || undefined}
-                data-highlighted={highlighted || undefined}
-            />
-        </span>
+            <Svg />
+        </card-view>
     );
 }
 
@@ -690,13 +687,11 @@ interface RiverViewProps {
     onMouseLeave?: () => void;
 }
 
-
 function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighlight, showDiscard, onMouseEnter, onMouseLeave }: RiverViewProps) {
     const hasSpecial = cards.some(isRainMan) || cards.some(isLightning);
 
     return (
-        <div
-            class="river"
+        <river-lane
             id={`river-${index}`}
             data-highlight={highlightType || undefined}
             data-hover-highlight={hoverHighlight || undefined}
@@ -716,7 +711,7 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
                         icon="🍂"
                         variant="drop" />
                 ) :
-                    <div class="river-spacer" />}
+                    <river-spacer />}
 
             {cards.map(card => (
                 <CardView
@@ -727,9 +722,9 @@ function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighl
             ))}
 
             {(highlightType === 'capture' || highlightType === 'forced') && (
-                <div class="river-icon" data-highlight={highlightType}>🫳</div>
+                <river-icon data-highlight={highlightType}>🫳</river-icon>
             )}
-        </div>
+        </river-lane>
     );
 }
 
@@ -742,7 +737,7 @@ interface CardButtonProps {
 function CardButton({ variant, icon, onClick }: CardButtonProps) {
     return (
         <button
-            class="card-button"
+            data-role="card-button"
             data-variant={variant}
             onClick={onClick}
         >
@@ -766,7 +761,7 @@ interface HandViewProps {
 
 function HandView({ id, cards, faceDown, selectedCard, onSelect, disabled, highlightedIds, onCardHover, onCardLeave }: HandViewProps) {
     return (
-        <div id={id} class="hand">
+        <hand-view id={id}>
             {cards.map(card => {
                 const isRevealed = selectedCard && selectedCard.id === card.id;
                 return (
@@ -783,7 +778,7 @@ function HandView({ id, cards, faceDown, selectedCard, onSelect, disabled, highl
                     />
                 );
             })}
-        </div>
+        </hand-view>
     );
 }
 
@@ -793,8 +788,6 @@ interface CapturedViewProps {
     cards: Card[];
     label: string;
 }
-
-const CARD_W_SM = 44;
 
 function CapturedView({ id, cards, label }: CapturedViewProps) {
     const brights = cards.filter(c => c.type === 'bright');
@@ -830,25 +823,19 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
 
     return (
         <>
-            <span class="captured-label">
+            <captured-label>
                 {label} ({cards.length})
-            </span>
-            <div id={id}
-                class='captured-card-groups'
-                style={{ width: width * (CARD_W_SM + 2) }}>
+            </captured-label>
+            <captured-view id={id} style={{ width: width * (CARD_W_SM + 2) }}>
                 {groups.map(g => g.cards.length > 0 && (
-                    <div key={g.name}
-                        class='captured-card-group'
-                        data-type={g.type}>
-                        <span class="captured-card-group-count">
-                            {g.cards.length}
-                        </span>
+                    <captured-group key={g.name} data-type={g.type}>
+                        <group-count>{g.cards.length}</group-count>
                         {g.cards.map(c => (
                             <CardView key={c.id} card={c} size="sm" />
                         ))}
-                    </div>
+                    </captured-group>
                 ))}
-            </div>
+            </captured-view>
         </>
     );
 }
@@ -863,11 +850,11 @@ function YakuList({ captured, label }: YakuListProps) {
     const { yakuList, total } = computeYaku(captured);
     if (yakuList.length === 0) return null;
     return (
-        <div class="yaku-list">
-            <span class="yaku-list-label">{label}: </span>
+        <yaku-list>
+            <yaku-label>{label}: </yaku-label>
             {yakuList.map(y => `${y.name} (${y.points})`).join(', ')}
-            <span class="yaku-list-total">= {total}</span>
-        </div>
+            <yaku-total>= {total}</yaku-total>
+        </yaku-list>
     );
 }
 
@@ -1011,17 +998,17 @@ export function FlowerRivers() {
     // Menu screen
     if (phase === 'MENU') {
         return (
-            <div id="menu-screen" class="fullscreen-center">
+            <div id="menu-screen">
                 <div id="menu-title">
-                    <span class="menu-title-blossom">Blossom</span>
-                    <span class="kanji menu-title-kanji-left">花</span>
+                    <span data-side="left">Blossom</span>
+                    <span data-side="left" data-kanji>花</span>
                     <span />
                     <span />
-                    <span class="kanji menu-title-kanji-right">川</span>
-                    <span class="menu-title-rivers">Rivers</span>
+                    <span data-side="right" data-kanji>川</span>
+                    <span data-side="right">Rivers</span>
                 </div>
                 <button
-                    class="start-button"
+                    id="start-button"
                     onClick={() => dispatch({ type: 'START_GAME' })}
                 >
                     Start Game
@@ -1034,7 +1021,7 @@ export function FlowerRivers() {
     if (phase === 'ROUND_OVER') {
         const info = roundScoreInfo;
         return (
-            <div id="round-over-screen" class="fullscreen-center">
+            <div id="round-over-screen">
                 <div id="round-over-title">
                     Round {round} Complete
                 </div>
@@ -1048,7 +1035,7 @@ export function FlowerRivers() {
                             {info && playerName(info.winner)} won the round!
                         </div>
                         {info && info.yakuList.map(y => (
-                            <div key={y.name} class="round-over-yaku">
+                            <div key={y.name} data-row="yaku">
                                 {y.name}: {y.points} pts
                             </div>
                         ))}
@@ -1067,7 +1054,7 @@ export function FlowerRivers() {
                     Score — You: {scores[0]} | AI: {scores[1]}
                 </div>
                 <button
-                    class="next-round-button"
+                    id="next-round-button"
                     onClick={() => dispatch({ type: 'NEXT_ROUND' })}
                 >
                     Next Round
@@ -1083,7 +1070,7 @@ export function FlowerRivers() {
         const finalS1 = scores[1];
         const winner = finalS0 > finalS1 ? 'You win!' : finalS0 < finalS1 ? 'AI wins!' : 'Tie game!';
         return (
-            <div id="game-over-screen" class="fullscreen-center">
+            <div id="game-over-screen">
                 <div id="game-over-title">
                     Game Over
                 </div>
@@ -1093,7 +1080,7 @@ export function FlowerRivers() {
                             {playerName(info.winner)} won the final round with {info.finalPoints} pts
                         </div>
                         {info.yakuList.map(y => (
-                            <div key={y.name} class="game-over-yaku">
+                            <div key={y.name} data-row="yaku">
                                 {y.name}: {y.points}
                             </div>
                         ))}
@@ -1109,7 +1096,7 @@ export function FlowerRivers() {
                     {winner}
                 </div>
                 <button
-                    class="play-again-button"
+                    id="play-again-button"
                     onClick={() => dispatch({ type: 'START_GAME' })}
                 >
                     Play Again
@@ -1209,12 +1196,12 @@ export function FlowerRivers() {
         <div id="game-board">
             {/* Top Bar */}
             <div id="top-bar">
-                <span class="top-bar-title">花川 - Blossom Rivers</span>
+                <top-title>花川 - Blossom Rivers</top-title>
                 <span>Round {round}/{TOTAL_ROUNDS} — Turn {turn}</span>
                 <span>
                     You: <b>{scores[0]}</b> | AI: <b>{scores[1]}</b>
                     {drawMultiplier > 1 && (
-                        <span class="top-bar-multiplier">×{drawMultiplier} next!</span>
+                        <draw-multiplier>×{drawMultiplier} next!</draw-multiplier>
                     )}
                 </span>
             </div>
@@ -1230,9 +1217,9 @@ export function FlowerRivers() {
                         selectedCard={revealedAiCard}
                     />
                     {koikoiCounts[1] > 0 && (
-                        <span class="koikoi-indicator">
+                        <koikoi-indicator>
                             Koi-Koi ×{koikoiCounts[1]}
-                        </span>
+                        </koikoi-indicator>
                     )}
                 </div>
                 <div id="ai-capture-row">
@@ -1253,9 +1240,7 @@ export function FlowerRivers() {
                             <div id="deck-empty" />
                         )}
                     </div>
-                    <div class="deck-label">
-                        {deck.length} left
-                    </div>
+                    <deck-label>{deck.length} left</deck-label>
 
                     {/* Drawn card */}
                     <div id="drawn-card">
@@ -1302,7 +1287,7 @@ export function FlowerRivers() {
                             Yaku!
                         </div>
                         {newYaku.map(y => (
-                            <div key={y.name} class="yaku-dialog-entry">
+                            <div key={y.name} data-row="yaku">
                                 {y.name} — {y.points} pts
                             </div>
                         ))}
@@ -1314,13 +1299,13 @@ export function FlowerRivers() {
                         </div>
                         <div id="yaku-dialog-buttons">
                             <button
-                                class="stop-button"
+                                id="stop-button"
                                 onClick={() => dispatch({ type: 'CALL_STOP' })}
                             >
                                 Stop
                             </button>
                             <button
-                                class="koikoi-button"
+                                id="koikoi-button"
                                 disabled={hands[0].length == 0}
                                 onClick={() => dispatch({ type: 'CALL_KOIKOI' })}
                             >
@@ -1345,9 +1330,9 @@ export function FlowerRivers() {
                         onCardLeave={isCapturingPhase ? () => setHoveredHandCard(null) : undefined}
                     />
                     {koikoiCounts[0] > 0 && (
-                        <span class="koikoi-indicator">
+                        <koikoi-indicator>
                             Koi-Koi ×{koikoiCounts[0]}
-                        </span>
+                        </koikoi-indicator>
                     )}
                 </div>
                 <div id="human-capture-row">
