@@ -85,7 +85,6 @@ river-icon {
 card-view {
     display: inline-block;
     flex-shrink: 0;
-    cursor: default;
 }
 
 card-view svg {
@@ -137,7 +136,6 @@ river-lane {
     border-width: 0;
     border-radius: 8px 0 0 8px;
     margin-left: 2px;
-    cursor: default;
     transition: outline-color 0.2s;
     position: relative;
     min-width: 120px;
