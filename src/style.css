@@ -243,6 +243,8 @@ captured-view {
     padding: 4px 0;
     min-height: calc((var(--card-h-sm) + 8px) * 2);
     flex-wrap: wrap;
+    /* --cols is set by the component */
+        width: calc(var(--cols, 0) * (var(--card-w-sm) + 2px));
 }
 
 captured-group {

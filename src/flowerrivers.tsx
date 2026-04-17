@@ -55,7 +55,6 @@ function dealNewRound(deckIn: Card[]): DealResult {
 
 // --- CONSTANTS ---
 const TOTAL_ROUNDS = 3;
-const CARD_W_SM = 44;
 
 // Phases: MENU, DEALING, CAPTURING, FORCED_CAPTURE, YAKU_CHOICE, ROUND_OVER, GAME_OVER
 function makeInitialState(): GameState {
@@ -806,7 +805,7 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
 
     const groupsLength = groupSizes.length;
 
-    const width: number = [
+    const cols: number = [
         () => 0,
         () => groupSizes[0],
         () => Math.max(...groupSizes),
@@ -826,7 +825,7 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
             <captured-label>
                 {label} ({cards.length})
             </captured-label>
-            <captured-view id={id} style={{ width: width * (CARD_W_SM + 2) }}>
+            <captured-view id={id} style={{ '--cols': cols }}>
                 {groups.map(g => g.cards.length > 0 && (
                     <captured-group key={g.name} data-type={g.type}>
                         <group-count>{g.cards.length}</group-count>
