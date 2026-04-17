@@ -1,5 +1,4 @@
 import { useEffect, useReducer, useState } from 'preact/hooks';
-import { type CSSProperties } from 'preact';
 import {
     Card,
     RiverHighlightType,
@@ -638,77 +637,41 @@ function aiDecideKoikoi(state: GameState): boolean {
     return action.type === 'CALL_KOIKOI';
 }
 
-// --- STYLE CONSTANTS ---
-const CARD_W = 64;
-const CARD_H = Math.round(CARD_W * 839 / 512);
-const CARD_W_SM = 44;
-const CARD_H_SM = Math.round(CARD_W_SM * 839 / 512);
-const CARD_W_RIVER = 56;
-const CARD_H_RIVER = Math.round(CARD_W_RIVER * 839 / 512);
-
-const COLORS = {
-    bg: 'var(--color-bg)',
-    felt: 'var(--color-felt)',
-    dark: 'var(--color-dark)',
-    pink: 'var(--color-pink)',
-    white: 'var(--color-text)',
-    red: 'var(--color-red)',    
-    purple: 'var(--color-purple)',    
-    capture: 'var(--color-capture)',
-    discard: 'var(--color-discard)',
-    forced: 'var(--color-forced)',
-    drop: 'var(--color-drop)',
-    separator: 'var(--color-separator)',
-    cardShadow: 'var(--color-card-shadow)',
-    overlay: 'var(--color-overlay)',
-};
-
 // --- CARD COMPONENT ---
+type CardSize = 'default' | 'sm' | 'river';
+
 interface CardViewProps {
     card: Card;
     faceDown?: boolean;
     onClick?: () => void;
     selected?: boolean;
-    small?: boolean;
+    size?: CardSize;
     disabled?: boolean;
     highlighted?: boolean;
     onMouseEnter?: () => void;
     onMouseLeave?: () => void;
-    style?: CSSProperties;
 }
 
 
-function CardView({ card, faceDown, onClick, selected, small, disabled, highlighted, onMouseEnter, onMouseLeave, style: extraStyle }: CardViewProps) {
-    const w = small ? CARD_W_SM : CARD_W;
-    const h = small ? CARD_H_SM : CARD_H;
+function CardView({ card, faceDown, onClick, selected, size = 'default', disabled, highlighted, onMouseEnter, onMouseLeave }: CardViewProps) {
     const Svg = faceDown ? images.card_back : card.img;
+    const clickable = !!(onClick && !disabled);
 
     return (
         <span
+            class="card-wrapper"
             id={card.id}
             title={faceDown ? undefined : card.name}
-            style={{ display: 'inline-block', flexShrink: 0 }}
-            onClick={onClick && !disabled ? onClick : undefined}
+            onClick={clickable ? onClick : undefined}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
         >
             <Svg
-                style={{
-                    width: w,
-                    height: h,
-                    borderRadius: 4,
-                    cursor: onClick && !disabled ? 'pointer' : 'default',
-                    transition: 'transform 0.2s, outline-color 0.2s',
-                    transform: selected ? 'translateY(-8px)' : 'none',
-                    boxShadow: `0 1px 4px ${COLORS.cardShadow}`,
-                    flexShrink: 0,
-                    outlineStyle: "solid",
-                    outlineWidth: "2px",
-                    outlineColor: highlighted ? COLORS.capture : 'transparent',
-                    display: 'block',
-                    overflow: 'hidden',
-                    ...extraStyle,
-                }}
+                class="card-img"
+                data-size={size === 'default' ? undefined : size}
+                data-clickable={clickable || undefined}
+                data-selected={selected || undefined}
+                data-highlighted={highlighted || undefined}
             />
         </span>
     );
@@ -729,110 +692,63 @@ interface RiverViewProps {
 
 
 function RiverView({ cards, index, onClick, onDiscard, highlightType, hoverHighlight, showDiscard, onMouseEnter, onMouseLeave }: RiverViewProps) {
-    const outlineColor =
-        highlightType === 'capture' ? COLORS.capture
-            : highlightType === 'forced' ? COLORS.forced
-                : highlightType === 'drop' ? COLORS.drop
-                    : hoverHighlight ? COLORS.capture
-                        : COLORS.purple;
-
-    const hasRainManCard = cards.some(isRainMan);
-    const hasLightningCard = cards.some(isLightning);
+    const hasSpecial = cards.some(isRainMan) || cards.some(isLightning);
 
     return (
         <div
+            class="river"
             id={`river-${index}`}
+            data-highlight={highlightType || undefined}
+            data-hover-highlight={hoverHighlight || undefined}
+            data-has-special={hasSpecial || undefined}
+            data-clickable={!!onClick || undefined}
             onClick={onClick}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
-            style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 4,
-                padding: '6px 6px',
-                minHeight: CARD_H_RIVER + 16,
-                background: `var(--gradient-river)`,
-                outlineStyle: hasLightningCard || hasRainManCard
-                    ? "dashed"
-                    : 'solid',
-                borderWidth: '0',
-                borderRadius: '8px 0 0 8px',
-                outlineWidth: "2px",
-                marginLeft: "2px",
-                outlineColor: outlineColor,
-                cursor: onClick ? 'pointer' : 'default',
-                transition: 'outline-color 0.2s',
-                position: 'relative',
-                minWidth: 120,
-            }}
         >
-
             {showDiscard
                 ? <CardButton
                     icon="🍂"
-                    color={COLORS.discard}
+                    variant="discard"
                     onClick={() => { onDiscard && onDiscard(); }} />
                 : highlightType === 'drop' ? (
                     <CardButton
                         icon="🍂"
-                        color={COLORS.drop} />
+                        variant="drop" />
                 ) :
-                    <div style={{ width: CARD_W_RIVER, height: CARD_H_RIVER, flexShrink: 0 }} />}
+                    <div class="river-spacer" />}
 
             {cards.map(card => (
                 <CardView
                     key={card.id}
                     card={card}
-                    small={false}
-                    style={{ width: CARD_W_RIVER, height: CARD_H_RIVER }}
+                    size="river"
                 />
             ))}
 
-
-            {highlightType === 'capture' && (<div
-                class="river-icon"
-                style={{
-                    color: COLORS.capture,
-                }}>🫳</div>)}
-            {highlightType === 'forced' && (<div
-                class="river-icon"
-                style={{
-                    color: COLORS.forced,
-                }}>🫳</div>)}
+            {(highlightType === 'capture' || highlightType === 'forced') && (
+                <div class="river-icon" data-highlight={highlightType}>🫳</div>
+            )}
         </div>
     );
 }
 
 interface CardButtonProps {
-    color: string;
+    variant: 'discard' | 'drop';
     icon: string;
     onClick?: () => void;
 }
 
-function CardButton({ color, icon, onClick }: CardButtonProps) {
-    return (<button
-        class="card-button"
-        onClick={onClick}
-        style={{
-            width: CARD_W_RIVER,
-            height: CARD_H_RIVER,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 33,
-            fontWeight: 600,
-            background: 'transparent',
-            color: color,
-            border: `2px dashed ${color}`,
-            borderRadius: 4,
-            cursor: 'pointer',
-            whiteSpace: 'nowrap',
-            flexShrink: 0,
-        }}
-    >
-        {icon}
-    </button>)
+function CardButton({ variant, icon, onClick }: CardButtonProps) {
+    return (
+        <button
+            class="card-button"
+            data-variant={variant}
+            onClick={onClick}
+        >
+            {icon}
+        </button>
+    );
 }
 
 // --- HAND COMPONENT ---
@@ -850,13 +766,7 @@ interface HandViewProps {
 
 function HandView({ id, cards, faceDown, selectedCard, onSelect, disabled, highlightedIds, onCardHover, onCardLeave }: HandViewProps) {
     return (
-        <div id={id} style={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 6,
-            justifyContent: 'center',
-            flexWrap: 'wrap',
-        }}>
+        <div id={id} class="hand">
             {cards.map(card => {
                 const isRevealed = selectedCard && selectedCard.id === card.id;
                 return (
@@ -884,6 +794,8 @@ interface CapturedViewProps {
     label: string;
 }
 
+const CARD_W_SM = 44;
+
 function CapturedView({ id, cards, label }: CapturedViewProps) {
     const brights = cards.filter(c => c.type === 'bright');
     const animals = cards.filter(c => c.type === 'animal');
@@ -891,10 +803,10 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
     const junk = cards.filter(c => c.type === 'junk');
 
     const groups = [
-        { name: 'Brights', cards: brights, color: 'var(--color-bright)' },
-        { name: 'Animals', cards: animals, color: 'var(--color-animal)' },
-        { name: 'Ribbons', cards: ribbons, color: 'var(--color-ribbon)' },
-        { name: 'Junk', cards: junk, color: 'var(--color-junk)' },
+        { name: 'Brights', type: 'bright', cards: brights },
+        { name: 'Animals', type: 'animal', cards: animals },
+        { name: 'Ribbons', type: 'ribbon', cards: ribbons },
+        { name: 'Junk', type: 'junk', cards: junk },
     ];
 
     const groupSizes = groups.map(g => g.cards.length).filter(s => s > 0)
@@ -918,42 +830,21 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
 
     return (
         <>
-            <span style={{
-                color: COLORS.pink,
-                fontSize: 11,
-                fontWeight: 600,
-                minWidth: 60,
-                paddingTop: 2,
-            }}>
+            <span class="captured-label">
                 {label} ({cards.length})
             </span>
             <div id={id}
                 class='captured-card-groups'
-                style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    gap: 12,
-                    alignItems: 'flex-start',
-                    padding: '4px 0',
-                    minHeight: ((CARD_H_SM + 8) * 2),
-                    flexWrap: 'wrap',
-                    width: (((width) * (CARD_W_SM + 2))),
-                    // background: "#f0f"
-                }}>
+                style={{ width: width * (CARD_W_SM + 2) }}>
                 {groups.map(g => g.cards.length > 0 && (
                     <div key={g.name}
                         class='captured-card-group'
-                        style={{
-                            gap: 2,
-                            display: 'flex',
-                            alignItems: 'center',
-                            flex: '0 1 auto'
-                        }}>
-                        <span style={{ fontSize: 9, color: g.color, marginRight: 2 }}>
+                        data-type={g.type}>
+                        <span class="captured-card-group-count">
                             {g.cards.length}
                         </span>
                         {g.cards.map(c => (
-                            <CardView key={c.id} card={c} small style={{ width: CARD_W_SM, height: CARD_H_SM }} />
+                            <CardView key={c.id} card={c} size="sm" />
                         ))}
                     </div>
                 ))}
@@ -972,10 +863,10 @@ function YakuList({ captured, label }: YakuListProps) {
     const { yakuList, total } = computeYaku(captured);
     if (yakuList.length === 0) return null;
     return (
-        <div style={{ fontSize: 11, color: COLORS.purple, padding: '2px 8px' }}>
-            <span style={{ fontWeight: 600 }}>{label}: </span>
+        <div class="yaku-list">
+            <span class="yaku-list-label">{label}: </span>
             {yakuList.map(y => `${y.name} (${y.points})`).join(', ')}
-            <span style={{ marginLeft: 6, fontWeight: 700 }}>= {total}</span>
+            <span class="yaku-list-total">= {total}</span>
         </div>
     );
 }
@@ -1120,29 +1011,18 @@ export function FlowerRivers() {
     // Menu screen
     if (phase === 'MENU') {
         return (
-            <div id="menu-screen" style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                justifyContent: 'center', height: '100vh', background: COLORS.bg,
-                color: COLORS.white,
-            }}>
-                <div id="menu-title" style={{
-                    display: 'grid', gridTemplateColumns: '1fr auto 1fr',
-                    fontWeight: 700, marginBottom: 32, lineHeight: 1,
-                }}>
-                    <span style={{ color: COLORS.pink, alignSelf: 'end', paddingRight: 4 }}>Blossom</span>
-                    <span class="kanji" style={{ color: COLORS.pink }}>花</span>
+            <div id="menu-screen" class="fullscreen-center">
+                <div id="menu-title">
+                    <span class="menu-title-blossom">Blossom</span>
+                    <span class="kanji menu-title-kanji-left">花</span>
                     <span />
                     <span />
-                    <span class="kanji" style={{ color: COLORS.purple }}>川</span>
-                    <span style={{ color: COLORS.purple, alignSelf: 'start', paddingLeft: 4 }}>Rivers</span>
+                    <span class="kanji menu-title-kanji-right">川</span>
+                    <span class="menu-title-rivers">Rivers</span>
                 </div>
                 <button
+                    class="start-button"
                     onClick={() => dispatch({ type: 'START_GAME' })}
-                    style={{
-                        padding: '14px 48px', fontSize: 18, fontWeight: 600,
-                        background: COLORS.purple, color: COLORS.bg, border: 'none',
-                        borderRadius: 8, cursor: 'pointer',
-                    }}
                 >
                     Start Game
                 </button>
@@ -1154,49 +1034,41 @@ export function FlowerRivers() {
     if (phase === 'ROUND_OVER') {
         const info = roundScoreInfo;
         return (
-            <div id="round-over-screen" style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                justifyContent: 'center', height: '100vh', background: COLORS.bg,
-                color: COLORS.white,
-            }}>
-                <div id="round-over-title" style={{ fontSize: 32, fontWeight: 700, color: COLORS.pink, marginBottom: 16 }}>
+            <div id="round-over-screen" class="fullscreen-center">
+                <div id="round-over-title">
                     Round {round} Complete
                 </div>
                 {info && info.winner === -1 ? (
-                    <div id="round-over-draw-info" style={{ fontSize: 18, marginBottom: 12 }}>
+                    <div id="round-over-draw-info">
                         Draw! Points doubled next round.
                     </div>
                 ) : (
-                    <div id="round-over-winner-info" style={{ textAlign: 'center', marginBottom: 16 }}>
-                        <div id="round-over-winner-text" style={{ fontSize: 20, marginBottom: 8 }}>
-                                {info && playerName(info.winner)} won the round!
+                    <div id="round-over-winner-info">
+                        <div id="round-over-winner-text">
+                            {info && playerName(info.winner)} won the round!
                         </div>
                         {info && info.yakuList.map(y => (
-                            <div key={y.name} style={{ fontSize: 14, color: COLORS.purple }}>
+                            <div key={y.name} class="round-over-yaku">
                                 {y.name}: {y.points} pts
                             </div>
                         ))}
-                        <div id="round-over-multiplier" style={{ marginTop: 8, fontSize: 13, color: COLORS.pink }}>
+                        <div id="round-over-multiplier">
                             Base: {info && info.basePoints}
                             {info && info.sevenBonus && ' × 2 (7+ bonus)'}
                             {info && info.oppKoikoi !== undefined && info.oppKoikoi > 0 && ` × ${Math.pow(2, info.oppKoikoi)} (opponent koi-koi)`}
                             {info && info.drawMultiplier > 1 && ` × ${info.drawMultiplier} (draw bonus)`}
                         </div>
-                            <div id="round-over-final-points" style={{ fontSize: 22, fontWeight: 700, color: COLORS.pink, marginTop: 6 }}>
+                        <div id="round-over-final-points">
                             = {info && info.finalPoints} points
                         </div>
                     </div>
                 )}
-                <div id="round-over-scores" style={{ fontSize: 16, marginBottom: 20 }}>
+                <div id="round-over-scores">
                     Score — You: {scores[0]} | AI: {scores[1]}
                 </div>
                 <button
+                    class="next-round-button"
                     onClick={() => dispatch({ type: 'NEXT_ROUND' })}
-                    style={{
-                        padding: '12px 40px', fontSize: 16, fontWeight: 600,
-                        background: COLORS.purple, color: COLORS.bg, border: 'none',
-                        borderRadius: 8, cursor: 'pointer',
-                    }}
                 >
                     Next Round
                 </button>
@@ -1211,42 +1083,34 @@ export function FlowerRivers() {
         const finalS1 = scores[1];
         const winner = finalS0 > finalS1 ? 'You win!' : finalS0 < finalS1 ? 'AI wins!' : 'Tie game!';
         return (
-            <div id="game-over-screen" style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                justifyContent: 'center', height: '100vh', background: COLORS.bg,
-                color: COLORS.white,
-            }}>
-                <div id="game-over-title" style={{ fontSize: 36, fontWeight: 700, color: COLORS.pink, marginBottom: 8 }}>
+            <div id="game-over-screen" class="fullscreen-center">
+                <div id="game-over-title">
                     Game Over
                 </div>
                 {info && info.winner !== -1 && (
-                    <div id="game-over-round-info" style={{ textAlign: 'center', marginBottom: 12 }}>
-                        <div id="game-over-round-text" style={{ fontSize: 16, marginBottom: 6 }}>
+                    <div id="game-over-round-info">
+                        <div id="game-over-round-text">
                             {playerName(info.winner)} won the final round with {info.finalPoints} pts
                         </div>
                         {info.yakuList.map(y => (
-                            <div key={y.name} style={{ fontSize: 13, color: COLORS.purple }}>
+                            <div key={y.name} class="game-over-yaku">
                                 {y.name}: {y.points}
                             </div>
                         ))}
                     </div>
                 )}
                 {info && info.winner === -1 && (
-                    <div id="game-over-draw-info" style={{ fontSize: 16, marginBottom: 12 }}>Final round was a draw.</div>
+                    <div id="game-over-draw-info">Final round was a draw.</div>
                 )}
-                <div id="game-over-scores" style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>
+                <div id="game-over-scores">
                     You: {finalS0} — AI: {finalS1}
                 </div>
-                <div id="game-over-winner" style={{ fontSize: 28, color: COLORS.pink, fontWeight: 700, marginBottom: 24 }}>
+                <div id="game-over-winner">
                     {winner}
                 </div>
                 <button
+                    class="play-again-button"
                     onClick={() => dispatch({ type: 'START_GAME' })}
-                    style={{
-                        padding: '12px 40px', fontSize: 16, fontWeight: 600,
-                        background: COLORS.pink, color: COLORS.bg, border: 'none',
-                        borderRadius: 8, cursor: 'pointer',
-                    }}
                 >
                     Play Again
                 </button>
@@ -1342,44 +1206,22 @@ export function FlowerRivers() {
     }
 
     return (
-        <div id="game-board" style={{
-            display: 'flex', flexDirection: 'column',
-            height: '100vh', background: COLORS.bg,
-            color: COLORS.white,
-            overflow: 'hidden',
-        }}>
+        <div id="game-board">
             {/* Top Bar */}
-            <div id="top-bar" style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '6px 16px', background: COLORS.dark,
-                fontSize: 13, flexShrink: 0,
-            }}>
-                <span style={{ color: COLORS.pink, fontWeight: 700 }}>花川 - Blossom Rivers</span>
+            <div id="top-bar">
+                <span class="top-bar-title">花川 - Blossom Rivers</span>
                 <span>Round {round}/{TOTAL_ROUNDS} — Turn {turn}</span>
                 <span>
                     You: <b>{scores[0]}</b> | AI: <b>{scores[1]}</b>
                     {drawMultiplier > 1 && (
-                        <span style={{ color: COLORS.pink, marginLeft: 8 }}>×{drawMultiplier} next!</span>
+                        <span class="top-bar-multiplier">×{drawMultiplier} next!</span>
                     )}
                 </span>
             </div>
 
             {/* AI Area */}
-            <div id="ai-area" style={{
-                padding: '4px 16px',
-                gap: '16px',
-                flexShrink: 0,
-                borderBottom: `1px solid ${COLORS.separator}`,
-                display: 'flex',
-            }}>
-                <div id="ai-hand-row" style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'end',
-                    gap: 12,
-                    marginBottom: 4,
-                    flex: '0 1 50%',
-                }}>
+            <div id="ai-area">
+                <div id="ai-hand-row">
                     <HandView
                         id="ai-hand"
                         cards={hands[1]}
@@ -1388,71 +1230,48 @@ export function FlowerRivers() {
                         selectedCard={revealedAiCard}
                     />
                     {koikoiCounts[1] > 0 && (
-                        <span style={{ fontSize: 11, color: COLORS.pink, fontWeight: 700 }}>
+                        <span class="koikoi-indicator">
                             Koi-Koi ×{koikoiCounts[1]}
                         </span>
                     )}
                 </div>
-                <div id="ai-capture-row" style={{
-                    flex: '0 1 50%',
-                }}>
+                <div id="ai-capture-row">
                     <CapturedView id="ai-captured" cards={captured[1]} label="AI captured" />
                     <YakuList captured={captured[1]} label="AI yaku" />
                 </div>
             </div>
 
             {/* Deck + Rivers area */}
-            <div id="play-area" style={{
-                flex: 1, display: 'flex', flexDirection: 'row',
-                padding: '8px 0px 8px 16px', gap: 16, minHeight: 0,
-                overflow: 'hidden',
-            }}>
+            <div id="play-area">
                 {/* Deck + Drawn card */}
-                <div id="deck-column" style={{
-                    display: 'flex', flexDirection: 'column',
-                    alignItems: 'center', justifyContent: 'center',
-                    gap: 10, minWidth: 90,
-                }}>
+                <div id="deck-column">
                     {/* Deck */}
-                    <div
-                        id="deck"
-                        style={{
-                            position: 'relative',
-                        }}
-                    >
+                    <div id="deck">
                         {deck.length > 0 ? (
                             <CardView card={CARDS[0]} faceDown />
                         ) : (
-                            <div id="deck-empty" style={{
-                                width: CARD_W, height: CARD_H,
-                                border: `2px dashed ${COLORS.separator}`,
-                                borderRadius: 4,
-                            }} />
+                            <div id="deck-empty" />
                         )}
                     </div>
-                    <div style={{ fontSize: 11, color: COLORS.pink, textAlign: 'center', whiteSpace: 'nowrap' }}>
+                    <div class="deck-label">
                         {deck.length} left
                     </div>
 
                     {/* Drawn card */}
-                    <div id="drawn-card" style={{ width: CARD_W, height: CARD_H, flexShrink: 0 }}>
+                    <div id="drawn-card">
                         {drawnCard && <CardView card={drawnCard} />}
                     </div>
 
                     {/* Dealing indicator */}
                     {phase === 'DEALING' && (
-                        <div id="deal-indicator" style={{ fontSize: 11, color: COLORS.pink, textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        <div id="deal-indicator">
                             Drop {dealStep + 1}/3
                         </div>
                     )}
                 </div>
 
                 {/* Rivers */}
-                <div id="rivers-column" style={{
-                    flex: 1, display: 'flex', flexDirection: 'column',
-                    gap: 12, justifyContent: 'center',
-                    overflow: 'auto',
-                }}>
+                <div id="rivers-column">
                     {rivers.map((river, ri) => (
                         <RiverView
                             key={ri}
@@ -1471,64 +1290,39 @@ export function FlowerRivers() {
             </div>
 
             {/* Status bar */}
-            <div id="status-bar" style={{
-                padding: '6px 16px', textAlign: 'center',
-                fontSize: 14, fontWeight: 500,
-                background: COLORS.dark,
-                color: COLORS.white,
-                flexShrink: 0,
-                minHeight: 32,
-            }}>
+            <div id="status-bar">
                 {statusText}
             </div>
 
             {/* Yaku Choice Dialog */}
             {phase === 'YAKU_CHOICE' && yakuPlayer === 0 && (
-                <div id="yaku-dialog-overlay" style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: COLORS.overlay, zIndex: 100,
-                }}>
-                    <div id="yaku-dialog" style={{
-                        background: COLORS.dark,
-                        border: `2px solid ${COLORS.dark}`,
-                        borderRadius: 12, padding: 32, textAlign: 'center',
-                        maxWidth: 400,
-                    }}>
-                        <div id="yaku-dialog-title" style={{ fontSize: 22, fontWeight: 700, color: COLORS.pink, marginBottom: 12 }}>
+                <div id="yaku-dialog-overlay">
+                    <div id="yaku-dialog">
+                        <div id="yaku-dialog-title">
                             Yaku!
                         </div>
                         {newYaku.map(y => (
-                            <div key={y.name} style={{ fontSize: 16, marginBottom: 4 }}>
+                            <div key={y.name} class="yaku-dialog-entry">
                                 {y.name} — {y.points} pts
                             </div>
                         ))}
-                        <div id="yaku-dialog-total" style={{ margin: '16px 0 6px', fontSize: 14, color: COLORS.pink }}>
+                        <div id="yaku-dialog-total">
                             Total so far: {computeYaku(captured[0]).total} pts
                             {koikoiCounts[1] > 0 && (
                                 <span> (opponent called koi-koi ×{koikoiCounts[1]})</span>
                             )}
                         </div>
-                        <div id="yaku-dialog-buttons" style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 16 }}>
+                        <div id="yaku-dialog-buttons">
                             <button
+                                class="stop-button"
                                 onClick={() => dispatch({ type: 'CALL_STOP' })}
-                                style={{
-                                    padding: '10px 28px', fontSize: 15, fontWeight: 600,
-                                    background: COLORS.purple, color: COLORS.dark, border: 'none',
-                                    borderRadius: 6, cursor: 'pointer',
-                                }}
                             >
                                 Stop
                             </button>
                             <button
+                                class="koikoi-button"
                                 disabled={hands[0].length == 0}
                                 onClick={() => dispatch({ type: 'CALL_KOIKOI' })}
-                                style={{
-                                    padding: '10px 28px', fontSize: 15, fontWeight: 600,
-                                    background: 'transparent', color: COLORS.capture,
-                                    border: `2px solid ${COLORS.capture}`, borderRadius: 6,
-                                    cursor: 'pointer',
-                                }}
                             >
                                 Koi-Koi!
                             </button>
@@ -1538,21 +1332,8 @@ export function FlowerRivers() {
             )}
 
             {/* Human Area */}
-            <div id="human-area" style={{
-                padding: '4px 16px',
-                gap: '16px',
-                flexShrink: 0,
-                borderTop: `1px solid ${COLORS.separator}`,
-                display: 'flex',
-            }}>
-                <div id="human-hand-row" style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'end',
-                    gap: 12,
-                    marginTop: 4,
-                    flex: '1 1 50%',
-                }}>
+            <div id="human-area">
+                <div id="human-hand-row">
                     <HandView
                         id="human-hand"
                         cards={hands[0]}
@@ -1564,14 +1345,12 @@ export function FlowerRivers() {
                         onCardLeave={isCapturingPhase ? () => setHoveredHandCard(null) : undefined}
                     />
                     {koikoiCounts[0] > 0 && (
-                        <span style={{ fontSize: 11, color: COLORS.pink, fontWeight: 700 }}>
+                        <span class="koikoi-indicator">
                             Koi-Koi ×{koikoiCounts[0]}
                         </span>
                     )}
                 </div>
-                <div id="human-capture-row" style={{
-                    flex: '1 1 50%',
-                }}>
+                <div id="human-capture-row">
                     <CapturedView id="human-captured" cards={captured[0]} label="Yours captured" />
                     <YakuList captured={captured[0]} label="Your yaku" />
                 </div>
