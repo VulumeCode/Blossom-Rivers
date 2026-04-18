@@ -852,7 +852,7 @@ function YakuList({ captured, label }: YakuListProps) {
         <yaku-list>
             <yaku-label>{label}: </yaku-label>
             {yakuList.map(y => `${y.name} (${y.points})`).join(', ')}
-            <yaku-total>= {total}</yaku-total>
+            <yaku-total> = {total}</yaku-total>
         </yaku-list>
     );
 }
