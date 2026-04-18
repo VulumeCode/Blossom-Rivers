@@ -493,14 +493,26 @@ draw-multiplier {
     gap: 16px;
     flex: 1 0 auto;
     display: flex;
+
+    align-items: center;
 }
+
+
 
 #ai-area {
     border-bottom: 1px solid var(--color-separator);
+
+    @media only screen and (orientation: portrait) {
+        flex-direction: column;
+    }
 }
 
 #human-area {
     border-top: 1px solid var(--color-separator);
+
+    @media only screen and (orientation: portrait) {
+        flex-direction: column-reverse;
+    }
 }
 
 #ai-hand-row,
