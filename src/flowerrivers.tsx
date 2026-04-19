@@ -467,16 +467,11 @@ function getAIActions(state: GameState): GameAction[] {
         const actions: GameAction[] = [];
         for (const card of state.hands[1]) {
             for (let ri = 0; ri < 3; ri++) {
+                actions.push({ type: 'DISCARD_TO_RIVER', riverIdx: ri, handCard: card });
                 if (state.rivers[ri].length > 0 && canCaptureRiver(card, state.rivers[ri])) {
                     actions.push({ type: 'CAPTURE_RIVER', riverIdx: ri, handCard: card });
                 }
             }
-        }
-        // One discard per card: always to the smallest river to keep action space bounded
-        const smallestRi = ([0, 1, 2]).reduce((a, b) =>
-            state.rivers[a].length <= state.rivers[b].length ? a : b);
-        for (const card of state.hands[1]) {
-            actions.push({ type: 'DISCARD_TO_RIVER', riverIdx: smallestRi, handCard: card });
         }
         return actions;
     }
