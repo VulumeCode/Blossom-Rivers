@@ -455,7 +455,13 @@ function randomizeHiddenCards(state: GameState): GameState {
 function getAIActions(state: GameState): GameAction[] {
     if (state.phase === 'DEALING' && state.dealerIdx === 1 && state.drawnCard !== null) {
         const avail = [0, 1, 2].filter(i => !state.riversUsedThisTurn[i]);
-        return avail.map(riverIdx => ({ type: 'DROP_IN_RIVER' as const, riverIdx }));
+
+        // Don't think if they're all empty.
+        if (avail.every(river => state.rivers[river].length == 0)) {
+            return [{ type: 'DROP_IN_RIVER', riverIdx: avail[0] }]
+        }
+
+        return avail.map(riverIdx => ({ type: 'DROP_IN_RIVER', riverIdx }));
     }
     if (state.phase === 'CAPTURING' && state.capturerIdx === 1) {
         const actions: GameAction[] = [];
@@ -467,7 +473,7 @@ function getAIActions(state: GameState): GameAction[] {
             }
         }
         // One discard per card: always to the smallest river to keep action space bounded
-        const smallestRi = ([0, 1, 2] as const).reduce((a, b) =>
+        const smallestRi = ([0, 1, 2]).reduce((a, b) =>
             state.rivers[a].length <= state.rivers[b].length ? a : b);
         for (const card of state.hands[1]) {
             actions.push({ type: 'DISCARD_TO_RIVER', riverIdx: smallestRi, handCard: card });
@@ -476,7 +482,7 @@ function getAIActions(state: GameState): GameAction[] {
     }
     if (state.phase === 'FORCED_CAPTURE' && state.capturerIdx === 1) {
         const ri = state.lightningRiver!;
-        return state.hands[1].map(card => ({ type: 'CAPTURE_RIVER' as const, riverIdx: ri, handCard: card }));
+        return state.hands[1].map(card => ({ type: 'CAPTURE_RIVER', riverIdx: ri, handCard: card }));
     }
     if (state.phase === 'YAKU_CHOICE' && state.yakuPlayer === 1) {
         const actions: GameAction[] = [{ type: 'CALL_STOP' }];
