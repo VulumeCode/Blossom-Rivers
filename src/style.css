@@ -568,7 +568,7 @@ koikoi-indicator {
 }
 
 #deck {
-    position: relative;
+    flex: 0 1 auto;
 }
 
 #deck-empty {
@@ -580,7 +580,8 @@ koikoi-indicator {
 
 deck-label {
     display: block;
-    font-size: 11px;
+    font-size: 14px;
+    font-weight: 700;
     color: var(--color-pink);
     text-align: center;
     white-space: nowrap;
@@ -589,14 +590,7 @@ deck-label {
 #drawn-card {
     width: var(--card-w);
     height: var(--card-h);
-    flex-shrink: 0;
-}
-
-#deal-indicator {
-    font-size: 11px;
-    color: var(--color-pink);
-    text-align: center;
-    white-space: nowrap;
+    flex: 0 1 auto;
 }
 
 #rivers-column {
@@ -619,7 +613,6 @@ deck-label {
     background: var(--color-dark);
     color: var(--color-text);
     flex-shrink: 0;
-    min-height: 32px;
 }
 
 /* --- YAKU DIALOG --- */

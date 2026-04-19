@@ -1246,12 +1246,6 @@ export function FlowerRivers() {
                         {drawnCard && <CardView card={drawnCard} />}
                     </div>
 
-                    {/* Dealing indicator */}
-                    {phase === 'DEALING' && (
-                        <div id="deal-indicator">
-                            Drop {dealStep + 1}/3
-                        </div>
-                    )}
                 </div>
 
                 {/* Rivers */}
