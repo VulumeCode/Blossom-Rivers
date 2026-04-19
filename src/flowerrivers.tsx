@@ -485,23 +485,23 @@ function getAIActions(state: GameState): GameAction[] {
         }
         return actions;
     }
-    return [];
+    throw "Nothing to do."
 }
 
 // Get a random valid action for whichever player needs to act (used in rollouts)
 function getSimAction(state: GameState): GameAction | null {
-    if (state.phase === 'GAME_OVER') return null;
+    if (state.phase === 'GAME_OVER') throw "Already GAME_OVER";
     if (state.phase === 'ROUND_OVER') return { type: 'NEXT_ROUND' };
     if (state.phase === 'DEALING') {
         if (!state.drawnCard) return { type: 'DRAW_CARD' };
         const avail = [0, 1, 2].filter(i => !state.riversUsedThisTurn[i]);
-        if (avail.length === 0) return null;
+        if (avail.length === 0) throw "No rivers to deal to.";
         return { type: 'DROP_IN_RIVER', riverIdx: avail[Math.floor(Math.random() * avail.length)] };
     }
     if (state.phase === 'CAPTURING') {
         const who = state.capturerIdx;
         const hand = state.hands[who];
-        if (hand.length === 0) return null;
+        if (hand.length === 0) throw "Nothing to capture with.";
         const caps: GameAction[] = [];
         for (const card of hand) {
             for (let ri = 0; ri < 3; ri++) {
@@ -516,7 +516,7 @@ function getSimAction(state: GameState): GameAction | null {
     }
     if (state.phase === 'FORCED_CAPTURE') {
         const hand = state.hands[state.capturerIdx];
-        if (hand.length === 0) return null;
+        if (hand.length === 0) throw "Nothing to capture with.";
         return { type: 'CAPTURE_RIVER', riverIdx: state.lightningRiver!, handCard: hand[Math.floor(Math.random() * hand.length)] };
     }
     if (state.phase === 'YAKU_CHOICE') {
@@ -526,7 +526,7 @@ function getSimAction(state: GameState): GameAction | null {
             return Math.random() < 0.5 ? { type: 'CALL_STOP' } : { type: 'CALL_KOIKOI' };
         }
     }
-    return null;
+    throw "Nothing to do.";
 }
 
 // Fast random rollout from a state to game over
