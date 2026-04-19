@@ -552,7 +552,7 @@ function mctsChooseAction(state: GameState, simCount: number): GameAction {
 
     const wins = new Float64Array(actions.length);
     const visits = new Int32Array(actions.length);
-    const C = 1.41; // UCB1 exploration constant
+    const C = 1.41 * 2; // UCB1 exploration constant
 
     _simMode = true;
     {
@@ -582,11 +582,17 @@ function mctsChooseAction(state: GameState, simCount: number): GameAction {
             // const score = terminal.scores[1] > terminal.scores[0] ? 1
             //     : terminal.scores[1] === terminal.scores[0] ? 0.5 : 0;
 
-            // Score with a sigmoid
-            const points = terminal.scores[1] - terminal.scores[0];
-            const score = points > 0
-                ? points / (1 + Math.abs(points))
-                : 0;
+            // // Score with a sigmoid
+            // const diff= terminal.scores[1] - terminal.scores[0];
+            // const score = diff> 0
+            //     ? diff/ (1 + Math.abs(points))
+            //     : 0;
+
+            // Score with a sigmoid !!! C * 2 
+            const diff = terminal.scores[1] - terminal.scores[0];
+            const score = (!(diff == 0))
+                ? diff / (1 + Math.abs(diff))
+                : -1;
 
             wins[ai] += score;
             visits[ai]++;
