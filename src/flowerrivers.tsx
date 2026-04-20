@@ -492,7 +492,7 @@ function getAIActions(state: GameState): GameAction[] {
 // Get a random valid action for whichever player needs to act (used in rollouts)
 function getSimAction(state: GameState): GameAction | null {
     if (state.phase === 'GAME_OVER') throw "Already GAME_OVER";
-    if (state.phase === 'ROUND_OVER') return { type: 'NEXT_ROUND' };
+    if (state.phase === 'ROUND_OVER') return null; // stop rollout; evaluate match-aware
     if (state.phase === 'DEALING') {
         if (!state.drawnCard) return { type: 'DRAW_CARD' };
         const avail = [0, 1, 2].filter(i => !state.riversUsedThisTurn[i]);
@@ -530,10 +530,11 @@ function getSimAction(state: GameState): GameAction | null {
     throw "Nothing to do.";
 }
 
-// Fast random rollout from a state to game over
+// Fast random rollout — stops at GAME_OVER or ROUND_OVER (inter-round variance is
+// folded into evaluateRollout instead of random redeals).
 function rolloutToEnd(state: GameState): GameState {
     let s = state;
-    for (let i = 0; i < 600 && s.phase !== 'GAME_OVER'; i++) {
+    for (let i = 0; i < 600 && s.phase !== 'GAME_OVER' && s.phase !== 'ROUND_OVER'; i++) {
         const action = getSimAction(s);
         if (!action) break;
         const next = gameReducer(s, action);
@@ -541,6 +542,34 @@ function rolloutToEnd(state: GameState): GameState {
         s = next;
     }
     return s;
+}
+
+// Std dev of per-round score differential — tune via self-play.
+const ROUND_SIGMA = 7;
+
+// Normal CDF (Abramowitz & Stegun 26.2.17)
+function normCdf(z: number): number {
+    const t = 1 / (1 + 0.2316419 * Math.abs(z));
+    const d = 0.3989422804014327 * Math.exp(-z * z / 2);
+    const p = d * t * (0.319381530 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))));
+    return z >= 0 ? 1 - p : p;
+}
+
+// Score a terminal rollout state from AI (player 1)'s POV, in [-1, 1].
+// At GAME_OVER: sigmoid of score diff, ties punished.
+// At ROUND_OVER (rounds remaining): Gaussian P(win match) given diff and rounds left —
+// naturally rewards widening the score distribution when trailing and narrowing it when ahead.
+function evaluateRollout(state: GameState): number {
+    const diff = state.scores[1] - state.scores[0];
+    if (state.phase === 'GAME_OVER') {
+        return diff === 0 ? -1 : diff / (1 + Math.abs(diff));
+    }
+    const roundsLeft = TOTAL_ROUNDS - state.round;
+    if (roundsLeft <= 0) {
+        return diff === 0 ? -1 : diff / (1 + Math.abs(diff));
+    }
+    const z = diff / (ROUND_SIGMA * Math.sqrt(roundsLeft));
+    return 2 * normCdf(z) - 1;
 }
 
 // MCTS: choose the best action for AI given the current (partially observable) state.
@@ -578,21 +607,8 @@ function mctsChooseAction(state: GameState, simCount: number): GameAction {
             const next = gameReducer(detState, actions[ai]);
             const terminal = rolloutToEnd(next);
 
-            // // Score: win = 1, tie = 0.5, loss = 0
-            // const score = terminal.scores[1] > terminal.scores[0] ? 1
-            //     : terminal.scores[1] === terminal.scores[0] ? 0.5 : 0;
-
-            // // Score with a sigmoid
-            // const diff= terminal.scores[1] - terminal.scores[0];
-            // const score = diff> 0
-            //     ? diff/ (1 + Math.abs(points))
-            //     : 0;
-
-            // Score with a sigmoid !!! C * 2 
-            const diff = terminal.scores[1] - terminal.scores[0];
-            const score = (!(diff == 0))
-                ? diff / (1 + Math.abs(diff))
-                : -1;
+            // Match-aware terminal evaluation (range [-1, 1], so UCB C is doubled).
+            const score = evaluateRollout(terminal);
 
             wins[ai] += score;
             visits[ai]++;
