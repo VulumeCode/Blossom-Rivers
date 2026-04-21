@@ -568,7 +568,12 @@ function evaluateRollout(state: GameState): number {
     if (roundsLeft <= 0) {
         return diff === 0 ? -1 : diff / (1 + Math.abs(diff));
     }
-    const z = diff / (ROUND_SIGMA * Math.sqrt(roundsLeft));
+    // Next round's σ is scaled by drawMultiplier (carried over from a drawn round);
+    // subsequent rounds assumed σ. Forcing a draw keeps diff flat but widens variance
+    // next round — good play when trailing, captured automatically here.
+    const mult = state.drawMultiplier;
+    const totalStd = ROUND_SIGMA * Math.sqrt(mult * mult + roundsLeft - 1);
+    const z = diff / totalStd;
     return 2 * normCdf(z) - 1;
 }
 
