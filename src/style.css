@@ -131,7 +131,9 @@ river-lane {
     gap: 4px;
     padding: 6px 6px;
     min-height: calc(var(--card-h-river) + 16px);
-    background: var(--gradient-river);
+    background: url("./img/river.png"), var(--gradient-river);
+    background-attachment: local, fixed;
+    background-blend-mode: multiply;
     outline: 2px solid var(--color-purple);
     border-width: 0;
     border-radius: 8px 0 0 8px;
