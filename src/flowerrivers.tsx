@@ -869,9 +869,7 @@ function RiverView({
                 />
             ) : highlightType === "drop" ? (
                 <CardButton icon="🍂" variant="drop" />
-            ) : (
-                <river-spacer />
-            )}
+            ) : null}
 
             {cards.map((card) => (
                 <CardView key={card.id} card={card} size="river" />
@@ -1377,12 +1375,7 @@ export function FlowerRivers() {
     // --- MAIN GAME BOARD ---
     // Determine river highlights
     const getRiverHighlight = (ri: number): RiverHighlightType => {
-        if (
-            phase === "DEALING" &&
-            isHumanDealer &&
-            drawnCard &&
-            !riversUsedThisTurn[ri]
-        ) {
+        if (phase === "DEALING" && isHumanDealer && !riversUsedThisTurn[ri]) {
             return "drop";
         }
         if (
@@ -1399,11 +1392,7 @@ export function FlowerRivers() {
     };
 
     const showDiscardButton = (_ri: number): boolean => {
-        return (
-            phase === "CAPTURING" &&
-            isHumanCapturer &&
-            selectedHandCard !== null
-        );
+        return phase === "CAPTURING" && isHumanCapturer;
     };
 
     // Hover cross-highlighting
@@ -1516,6 +1505,7 @@ export function FlowerRivers() {
         <div id="game-board">
             <Flipper
                 flipKey={flipState}
+                spring={"stiff"}
                 // spring={{ stiffness: 500, damping: 500 }}
                 // staggerConfig={{
                 //     // the "default" config will apply to staggered elements without explicit keys

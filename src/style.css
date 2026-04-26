@@ -169,6 +169,7 @@ river-lane[data-highlight="drop"] {
     outline-color: var(--color-drop);
 }
 
+/* TODO remove if not used */
 river-spacer {
     display: block;
     width: var(--card-w-river);
