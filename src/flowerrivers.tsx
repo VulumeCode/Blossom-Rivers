@@ -1508,21 +1508,21 @@ export function FlowerRivers() {
         .map((x) => x.id)
         .join(",");
     return (
-        <div id="game-board">
-            <Flipper
-                flipKey={flipState}
-                spring={"noWobble"}
-                // spring={{ stiffness: 500, damping: 500 }}
-                // staggerConfig={{
-                //     // the "default" config will apply to staggered elements without explicit keys
-                //     default: {
-                //         // default direction is forwards
-                //         reverse: true,
-                //         // default is .1, 0 < n < 1
-                //         speed: 1,
-                //     },
-                // }}
-            >
+        <Flipper
+            flipKey={flipState}
+            spring={"noWobble"}
+            // spring={{ stiffness: 500, damping: 500 }}
+            // staggerConfig={{
+            //     // the "default" config will apply to staggered elements without explicit keys
+            //     default: {
+            //         // default direction is forwards
+            //         reverse: true,
+            //         // default is .1, 0 < n < 1
+            //         speed: 1,
+            //     },
+            // }}
+        >
+            <div id="game-board">
                 {/* Top Bar */}
                 <div id="top-bar">
                     <top-title>花川 - Blossom Rivers</top-title>
@@ -1705,7 +1705,7 @@ export function FlowerRivers() {
                         <YakuList captured={captured[0]} label="Your yaku" />
                     </div>
                 </div>
-            </Flipper>
-        </div>
+            </div>
+        </Flipper>
     );
 }

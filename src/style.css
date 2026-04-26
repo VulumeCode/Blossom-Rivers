@@ -33,6 +33,7 @@
     --color-animal: var(--card-bark);
     --color-ribbon: var(--card-purple);
     --color-junk: var(--card-teal);
+    --color-disabled: var(--card-bark);
 
     --gradient-river: linear-gradient(160deg, var(--color-river-from), var(--color-river-from), var(--color-river-to), var(--color-river-to));
 
@@ -200,14 +201,14 @@ river-icon {
 
 river-icon[data-highlight="capture"] {
     color: var(--color-capture);
-        -webkit-text-stroke: 2px var(--color-dark);
-            paint-order: stroke fill;
+    -webkit-text-stroke: 2px var(--color-dark);
+    paint-order: stroke fill;
 }
 
 river-icon[data-highlight="forced"] {
     color: var(--color-forced);
-        -webkit-text-stroke: 2px var(--color-dark);
-            paint-order: stroke fill;
+    -webkit-text-stroke: 2px var(--color-dark);
+    paint-order: stroke fill;
 }
 
 /* --- CARD BUTTON (used inside a river) --- */
@@ -229,14 +230,14 @@ button[data-role="card-button"] {
 
 button[data-role="card-button"][data-variant="discard"] {
     color: var(--color-discard);
-        -webkit-text-stroke: 2px var(--color-dark);
-            paint-order: stroke fill;
+    -webkit-text-stroke: 2px var(--color-dark);
+    paint-order: stroke fill;
 }
 
 button[data-role="card-button"][data-variant="drop"] {
     color: var(--color-drop);
-        -webkit-text-stroke: 2px var(--color-dark);
-            paint-order: stroke fill;
+    -webkit-text-stroke: 2px var(--color-dark);
+    paint-order: stroke fill;
 }
 
 /* --- HAND --- */
@@ -708,4 +709,10 @@ deck-label {
     border: 2px solid var(--color-capture);
     border-radius: 6px;
     cursor: pointer;
+}
+
+#koikoi-button:disabled {
+    color: var(--color-disabled);
+    border-color: var(--color-disabled);
+    cursor: not-allowed;
 }
