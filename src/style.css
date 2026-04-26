@@ -85,6 +85,8 @@ river-icon {
 card-view {
     display: inline-block;
     flex-shrink: 0;
+    z-index: 9000;
+    will-change: transform;
 }
 
 card-view svg {
@@ -466,7 +468,7 @@ yaku-total {
     height: 100vh;
     background: var(--color-bg);
     color: var(--color-text);
-    overflow: hidden;
+    overflow: visible;
 }
 
 #top-bar {
@@ -557,7 +559,7 @@ koikoi-indicator {
     padding: 8px 0 8px 16px;
     gap: 16px;
     min-height: 0;
-    overflow: hidden;
+    overflow: visible;
 }
 
 #deck-column {
@@ -601,7 +603,7 @@ deck-label {
     flex-direction: column;
     gap: 12px;
     justify-content: center;
-    overflow: auto;
+    overflow: visible;
     /* fit river outlines */
     padding-top: 2px;
     padding-bottom: 2px;
@@ -628,7 +630,7 @@ deck-label {
     align-items: center;
     justify-content: center;
     background: var(--color-overlay);
-    z-index: 100;
+    z-index: 9001;
 }
 
 #yaku-dialog {

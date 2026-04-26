@@ -9,7 +9,8 @@ import {
 import { images } from "./cardImages";
 import { CARDS, isLightning, isRainMan, isWillow } from "./cards";
 import { computeYaku, nonJunkPoints } from "./yaku";
-import { Flipper } from "react-flip-toolkit";
+import { Flipped, Flipper } from "react-flip-toolkit";
+import { vi } from "vitest";
 
 // --- GAME HELPERS ---
 function shuffle(arr: Card[]): Card[] {
@@ -779,6 +780,7 @@ interface CardViewProps {
     highlighted?: boolean;
     onMouseEnter?: () => void;
     onMouseLeave?: () => void;
+    flipped?: boolean;
 }
 
 function CardView({
@@ -791,11 +793,12 @@ function CardView({
     highlighted,
     onMouseEnter,
     onMouseLeave,
+    flipped = true,
 }: CardViewProps) {
     const Svg = faceDown ? images.card_back : card.img;
     const clickable = !!(onClick && !disabled);
 
-    return (
+    const view = (
         <card-view
             id={card.id}
             title={faceDown ? undefined : card.name}
@@ -809,6 +812,13 @@ function CardView({
         >
             <Svg />
         </card-view>
+    );
+    return flipped ? (
+        <Flipped flipId={card.id} scale translate>
+            {view}
+        </Flipped>
+    ) : (
+        view
     );
 }
 
@@ -1489,9 +1499,34 @@ export function FlowerRivers() {
         statusText = "AI is choosing...";
     }
 
+    const flipState = ([] as Card[])
+        .concat(
+            state.deck,
+            state.rivers[0],
+            state.rivers[1],
+            state.rivers[2],
+            state.hands[0],
+            state.hands[1],
+            state.captured[0],
+            state.captured[1],
+        )
+        .map((x) => x.id)
+        .join(",");
     return (
         <div id="game-board">
-            <Flipper flipKey={flipKey}>
+            <Flipper
+                flipKey={flipState}
+                // spring={{ stiffness: 500, damping: 500 }}
+                // staggerConfig={{
+                //     // the "default" config will apply to staggered elements without explicit keys
+                //     default: {
+                //         // default direction is forwards
+                //         reverse: true,
+                //         // default is .1, 0 < n < 1
+                //         speed: 1,
+                //     },
+                // }}
+            >
                 {/* Top Bar */}
                 <div id="top-bar">
                     <top-title>花川 - Blossom Rivers</top-title>
