@@ -44,6 +44,12 @@
     --card-h-sm: 72px;
     --card-w-river: 56px;
     --card-h-river: 92px;
+    @media (orientation: portrait) {
+            --card-w-sm: var(--card-w);
+            --card-h-sm: var(--card-h);
+            --card-w-river: var(--card-w);
+            --card-h-river: var(--card-h);
+        }
 }
 
 :root,
@@ -528,7 +534,7 @@ draw-multiplier {
 #ai-area {
     border-bottom: 1px solid var(--color-separator);
 
-    @media only screen and (orientation: portrait) {
+    @media (orientation: portrait) {
         flex-direction: column;
     }
 }
@@ -536,7 +542,7 @@ draw-multiplier {
 #human-area {
     border-top: 1px solid var(--color-separator);
 
-    @media only screen and (orientation: portrait) {
+    @media (orientation: portrait) {
         flex-direction: column-reverse;
     }
 }
