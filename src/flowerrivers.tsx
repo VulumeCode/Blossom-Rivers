@@ -814,7 +814,13 @@ function CardView({
         </card-view>
     );
     return flipped ? (
-        <Flipped flipId={card.id} scale translate>
+        <Flipped
+            flipId={card.id}
+            scale
+            translate
+            onStart={(el) => el.setAttribute("data-flipping", "")}
+            onComplete={(el) => el.removeAttribute("data-flipping")}
+        >
             {view}
         </Flipped>
     ) : (
@@ -1505,7 +1511,7 @@ export function FlowerRivers() {
         <div id="game-board">
             <Flipper
                 flipKey={flipState}
-                spring={"stiff"}
+                spring={"noWobble"}
                 // spring={{ stiffness: 500, damping: 500 }}
                 // staggerConfig={{
                 //     // the "default" config will apply to staggered elements without explicit keys
@@ -1566,7 +1572,7 @@ export function FlowerRivers() {
                         {/* Deck */}
                         <div id="deck">
                             {deck.length > 0 ? (
-                                <CardView card={CARDS[0]} faceDown />
+                                <CardView card={deck[0]} faceDown />
                             ) : (
                                 <div id="deck-empty" />
                             )}

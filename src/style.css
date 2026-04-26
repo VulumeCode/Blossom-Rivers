@@ -85,8 +85,20 @@ river-icon {
 card-view {
     display: inline-block;
     flex-shrink: 0;
-    z-index: 9000;
+    z-index: 1000;
     will-change: transform;
+}
+
+card-view[data-flipping] {
+    z-index: 1001;
+}
+
+river-lane card-view:first-of-type {
+    z-index: 1002;
+}
+
+river-lane card-view[data-flipping]:first-of-type {
+    z-index: 1003;
 }
 
 card-view svg {
