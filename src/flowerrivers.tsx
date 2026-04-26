@@ -1192,7 +1192,7 @@ export function FlowerRivers() {
         const timer = setTimeout(() => {
             const koikoi = aiDecideKoikoi(state);
             dispatch({ type: koikoi ? "CALL_KOIKOI" : "CALL_STOP" });
-        }, 1000);
+        }, 2000);
 
         return () => clearTimeout(timer);
     }, [phase, yakuPlayer]);
@@ -1620,48 +1620,78 @@ export function FlowerRivers() {
                 <div id="status-bar">{statusText}</div>
 
                 {/* Yaku Choice Dialog */}
-                {phase === "YAKU_CHOICE" && yakuPlayer === 0 && (
-                    <div id="yaku-dialog-overlay">
-                        <div id="yaku-dialog">
-                            <div id="yaku-dialog-title">Yaku!</div>
-                            {newYaku.map((y) => (
-                                <div key={y.name} data-row="yaku">
-                                    {y.name} — {y.points} pts
+                {phase === "YAKU_CHOICE" &&
+                    (() => {
+                        const winner = yakuPlayer;
+                        const loser = 1 - winner;
+                        const baseTotal = computeYaku(captured[winner]).total;
+                        const sevenBonus = baseTotal >= 7;
+                        const oppKoikoi = koikoiCounts[loser];
+                        const koikoiMult = Math.pow(2, oppKoikoi);
+                        const drawBonus = drawMultiplier > 1;
+                        let pts = baseTotal;
+                        if (sevenBonus) pts *= 2;
+                        pts *= koikoiMult;
+                        pts *= drawMultiplier;
+                        const hasMult =
+                            sevenBonus || oppKoikoi > 0 || drawBonus;
+                        return (
+                            <div id="yaku-dialog-overlay">
+                                <div id="yaku-dialog">
+                                    <div id="yaku-dialog-title">
+                                        {winner === 0 ? "Yaku!" : "AI Yaku!"}
+                                    </div>
+                                    {newYaku.map((y) => (
+                                        <div key={y.name} data-row="yaku">
+                                            {y.name} — {y.points} pts
+                                        </div>
+                                    ))}
+                                    <div id="yaku-dialog-total">
+                                        Total so far: {baseTotal} pts
+                                        {sevenBonus && " × 2 (7+ bonus)"}
+                                        {oppKoikoi > 0 &&
+                                            ` × ${koikoiMult} (${winner === 0 ? "opponent" : "your"} koi-koi ×${oppKoikoi})`}
+                                        {drawBonus &&
+                                            ` × ${drawMultiplier} (draw bonus)`}
+                                        {hasMult && ` = ${pts} pts`}
+                                    </div>
+                                    <div id="yaku-dialog-buttons">
+                                        {winner === 0 ? (
+                                            <>
+                                                <button
+                                                    id="stop-button"
+                                                    onClick={() =>
+                                                        dispatch({
+                                                            type: "CALL_STOP",
+                                                        })
+                                                    }
+                                                >
+                                                    Stop
+                                                </button>
+                                                <button
+                                                    id="koikoi-button"
+                                                    disabled={
+                                                        hands[0].length == 0
+                                                    }
+                                                    onClick={() =>
+                                                        dispatch({
+                                                            type: "CALL_KOIKOI",
+                                                        })
+                                                    }
+                                                >
+                                                    Koi-Koi!
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <div id="ai-deciding">
+                                                AI is deciding...
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            ))}
-                            <div id="yaku-dialog-total">
-                                Total so far: {computeYaku(captured[0]).total}{" "}
-                                pts
-                                {koikoiCounts[1] > 0 && (
-                                    <span>
-                                        {" "}
-                                        (opponent called koi-koi ×
-                                        {koikoiCounts[1]})
-                                    </span>
-                                )}
                             </div>
-                            <div id="yaku-dialog-buttons">
-                                <button
-                                    id="stop-button"
-                                    onClick={() =>
-                                        dispatch({ type: "CALL_STOP" })
-                                    }
-                                >
-                                    Stop
-                                </button>
-                                <button
-                                    id="koikoi-button"
-                                    disabled={hands[0].length == 0}
-                                    onClick={() =>
-                                        dispatch({ type: "CALL_KOIKOI" })
-                                    }
-                                >
-                                    Koi-Koi!
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                        );
+                    })()}
 
                 {/* Human Area */}
                 <div id="human-area">
