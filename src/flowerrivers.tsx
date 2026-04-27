@@ -1496,14 +1496,14 @@ export function FlowerRivers() {
 
     const flipState = ([] as Card[])
         .concat(
-            state.deck,
-            state.rivers[0],
-            state.rivers[1],
-            state.rivers[2],
-            state.hands[0],
-            state.hands[1],
-            state.captured[0],
-            state.captured[1],
+            deck,
+            rivers[0],
+            rivers[1],
+            rivers[2],
+            hands[0],
+            hands[1],
+            captured[0],
+            captured[1],
         )
         .map((x) => x.id)
         .join(",");
