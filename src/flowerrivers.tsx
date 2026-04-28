@@ -1132,7 +1132,7 @@ export function FlowerRivers() {
         }, 500);
 
         return () => clearTimeout(timer);
-    }, [phase, isHumanDealer, drawnCard, dealStep, animating]);
+    }, [animating]);
 
     // AI capturing
     useEffect(() => {
@@ -1162,7 +1162,7 @@ export function FlowerRivers() {
             clearTimeout(timer);
             setRevealedAiCard(null);
         };
-    }, [phase, isHumanCapturer, animating]);
+    }, [animating]);
 
     // AI forced capture
     useEffect(() => {
@@ -1184,7 +1184,7 @@ export function FlowerRivers() {
             clearTimeout(timer);
             setRevealedAiCard(null);
         };
-    }, [phase, isHumanCapturer, lightningRiver, animating]);
+    }, [animating]);
 
     // AI yaku choice (koikoi or stop)
     useEffect(() => {
@@ -1196,7 +1196,7 @@ export function FlowerRivers() {
         }, 2000);
 
         return () => clearTimeout(timer);
-    }, [phase, yakuPlayer, animating]);
+    }, [animating]);
 
     // --- HUMAN HANDLERS ---
     const handleDropInRiver = (ri: number) => {
