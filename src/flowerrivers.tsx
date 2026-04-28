@@ -969,6 +969,7 @@ interface CapturedViewProps {
 }
 
 function CapturedView({ id, cards, label }: CapturedViewProps) {
+    cards = cards.slice().sort((a, b) => a.month - b.month);
     const brights = cards.filter((c) => c.type === "bright");
     const animals = cards.filter((c) => c.type === "animal");
     const ribbons = cards.filter((c) => c.type === "ribbon");
