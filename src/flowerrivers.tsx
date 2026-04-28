@@ -722,7 +722,7 @@ function mctsChooseAction(state: GameState, simCount: number): GameAction {
             }
         }
     }
-    console.log("bestRate", bestRate);
+    console.log("bestRate", state.phase, bestRate);
     return actions[bestIdx];
 }
 
@@ -818,6 +818,7 @@ function CardView({
             flipId={card.id}
             scale
             translate
+            stagger
             onStart={(el) => el.setAttribute("data-flipping", "")}
             onComplete={(el) => el.removeAttribute("data-flipping")}
         >
@@ -1068,7 +1069,7 @@ function YakuList({ captured, label }: YakuListProps) {
 // --- MAIN COMPONENT ---
 export function FlowerRivers() {
     const [state, dispatch] = useReducer(gameReducer, makeInitialState());
-    const [aiDelay] = useState(false);
+    const [animating, setAnimating] = useState(false);
     const [hoveredRiver, setHoveredRiver] = useState<number | null>(null);
     const [hoveredHandCard, setHoveredHandCard] = useState<Card | null>(null);
     const [revealedAiCard, setRevealedAiCard] = useState<Card | null>(null);
@@ -1112,31 +1113,31 @@ export function FlowerRivers() {
     // --- AI EFFECTS ---
     // Auto-draw: whenever it's the dealing phase and no card is drawn yet, draw automatically
     useEffect(() => {
-        if (phase !== "DEALING" || drawnCard) return;
-        const delay = isHumanDealer ? 200 : 300;
+        if (phase !== "DEALING" || drawnCard || animating) return;
+        const delay = isHumanDealer ? 50 : 50;
         const timer = setTimeout(() => {
             dispatch({ type: "DRAW_CARD" });
         }, delay);
         return () => clearTimeout(timer);
-    }, [phase, drawnCard, dealStep]);
+    }, [phase, drawnCard, dealStep, animating]);
 
     // AI dealing: drop drawn cards
     useEffect(() => {
-        if (phase !== "DEALING" || isHumanDealer || !drawnCard) return;
-        if (aiDelay) return;
+        if (phase !== "DEALING" || isHumanDealer || !drawnCard || animating)
+            return;
 
+        const ri = aiChooseRiver(state);
         const timer = setTimeout(() => {
-            const ri = aiChooseRiver(state);
             dispatch({ type: "DROP_IN_RIVER", riverIdx: ri });
         }, 500);
 
         return () => clearTimeout(timer);
-    }, [phase, isHumanDealer, drawnCard, dealStep, aiDelay]);
+    }, [phase, isHumanDealer, drawnCard, dealStep, animating]);
 
     // AI capturing
     useEffect(() => {
-        if (phase !== "CAPTURING" || isHumanCapturer) return;
-
+        if (phase !== "CAPTURING" || isHumanCapturer || animating) return;
+        console.log("CAPTURING");
         const action = aiChooseCaptureAction(state);
         setRevealedAiCard(action.card);
 
@@ -1161,11 +1162,11 @@ export function FlowerRivers() {
             clearTimeout(timer);
             setRevealedAiCard(null);
         };
-    }, [phase, isHumanCapturer]);
+    }, [phase, isHumanCapturer, animating]);
 
     // AI forced capture
     useEffect(() => {
-        if (phase !== "FORCED_CAPTURE" || isHumanCapturer) return;
+        if (phase !== "FORCED_CAPTURE" || isHumanCapturer || animating) return;
 
         const card = aiChooseForcedCaptureCard(state);
         setRevealedAiCard(card);
@@ -1183,11 +1184,11 @@ export function FlowerRivers() {
             clearTimeout(timer);
             setRevealedAiCard(null);
         };
-    }, [phase, isHumanCapturer, lightningRiver]);
+    }, [phase, isHumanCapturer, lightningRiver, animating]);
 
     // AI yaku choice (koikoi or stop)
     useEffect(() => {
-        if (phase !== "YAKU_CHOICE" || yakuPlayer !== 1) return;
+        if (phase !== "YAKU_CHOICE" || yakuPlayer !== 1 || animating) return;
 
         const timer = setTimeout(() => {
             const koikoi = aiDecideKoikoi(state);
@@ -1195,7 +1196,7 @@ export function FlowerRivers() {
         }, 2000);
 
         return () => clearTimeout(timer);
-    }, [phase, yakuPlayer]);
+    }, [phase, yakuPlayer, animating]);
 
     // --- HUMAN HANDLERS ---
     const handleDropInRiver = (ri: number) => {
@@ -1511,16 +1512,18 @@ export function FlowerRivers() {
         <Flipper
             flipKey={flipState}
             spring={"noWobble"}
+            onStart={() => setAnimating(true)}
+            onComplete={() => setAnimating(false)}
             // spring={{ stiffness: 500, damping: 500 }}
-            // staggerConfig={{
-            //     // the "default" config will apply to staggered elements without explicit keys
-            //     default: {
-            //         // default direction is forwards
-            //         reverse: true,
-            //         // default is .1, 0 < n < 1
-            //         speed: 1,
-            //     },
-            // }}
+            staggerConfig={{
+                // the "default" config will apply to staggered elements without explicit keys
+                default: {
+                    // default direction is forwards
+                    reverse: true,
+                    // default is .1, 0 < n < 1
+                    speed: 1,
+                },
+            }}
         >
             <div id="game-board">
                 {/* Top Bar */}
