@@ -847,7 +847,7 @@ function RiverView({
     index,
     onClick,
     onDiscard,
-    highlightType,
+    highlightType, // TODO better name
     hoverHighlight,
     showDiscard,
     onMouseEnter,
@@ -861,8 +861,8 @@ function RiverView({
             data-highlight={highlightType || undefined}
             data-hover-highlight={hoverHighlight || undefined}
             data-has-special={hasSpecial || undefined}
-            data-clickable={!!onClick || undefined}
-            onClick={onClick}
+            data-clickable={(!!onClick && !!highlightType) || undefined}
+            onClick={(!!highlightType && onClick) || undefined}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
         >
@@ -1114,6 +1114,7 @@ export function FlowerRivers() {
     // Auto-draw: whenever it's the dealing phase and no card is drawn yet, draw automatically
     useEffect(() => {
         if (phase !== "DEALING" || drawnCard || animating) return;
+        console.log("DEALING");
         const delay = isHumanDealer ? 50 : 50;
         const timer = setTimeout(() => {
             dispatch({ type: "DRAW_CARD" });
