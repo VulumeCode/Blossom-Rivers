@@ -1702,7 +1702,9 @@ export function FlowerRivers() {
                     <div id="human-hand-row">
                         <HandView
                             id="human-hand"
-                            cards={hands[0]}
+                            cards={hands[0]
+                                .slice()
+                                .sort((a, b) => a.month - b.month)}
                             selectedCard={selectedHandCard}
                             onSelect={handleSelectCard}
                             disabled={
