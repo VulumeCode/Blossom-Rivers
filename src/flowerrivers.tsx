@@ -1,4 +1,5 @@
 import { useEffect, useReducer, useState } from "preact/hooks";
+import type { ComponentChildren } from "preact";
 import {
     Card,
     RiverHighlightType,
@@ -7,6 +8,8 @@ import {
     GameAction,
 } from "./types";
 import { images } from "./cardImages";
+import LeafsIcon from "./img/leafs.svg?react";
+import HandIcon from "./img/hand.svg?react";
 import { CARDS, isLightning, isRainMan, isWillow } from "./cards";
 import { computeYaku, nonJunkPoints } from "./yaku";
 import { Flipped, Flipper } from "react-flip-toolkit";
@@ -868,14 +871,17 @@ function RiverView({
         >
             {showDiscard ? (
                 <CardButton
-                    icon="🍂"
                     variant="discard"
                     onClick={() => {
                         onDiscard && onDiscard();
                     }}
-                />
+                >
+                    <LeafsIcon />
+                </CardButton>
             ) : highlightType === "drop" ? (
-                <CardButton icon="🍂" variant="drop" />
+                <CardButton variant="drop">
+                    <LeafsIcon />
+                </CardButton>
             ) : null}
 
             {cards.map((card) => (
@@ -883,7 +889,9 @@ function RiverView({
             ))}
 
             {(highlightType === "capture" || highlightType === "forced") && (
-                <river-icon data-highlight={highlightType}>🫳</river-icon>
+                <river-icon data-highlight={highlightType}>
+                    <HandIcon />
+                </river-icon>
             )}
         </river-lane>
     );
@@ -891,18 +899,18 @@ function RiverView({
 
 interface CardButtonProps {
     variant: "discard" | "drop";
-    icon: string;
     onClick?: () => void;
+    children?: ComponentChildren;
 }
 
-function CardButton({ variant, icon, onClick }: CardButtonProps) {
+function CardButton({ variant, onClick, children }: CardButtonProps) {
     return (
         <button
             data-role="card-button"
             data-variant={variant}
             onClick={onClick}
         >
-            {icon}
+            {children}
         </button>
     );
 }

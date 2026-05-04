@@ -87,12 +87,15 @@ body,
     overflow: hidden;
 }
 
-button[data-role="card-button"],
-river-icon {
-    font-family: "Noto Emoji", sans-serif;
-    font-weight: normal;
-    font-optical-sizing: auto;
-    font-style: normal;
+button[data-role="card-button"] svg,
+river-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+    stroke: var(--color-dark);
+    stroke-width: 12;
+    paint-order: stroke fill;
+    overflow: visible;
 }
 
 /* --- CARD VIEW --- */
@@ -205,23 +208,18 @@ river-spacer {
 
 river-icon {
     display: block;
-    font-size: 44px;
+    width: 44px;
+    height: 44px;
     margin-left: auto;
     margin-right: 33%;
-    width: 33%;
-    padding-left: 1em;
 }
 
 river-icon[data-highlight="capture"] {
     color: var(--color-capture);
-    -webkit-text-stroke: 2px var(--color-dark);
-    paint-order: stroke fill;
 }
 
 river-icon[data-highlight="forced"] {
     color: var(--color-forced);
-    -webkit-text-stroke: 2px var(--color-dark);
-    paint-order: stroke fill;
 }
 
 /* --- CARD BUTTON (used inside a river) --- */
@@ -231,26 +229,20 @@ button[data-role="card-button"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 33px;
-    font-weight: 600;
+    padding: 12px;
     background: transparent;
     border: 2px dashed currentColor;
     border-radius: 4px;
     cursor: pointer;
-    white-space: nowrap;
     flex-shrink: 0;
 }
 
 button[data-role="card-button"][data-variant="discard"] {
     color: var(--color-discard);
-    -webkit-text-stroke: 2px var(--color-dark);
-    paint-order: stroke fill;
 }
 
 button[data-role="card-button"][data-variant="drop"] {
     color: var(--color-drop);
-    -webkit-text-stroke: 2px var(--color-dark);
-    paint-order: stroke fill;
 }
 
 /* --- HAND --- */
