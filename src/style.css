@@ -92,11 +92,10 @@ river-icon svg {
     width: 100%;
     height: 100%;
     fill: currentColor;
-    stroke: var(--color-dark);
-    stroke-width: 12;
-    paint-order: stroke fill;
+    filter: url(#outline);
     overflow: visible;
 }
+
 
 /* --- CARD VIEW --- */
 card-view {

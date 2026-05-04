@@ -9,7 +9,7 @@ import {
 } from "./types";
 import { images } from "./cardImages";
 import LeafsIcon from "./img/leafs.svg?react";
-import HandIcon from "./img/hand.svg?react";
+import HandIcon from "./img/hand_color.svg?react";
 import { CARDS, isLightning, isRainMan, isWillow } from "./cards";
 import { computeYaku, nonJunkPoints } from "./yaku";
 import { Flipped, Flipper } from "react-flip-toolkit";
