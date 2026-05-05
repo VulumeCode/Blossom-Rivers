@@ -495,8 +495,8 @@ yaku-total {
 
 /* --- GAME BOARD --- */
 #game-board {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+        grid-template-rows: max-content 1fr max-content max-content 1fr;
     height: 100vh;
     background: var(--color-bg);
     color: var(--color-text);
