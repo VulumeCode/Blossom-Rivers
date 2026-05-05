@@ -44,12 +44,13 @@
     --card-h-sm: 72px;
     --card-w-river: 56px;
     --card-h-river: 92px;
+
     @media (orientation: portrait) {
-            --card-w-sm: var(--card-w);
-            --card-h-sm: var(--card-h);
-            --card-w-river: var(--card-w);
-            --card-h-river: var(--card-h);
-        }
+        --card-w-sm: var(--card-w);
+        --card-h-sm: var(--card-h);
+        --card-w-river: var(--card-w);
+        --card-h-river: var(--card-h);
+    }
 }
 
 @font-face {
@@ -67,6 +68,7 @@
     font-style: italic;
     font-display: swap;
 }
+
 @font-face {
     font-family: "Linux Biolinum";
     src: url("./fonts/LinBiolinum_RBah.ttf") format("truetype");
@@ -74,6 +76,7 @@
     font-style: normal;
     font-display: swap;
 }
+
 :root,
 button {
     font-family: "Linux Biolinum", sans-serif;
@@ -264,7 +267,6 @@ hand-view {
 captured-label {
     display: block;
     color: var(--color-pink);
-    font-size: 11px;
     font-weight: bold;
     min-width: 60px;
     padding-top: 2px;
@@ -273,7 +275,7 @@ captured-label {
 captured-view {
     display: flex;
     flex-direction: row;
-    gap: 12px;
+    gap: 12px 0;
     align-items: flex-start;
     padding: 4px 0;
     min-height: calc((var(--card-h-sm) + 8px) * 2);
@@ -291,8 +293,9 @@ captured-group {
 
 group-count {
     display: inline-block;
-    font-size: 9px;
-    margin-right: 2px;
+    font-weight: bold;
+    width: calc(var(--card-w-sm)/2);
+    text-align: center;
 }
 
 captured-group[data-type="bright"] group-count {
@@ -314,7 +317,7 @@ captured-group[data-type="junk"] group-count {
 /* --- YAKU LIST --- */
 yaku-list {
     display: block;
-    font-size: 11px;
+    font-weight: bold;
     color: var(--color-purple);
     padding: 2px 8px;
 }
@@ -496,7 +499,7 @@ yaku-total {
 /* --- GAME BOARD --- */
 #game-board {
     display: grid;
-        grid-template-rows: max-content 1fr max-content max-content 1fr;
+    grid-template-rows: max-content 1fr max-content max-content 1fr;
     height: 100vh;
     background: var(--color-bg);
     color: var(--color-text);
@@ -509,7 +512,6 @@ yaku-total {
     align-items: center;
     padding: 6px 16px;
     background: var(--color-dark);
-    font-size: 13px;
     flex-shrink: 0;
 }
 
@@ -579,7 +581,6 @@ draw-multiplier {
 
 koikoi-indicator {
     display: inline-block;
-    font-size: 11px;
     color: var(--color-pink);
     font-weight: bold;
 }
@@ -616,7 +617,6 @@ koikoi-indicator {
 
 deck-label {
     display: block;
-    font-size: 14px;
     font-weight: bold;
     color: var(--color-pink);
     text-align: center;
@@ -644,8 +644,6 @@ deck-label {
 #status-bar {
     padding: 6px 16px;
     text-align: center;
-    font-size: 14px;
-    font-weight: 500;
     background: var(--color-dark);
     color: var(--color-text);
     flex-shrink: 0;
