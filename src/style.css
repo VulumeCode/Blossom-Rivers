@@ -40,21 +40,21 @@
             var(--color-river-to),
             var(--color-river-to));
 
-    /* Card dimensions (width * 839/512 for height) */
+    --card-ration: 1600.0/976.0;
 
     --card-w: 7vmin;
-    --card-h: calc(var(--card-w)* (1600.0/976.0));
     --card-w-sm: 4.5vmin;
-    --card-h-sm: calc(var(--card-w-sm)* (1600.0/976.0));
     --card-w-river: 6.2vmin;
-    --card-h-river: calc(var(--card-w-river)* (1600.0/976.0));
+    --card-h: calc(var(--card-w) * var(--card-ration));
+    --card-h-sm: calc(var(--card-w-sm) * var(--card-ration));
+    --card-h-river: calc(var(--card-w-river) * var(--card-ration));
 
-    @media (orientation: portrait) {
-        --card-w-sm: var(--card-w);
-        --card-h-sm: var(--card-h);
-        --card-w-river: var(--card-w);
-        --card-h-river: var(--card-h);
+    @media (max-aspect-ratio: 62/90) {
+        --card-w: 9vmin;
+        --card-w-sm: 7vmin;
+        --card-w-river: 8vmin;
     }
+
 }
 
 @font-face {
@@ -100,6 +100,7 @@ body,
     width: 100vw;
     overflow: hidden;
     background: var(--color-bg);
+    font-size: 2vmin;
 }
 
 button[data-role="card-button"] svg,
@@ -258,7 +259,7 @@ button[data-role="card-button"][data-variant="drop"] {
 hand-view {
     display: flex;
     flex-direction: row;
-    gap: 0.5vmin;
+    gap: 0.9vmin;
     justify-content: center;
     flex-wrap: wrap;
 }
@@ -386,9 +387,7 @@ yaku-total {}
     color: var(--color-pink);
 }
 
-#round-over-draw-info {
-    font-size: 2vmin;
-}
+#round-over-draw-info {}
 
 #round-over-winner-info {
     text-align: center;
@@ -399,12 +398,12 @@ yaku-total {}
 }
 
 #round-over-winner-info [data-row="yaku"] {
-    font-size: 2vmin;
+
     color: var(--color-purple);
 }
 
 #round-over-multiplier {
-    font-size: 2vmin;
+
     color: var(--color-pink);
 }
 
@@ -440,18 +439,14 @@ yaku-total {}
     text-align: center;
 }
 
-#game-over-round-text {
-    font-size: 2vmin;
-}
+#game-over-round-text {}
 
 #game-over-round-info [data-row="yaku"] {
-    font-size: 2vmin;
+
     color: var(--color-purple);
 }
 
-#game-over-draw-info {
-    font-size: 2vmin;
-}
+#game-over-draw-info {}
 
 #game-over-scores {
     font-size: 3vmin;
@@ -477,15 +472,42 @@ yaku-total {}
 
 /* --- GAME BOARD --- */
 #game-board {
-    display: grid;
-    grid-template-rows: max-content 1fr max-content max-content 1fr;
     height: 100vh;
     background: var(--color-bg);
     color: var(--color-text);
     overflow: visible;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows:
+        max-content 1fr max-content max-content 1fr;
+    grid-template-areas:
+        "t t"
+        "aih aic"
+        "r r"
+        "s s"
+        "hh hc";
+    column-gap: 2vmin;
+
+
+    @media (max-aspect-ratio: 62/90) {
+        grid-template-columns: 1fr;
+        grid-template-rows:
+            max-content 1fr 1fr max-content max-content 1fr 1fr;
+        grid-template-areas:
+            "t"
+            "aih"
+            "aic"
+            "r"
+            "s"
+            "hc"
+            "hh"
+        ;
+    }
 }
 
 #top-bar {
+    grid-area: t;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -504,30 +526,6 @@ draw-multiplier {
     margin-left: 1vmin;
 }
 
-#ai-area,
-#human-area {
-    gap: 2vmin;
-    flex: 1 0 auto;
-    display: flex;
-
-    align-items: center;
-}
-
-#ai-area {
-    border-bottom: 0.2vmin solid var(--color-separator);
-
-    @media (orientation: portrait) {
-        flex-direction: column;
-    }
-}
-
-#human-area {
-    border-top: 0.2vmin solid var(--color-separator);
-
-    @media (orientation: portrait) {
-        flex-direction: column-reverse;
-    }
-}
 
 #ai-hand-row,
 #human-hand-row {
@@ -536,20 +534,46 @@ draw-multiplier {
     justify-content: end;
 }
 
+#ai-capture-row,
+#human-capture-row {
+    display: flex;
+    align-items: start;
+    flex-direction: column;
+    justify-content: center;
+}
+
+@media (max-aspect-ratio: 62/90) {
+
+    #ai-hand-row,
+    #human-hand-row {
+        align-items: center;
+        justify-content: center;
+    }
+
+    #ai-capture-row,
+    #human-capture-row {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        justify-content: center;
+    }
+}
+
+
 #ai-hand-row {
-    flex: 1 1 50%
+    grid-area: aih;
 }
 
 #human-hand-row {
-    flex: 1 1 50%;
+    grid-area: hh;
 }
 
 #ai-capture-row {
-    flex: 0 1 50%;
+    grid-area: aic;
 }
 
 #human-capture-row {
-    flex: 1 1 50%;
+    grid-area: hc;
 }
 
 koikoi-indicator {
@@ -559,6 +583,7 @@ koikoi-indicator {
 }
 
 #play-area {
+    grid-area: r;
     flex: 0 1 auto;
     display: flex;
     flex-direction: row;
@@ -566,6 +591,8 @@ koikoi-indicator {
     gap: 2vmin;
     min-height: 0;
     overflow: visible;
+    border-top: 0.2vmin solid var(--color-separator);
+    border-bottom: 0.2vmin solid var(--color-separator);
 }
 
 #deck-column {
@@ -615,6 +642,7 @@ deck-label {
 }
 
 #status-bar {
+    grid-area: s;
     padding: 1vmin 2vmin;
     text-align: center;
     background: var(--color-dark);
@@ -651,13 +679,11 @@ deck-label {
     margin-bottom: 2vmin;
 }
 
-#yaku-dialog [data-row="yaku"] {
-    font-size: 2vmin;
-}
+#yaku-dialog [data-row="yaku"] {}
 
 #yaku-dialog-total {
     margin: 2vmin 0 1vmin;
-    font-size: 2vmin;
+
     color: var(--color-pink);
 }
 
@@ -670,7 +696,7 @@ deck-label {
 
 #stop-button {
     padding: 1vmin 2vmin;
-    font-size: 2vmin;
+
     font-weight: bold;
     background: var(--color-purple);
     color: var(--color-dark);
@@ -681,7 +707,7 @@ deck-label {
 
 #koikoi-button {
     padding: 1vmin 2vmin;
-    font-size: 2vmin;
+
     font-weight: bold;
     background: transparent;
     color: var(--color-capture);
@@ -698,7 +724,7 @@ deck-label {
 
 #ai-deciding {
     padding: 1vmin 2vmin;
-    font-size: 2vmin;
+
     font-style: italic;
     color: var(--color-pink);
 }

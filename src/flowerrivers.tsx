@@ -1553,29 +1553,27 @@ export function FlowerRivers() {
                 </div>
 
                 {/* AI Area */}
-                <div id="ai-area">
-                    <div id="ai-hand-row">
-                        <HandView
-                            id="ai-hand"
-                            cards={hands[1]}
-                            faceDown
-                            disabled
-                            selectedCard={revealedAiCard}
-                        />
-                        {koikoiCounts[1] > 0 && (
-                            <koikoi-indicator>
-                                Koi-Koi ×{koikoiCounts[1]}
-                            </koikoi-indicator>
-                        )}
-                    </div>
-                    <div id="ai-capture-row">
-                        <CapturedView
-                            id="ai-captured"
-                            cards={captured[1]}
-                            label="AI captured"
-                        />
-                        <YakuList captured={captured[1]} label="AI yaku" />
-                    </div>
+                <div id="ai-hand-row">
+                    <HandView
+                        id="ai-hand"
+                        cards={hands[1]}
+                        faceDown
+                        disabled
+                        selectedCard={revealedAiCard}
+                    />
+                    {koikoiCounts[1] > 0 && (
+                        <koikoi-indicator>
+                            Koi-Koi ×{koikoiCounts[1]}
+                        </koikoi-indicator>
+                    )}
+                </div>
+                <div id="ai-capture-row">
+                    <CapturedView
+                        id="ai-captured"
+                        cards={captured[1]}
+                        label="AI captured"
+                    />
+                    <YakuList captured={captured[1]} label="AI yaku" />
                 </div>
 
                 {/* Deck + Rivers area */}
@@ -1707,48 +1705,46 @@ export function FlowerRivers() {
                     })()}
 
                 {/* Human Area */}
-                <div id="human-area">
-                    <div id="human-hand-row">
-                        <HandView
-                            id="human-hand"
-                            cards={hands[0]
-                                .slice()
-                                .sort((a, b) => a.month - b.month)}
-                            selectedCard={selectedHandCard}
-                            onSelect={handleSelectCard}
-                            disabled={
-                                !(
-                                    (phase === "CAPTURING" ||
-                                        phase === "FORCED_CAPTURE") &&
-                                    isHumanCapturer
-                                )
-                            }
-                            highlightedIds={highlightedHandIds}
-                            onCardHover={
-                                isCapturingPhase
-                                    ? (card) => setHoveredHandCard(card)
-                                    : undefined
-                            }
-                            onCardLeave={
-                                isCapturingPhase
-                                    ? () => setHoveredHandCard(null)
-                                    : undefined
-                            }
-                        />
-                        {koikoiCounts[0] > 0 && (
-                            <koikoi-indicator>
-                                Koi-Koi ×{koikoiCounts[0]}
-                            </koikoi-indicator>
-                        )}
-                    </div>
-                    <div id="human-capture-row">
-                        <CapturedView
-                            id="human-captured"
-                            cards={captured[0]}
-                            label="Yours captured"
-                        />
-                        <YakuList captured={captured[0]} label="Your yaku" />
-                    </div>
+                <div id="human-hand-row">
+                    <HandView
+                        id="human-hand"
+                        cards={hands[0]
+                            .slice()
+                            .sort((a, b) => a.month - b.month)}
+                        selectedCard={selectedHandCard}
+                        onSelect={handleSelectCard}
+                        disabled={
+                            !(
+                                (phase === "CAPTURING" ||
+                                    phase === "FORCED_CAPTURE") &&
+                                isHumanCapturer
+                            )
+                        }
+                        highlightedIds={highlightedHandIds}
+                        onCardHover={
+                            isCapturingPhase
+                                ? (card) => setHoveredHandCard(card)
+                                : undefined
+                        }
+                        onCardLeave={
+                            isCapturingPhase
+                                ? () => setHoveredHandCard(null)
+                                : undefined
+                        }
+                    />
+                    {koikoiCounts[0] > 0 && (
+                        <koikoi-indicator>
+                            Koi-Koi ×{koikoiCounts[0]}
+                        </koikoi-indicator>
+                    )}
+                </div>
+                <div id="human-capture-row">
+                    <CapturedView
+                        id="human-captured"
+                        cards={captured[0]}
+                        label="Yours captured"
+                    />
+                    <YakuList captured={captured[0]} label="Your yaku" />
                 </div>
             </div>
         </Flipper>
