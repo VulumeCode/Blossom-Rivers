@@ -182,11 +182,20 @@ river-lane {
     background: url("./img/river.png"), var(--gradient-river);
     background-attachment: local, fixed;
     background-blend-mode: multiply;
+    background-size: auto 50vh, auto;
     outline: 0.3vmin solid var(--color-purple);
     border-width: 0;
     border-radius: 1vmin 0 0 1vmin;
     transition: outline-color 0.2s;
     position: relative;
+}
+
+#river-1 {
+    background-position-y: calc(-1*(var(--card-h-river) + 2*0.8vmin));
+}
+
+#river-2 {
+    background-position-y: calc(-2*(var(--card-h-river) + 2*0.8vmin));
 }
 
 river-lane[data-has-special] {
