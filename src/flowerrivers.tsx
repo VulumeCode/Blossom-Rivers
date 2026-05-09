@@ -1113,12 +1113,12 @@ export function FlowerRivers() {
     useEffect(() => {
         if (phase !== "DEALING" || drawnCard || animating) return;
         console.log("DEALING");
-        const delay = isHumanDealer ? 50 : 50;
+        const delay = isHumanDealer ? 0 : 0;
         const timer = setTimeout(() => {
             dispatch({ type: "DRAW_CARD" });
         }, delay);
         return () => clearTimeout(timer);
-    }, [phase, drawnCard, dealStep, animating]);
+    }, [phase, animating]);
 
     // CPU dealing: drop drawn cards
     useEffect(() => {
