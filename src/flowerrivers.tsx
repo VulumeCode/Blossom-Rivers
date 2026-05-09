@@ -26,7 +26,7 @@ function shuffle(arr: Card[]): Card[] {
 }
 
 function playerName(p: number): string {
-    return p === 0 ? "You" : "AI";
+    return p === 0 ? "You" : "CPU";
 }
 
 function canCaptureRiver(handCard: Card, river: Card[]) {
@@ -85,7 +85,7 @@ function makeInitialState(): GameState {
         newYaku: [],
         yakuPlayer: -1,
         message: "",
-        aiAction: null,
+        cpuAction: null,
         roundScoreInfo: null,
     };
 }
@@ -110,7 +110,7 @@ function startRound(state: GameState): GameState {
         yakuPlayer: -1,
         turn: 1,
         message: "",
-        aiAction: null,
+        cpuAction: null,
         roundScoreInfo: null,
     };
 }
@@ -142,7 +142,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
                 message:
                     state.dealerIdx === 0
                         ? `You drew ${card.name}. Choose a river.`
-                        : `AI draws a card...`,
+                        : `CPU draws a card...`,
             };
         }
 
@@ -183,7 +183,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
                     message:
                         state.dealerIdx === 0
                             ? "Draw the next card."
-                            : "AI drops cards...",
+                            : "CPU drops cards...",
                 };
             }
 
@@ -201,7 +201,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
                     message:
                         state.capturerIdx === 0
                             ? `Lightning in River ${lightningRiver + 1}! You must capture it.`
-                            : `Lightning in River ${lightningRiver + 1}! AI must capture it.`,
+                            : `Lightning in River ${lightningRiver + 1}! CPU must capture it.`,
                 };
             }
 
@@ -216,7 +216,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
                 message:
                     state.capturerIdx === 0
                         ? "Choose a card to play, then capture a river or discard."
-                        : "AI is deciding...",
+                        : "CPU is deciding...",
             };
         }
 
@@ -287,7 +287,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
                                   .join(
                                       ", ",
                                   )} (${currentNonJunk} pts). Stop or Koi-Koi?`
-                            : `AI has ${currentNonJunk} pts: ${yaku.yakuList
+                            : `CPU has ${currentNonJunk} pts: ${yaku.yakuList
                                   .filter((y) => !y.isJunk)
                                   .map((y) => y.name)
                                   .join(", ")}`,
@@ -403,8 +403,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
             });
         }
 
-        case "SET_AI_ACTION": {
-            return { ...state, aiAction: action.payload };
+        case "SET_CPU_ACTION": {
+            // TODO not used?
+            return { ...state, cpuAction: action.payload };
         }
 
         case "CLEAR_MESSAGE": {
@@ -470,13 +471,13 @@ function advanceTurn(state: GameState): GameState {
         message:
             newDealer === 0
                 ? "Your turn to deal. Draw a card."
-                : "AI is dealing...",
+                : "CPU is dealing...",
     };
 }
 
-// --- AI LOGIC (Monte Carlo Tree Search) ---
+// --- CPU LOGIC (Monte Carlo Tree Search) ---
 
-// Randomize cards unknown to AI (player 1): opponent's hand and the deck
+// Randomize cards unknown to CPU (player 1): opponent's hand and the deck
 function randomizeHiddenCards(state: GameState): GameState {
     const hidden = [...state.deck, ...state.hands[0]];
     const shuffled = shuffle(hidden);
@@ -488,8 +489,8 @@ function randomizeHiddenCards(state: GameState): GameState {
     };
 }
 
-// Enumerate valid actions for AI (player 1) in the given state
-function getAIActions(state: GameState): GameAction[] {
+// Enumerate valid actions for CPU (player 1) in the given state
+function getCPUActions(state: GameState): GameAction[] {
     if (
         state.phase === "DEALING" &&
         state.dealerIdx === 1 &&
@@ -642,7 +643,7 @@ function normCdf(z: number): number {
     return z >= 0 ? 1 - p : p;
 }
 
-// Score a terminal rollout state from AI (player 1)'s POV, in [-1, 1].
+// Score a terminal rollout state from CPU (player 1)'s POV, in [-1, 1].
 // At GAME_OVER: sigmoid of score diff, ties punished.
 // At ROUND_OVER (rounds remaining): Gaussian P(win match) given diff and rounds left —
 // naturally rewards widening the score distribution when trailing and narrowing it when ahead.
@@ -664,10 +665,10 @@ function evaluateRollout(state: GameState): number {
     return 2 * normCdf(z) - 1;
 }
 
-// MCTS: choose the best action for AI given the current (partially observable) state.
+// MCTS: choose the best action for CPU given the current (partially observable) state.
 // Uses determinization: hidden cards are randomized once per simulation.
 function mctsChooseAction(state: GameState, simCount: number): GameAction {
-    const actions = getAIActions(state);
+    const actions = getCPUActions(state);
     if (actions.length === 0) return { type: "DRAW_CARD" };
     if (actions.length === 1) return actions[0];
 
@@ -682,33 +683,33 @@ function mctsChooseAction(state: GameState, simCount: number): GameAction {
             const detState = randomizeHiddenCards(state);
 
             // Select action via UCB1 (round-robin for the first pass)
-            let ai: number;
+            let cpu: number;
             if (sim < actions.length) {
-                ai = sim;
+                cpu = sim;
             } else {
                 const logTotal = Math.log(sim);
                 let bestUCB = -Infinity;
-                ai = 0;
+                cpu = 0;
                 for (let i = 0; i < actions.length; i++) {
                     const ucb =
                         wins[i] / visits[i] +
                         C * Math.sqrt(logTotal / visits[i]);
                     if (ucb > bestUCB) {
                         bestUCB = ucb;
-                        ai = i;
+                        cpu = i;
                     }
                 }
             }
 
             // Apply chosen action then roll out to game over
-            const next = gameReducer(detState, actions[ai]);
+            const next = gameReducer(detState, actions[cpu]);
             const terminal = rolloutToEnd(next);
 
             // Match-aware terminal evaluation (range [-1, 1], so UCB C is doubled).
             const score = evaluateRollout(terminal);
 
-            wins[ai] += score;
-            visits[ai]++;
+            wins[cpu] += score;
+            visits[cpu]++;
         }
     }
     _simMode = false;
@@ -729,17 +730,17 @@ function mctsChooseAction(state: GameState, simCount: number): GameAction {
     return actions[bestIdx];
 }
 
-type AIAction =
+type cpuAction =
     | { type: "capture"; card: Card; riverIdx: number }
     | { type: "discard"; card: Card; riverIdx: number };
 
-function aiChooseRiver(state: GameState): number {
+function cpuChooseRiver(state: GameState): number {
     const action = mctsChooseAction(state, 2000);
     if (action.type === "DROP_IN_RIVER") return action.riverIdx;
     return [0, 1, 2].find((i) => !state.riversUsedThisTurn[i]) ?? 0;
 }
 
-function aiChooseCaptureAction(state: GameState): AIAction {
+function cpuChooseCaptureAction(state: GameState): cpuAction {
     const action = mctsChooseAction(state, 4000);
     if (action.type === "CAPTURE_RIVER" && action.handCard) {
         return {
@@ -758,14 +759,14 @@ function aiChooseCaptureAction(state: GameState): AIAction {
     return { type: "discard", card: state.hands[1][0], riverIdx: 0 };
 }
 
-function aiChooseForcedCaptureCard(state: GameState): Card {
+function cpuChooseForcedCaptureCard(state: GameState): Card {
     const action = mctsChooseAction(state, 2000);
     if (action.type === "CAPTURE_RIVER" && action.handCard)
         return action.handCard;
     return state.hands[1][0];
 }
 
-function aiDecideKoikoi(state: GameState): boolean {
+function cpuDecideKoikoi(state: GameState): boolean {
     const action = mctsChooseAction(state, 2000);
     return action.type === "CALL_KOIKOI";
 }
@@ -973,10 +974,9 @@ function HandView({
 interface CapturedViewProps {
     id?: string;
     cards: Card[];
-    label: string;
 }
 
-function CapturedView({ id, cards, label }: CapturedViewProps) {
+function CapturedView({ id, cards }: CapturedViewProps) {
     cards = cards.slice().sort((a, b) => a.month - b.month);
     const brights = cards.filter((c) => c.type === "bright");
     const animals = cards.filter((c) => c.type === "animal");
@@ -1037,9 +1037,6 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
 
     return (
         <>
-            <captured-label>
-                {label} ({cards.length})
-            </captured-label>
             <captured-view id={id} style={{ "--cols": cols }}>
                 {groups.map(
                     (g) =>
@@ -1060,15 +1057,13 @@ function CapturedView({ id, cards, label }: CapturedViewProps) {
 // --- YAKU DISPLAY ---
 interface YakuListProps {
     captured: Card[];
-    label: string;
 }
 
-function YakuList({ captured, label }: YakuListProps) {
+function YakuList({ captured }: YakuListProps) {
     const { yakuList, total } = computeYaku(captured);
     if (yakuList.length === 0) return null;
     return (
         <yaku-list>
-            <yaku-label>{label}: </yaku-label>
             {yakuList.map((y) => `${y.name} (${y.points})`).join(", ")}
             <yaku-total> = {total}</yaku-total>
         </yaku-list>
@@ -1081,7 +1076,7 @@ export function FlowerRivers() {
     const [animating, setAnimating] = useState(false);
     const [hoveredRiver, setHoveredRiver] = useState<number | null>(null);
     const [hoveredHandCard, setHoveredHandCard] = useState<Card | null>(null);
-    const [revealedAiCard, setRevealedAiCard] = useState<Card | null>(null);
+    const [revealedCpuCard, setRevealedCpuCard] = useState<Card | null>(null);
 
     const resetHover = () => {
         setHoveredRiver(null);
@@ -1119,7 +1114,7 @@ export function FlowerRivers() {
         if (message) console.log("message:", message);
     }, [message]);
 
-    // --- AI EFFECTS ---
+    // --- CPU EFFECTS ---
     // Auto-draw: whenever it's the dealing phase and no card is drawn yet, draw automatically
     useEffect(() => {
         if (phase !== "DEALING" || drawnCard || animating) return;
@@ -1131,12 +1126,12 @@ export function FlowerRivers() {
         return () => clearTimeout(timer);
     }, [phase, drawnCard, dealStep, animating]);
 
-    // AI dealing: drop drawn cards
+    // CPU dealing: drop drawn cards
     useEffect(() => {
         if (phase !== "DEALING" || isHumanDealer || !drawnCard || animating)
             return;
 
-        const ri = aiChooseRiver(state);
+        const ri = cpuChooseRiver(state);
         const timer = setTimeout(() => {
             dispatch({ type: "DROP_IN_RIVER", riverIdx: ri });
         }, 500);
@@ -1144,15 +1139,15 @@ export function FlowerRivers() {
         return () => clearTimeout(timer);
     }, [animating]);
 
-    // AI capturing
+    // CPU capturing
     useEffect(() => {
         if (phase !== "CAPTURING" || isHumanCapturer || animating) return;
         console.log("CAPTURING");
-        const action = aiChooseCaptureAction(state);
-        setRevealedAiCard(action.card);
+        const action = cpuChooseCaptureAction(state);
+        setRevealedCpuCard(action.card);
 
         const timer = setTimeout(() => {
-            setRevealedAiCard(null);
+            setRevealedCpuCard(null);
             if (action.type === "capture") {
                 dispatch({
                     type: "CAPTURE_RIVER",
@@ -1170,19 +1165,19 @@ export function FlowerRivers() {
 
         return () => {
             clearTimeout(timer);
-            setRevealedAiCard(null);
+            setRevealedCpuCard(null);
         };
     }, [animating]);
 
-    // AI forced capture
+    // CPU forced capture
     useEffect(() => {
         if (phase !== "FORCED_CAPTURE" || isHumanCapturer || animating) return;
 
-        const card = aiChooseForcedCaptureCard(state);
-        setRevealedAiCard(card);
+        const card = cpuChooseForcedCaptureCard(state);
+        setRevealedCpuCard(card);
 
         const timer = setTimeout(() => {
-            setRevealedAiCard(null);
+            setRevealedCpuCard(null);
             dispatch({
                 type: "CAPTURE_RIVER",
                 riverIdx: lightningRiver!,
@@ -1192,16 +1187,16 @@ export function FlowerRivers() {
 
         return () => {
             clearTimeout(timer);
-            setRevealedAiCard(null);
+            setRevealedCpuCard(null);
         };
     }, [animating]);
 
-    // AI yaku choice (koikoi or stop)
+    // CPU yaku choice (koikoi or stop)
     useEffect(() => {
         if (phase !== "YAKU_CHOICE" || yakuPlayer !== 1 || animating) return;
 
         const timer = setTimeout(() => {
-            const koikoi = aiDecideKoikoi(state);
+            const koikoi = cpuDecideKoikoi(state);
             dispatch({ type: koikoi ? "CALL_KOIKOI" : "CALL_STOP" });
         }, 2000);
 
@@ -1333,7 +1328,7 @@ export function FlowerRivers() {
                     </div>
                 )}
                 <div id="round-over-scores">
-                    Score — You: {scores[0]} | AI: {scores[1]}
+                    Score — You: {scores[0]} | CPU: {scores[1]}
                 </div>
                 <button
                     id="next-round-button"
@@ -1354,7 +1349,7 @@ export function FlowerRivers() {
             finalS0 > finalS1
                 ? "You win!"
                 : finalS0 < finalS1
-                  ? "AI wins!"
+                  ? "CPU wins!"
                   : "Tie game!";
         return (
             <div id="game-over-screen">
@@ -1376,7 +1371,7 @@ export function FlowerRivers() {
                     <div id="game-over-draw-info">Final round was a draw.</div>
                 )}
                 <div id="game-over-scores">
-                    You: {finalS0} — AI: {finalS1}
+                    You: {finalS0} — CPU: {finalS1}
                 </div>
                 <div id="game-over-winner">{winner}</div>
                 <button
@@ -1497,12 +1492,12 @@ export function FlowerRivers() {
     ) {
         statusText = `Click River ${lightningRiver !== null ? lightningRiver + 1 : ""} to capture it.`;
     } else if (phase === "DEALING" && !isHumanDealer) {
-        statusText = "AI is dealing...";
+        statusText = "CPU is dealing...";
     } else if (
         (phase === "CAPTURING" || phase === "FORCED_CAPTURE") &&
         !isHumanCapturer
     ) {
-        statusText = "AI is choosing...";
+        statusText = "CPU is choosing...";
     }
 
     const flipState = ([] as Card[])
@@ -1543,7 +1538,7 @@ export function FlowerRivers() {
                         Round {round}/{TOTAL_ROUNDS} — Turn {turn}
                     </span>
                     <span>
-                        You: <b>{scores[0]}</b> | AI: <b>{scores[1]}</b>
+                        You: <b>{scores[0]}</b> | CPU: <b>{scores[1]}</b>
                         {drawMultiplier > 1 && (
                             <draw-multiplier>
                                 ×{drawMultiplier} next!
@@ -1552,14 +1547,14 @@ export function FlowerRivers() {
                     </span>
                 </div>
 
-                {/* AI Area */}
-                <div id="ai-hand-row">
+                {/* CPU Area */}
+                <div id="cpu-hand-row">
                     <HandView
-                        id="ai-hand"
+                        id="cpu-hand"
                         cards={hands[1]}
                         faceDown
                         disabled
-                        selectedCard={revealedAiCard}
+                        selectedCard={revealedCpuCard}
                     />
                     {koikoiCounts[1] > 0 && (
                         <koikoi-indicator>
@@ -1567,13 +1562,9 @@ export function FlowerRivers() {
                         </koikoi-indicator>
                     )}
                 </div>
-                <div id="ai-capture-row">
-                    <CapturedView
-                        id="ai-captured"
-                        cards={captured[1]}
-                        label="AI captured"
-                    />
-                    <YakuList captured={captured[1]} label="AI yaku" />
+                <div id="cpu-capture-row">
+                    <CapturedView id="cpu-captured" cards={captured[1]} />
+                    <YakuList captured={captured[1]} />
                 </div>
 
                 {/* Deck + Rivers area */}
@@ -1650,7 +1641,7 @@ export function FlowerRivers() {
                             <div id="yaku-dialog-overlay">
                                 <div id="yaku-dialog">
                                     <div id="yaku-dialog-title">
-                                        {winner === 0 ? "Yaku!" : "AI Yaku!"}
+                                        {winner === 0 ? "Yaku!" : "CPU Yaku!"}
                                     </div>
                                     {newYaku.map((y) => (
                                         <div key={y.name} data-row="yaku">
@@ -1694,8 +1685,8 @@ export function FlowerRivers() {
                                                 </button>
                                             </>
                                         ) : (
-                                            <div id="ai-deciding">
-                                                AI is deciding...
+                                            <div id="cpu-deciding">
+                                                CPU is deciding...
                                             </div>
                                         )}
                                     </div>
@@ -1739,12 +1730,8 @@ export function FlowerRivers() {
                     )}
                 </div>
                 <div id="human-capture-row">
-                    <CapturedView
-                        id="human-captured"
-                        cards={captured[0]}
-                        label="Yours captured"
-                    />
-                    <YakuList captured={captured[0]} label="Your yaku" />
+                    <CapturedView id="human-captured" cards={captured[0]} />
+                    <YakuList captured={captured[0]} />
                 </div>
             </div>
         </Flipper>

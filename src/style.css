@@ -274,11 +274,6 @@ hand-view {
 }
 
 /* --- CAPTURED --- */
-captured-label {
-    display: block;
-    color: var(--color-pink);
-    font-weight: bold;
-}
 
 captured-view {
     display: flex;
@@ -330,9 +325,6 @@ yaku-list {
     padding: 0.5vmin 0;
 }
 
-yaku-label {}
-
-yaku-total {}
 
 /* --- FULLSCREEN SCREENS (menu / round over / game over) --- */
 #menu-screen,
@@ -492,7 +484,7 @@ yaku-total {}
         max-content 1fr max-content max-content 1fr;
     grid-template-areas:
         "t t"
-        "aih aic"
+        "ch cc"
         "r r"
         "s s"
         "hh hc";
@@ -505,8 +497,8 @@ yaku-total {}
             max-content 1fr 1fr max-content max-content 1fr 1fr;
         grid-template-areas:
             "t"
-            "aih"
-            "aic"
+            "ch"
+            "cc"
             "r"
             "s"
             "hc"
@@ -536,14 +528,14 @@ draw-multiplier {
 }
 
 
-#ai-hand-row,
+#cpu-hand-row,
 #human-hand-row {
     display: flex;
     align-items: center;
     justify-content: end;
 }
 
-#ai-capture-row,
+#cpu-capture-row,
 #human-capture-row {
     display: flex;
     align-items: start;
@@ -553,13 +545,13 @@ draw-multiplier {
 
 @media (max-aspect-ratio: 62/90) {
 
-    #ai-hand-row,
+    #cpu-hand-row,
     #human-hand-row {
         align-items: center;
         justify-content: center;
     }
 
-    #ai-capture-row,
+    #cpu-capture-row,
     #human-capture-row {
         display: flex;
         align-items: center;
@@ -569,16 +561,16 @@ draw-multiplier {
 }
 
 
-#ai-hand-row {
-    grid-area: aih;
+#cpu-hand-row {
+    grid-area: ch;
 }
 
 #human-hand-row {
     grid-area: hh;
 }
 
-#ai-capture-row {
-    grid-area: aic;
+#cpu-capture-row {
+    grid-area: cc;
 }
 
 #human-capture-row {
@@ -731,7 +723,7 @@ deck-label {
     cursor: not-allowed;
 }
 
-#ai-deciding {
+#cpu-deciding {
     padding: 1vmin 2vmin;
 
     font-style: italic;
