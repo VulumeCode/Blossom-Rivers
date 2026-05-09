@@ -659,7 +659,7 @@ function evaluateRollout(state: GameState): number {
 // Uses determinization: hidden cards are randomized once per simulation.
 function mctsChooseAction(state: GameState, simCount: number): GameAction {
     const actions = getCPUActions(state);
-    if (actions.length === 0) return { type: "DRAW_CARD" };
+    if (actions.length === 0) throw "No available actions.";
     if (actions.length === 1) return actions[0];
 
     const wins = new Float64Array(actions.length);
@@ -727,7 +727,7 @@ type cpuAction =
 function cpuChooseRiver(state: GameState): number {
     const action = mctsChooseAction(state, 2000);
     if (action.type === "DROP_IN_RIVER") return action.riverIdx;
-    return [0, 1, 2].find((i) => !state.riversUsedThisTurn[i]) ?? 0;
+    throw "Illegal choice";
 }
 
 function cpuChooseCaptureAction(state: GameState): cpuAction {
@@ -746,19 +746,23 @@ function cpuChooseCaptureAction(state: GameState): cpuAction {
             riverIdx: action.riverIdx,
         };
     }
-    return { type: "discard", card: state.hands[1][0], riverIdx: 0 };
+    throw "Illegal choice";
 }
 
 function cpuChooseForcedCaptureCard(state: GameState): Card {
     const action = mctsChooseAction(state, 2000);
     if (action.type === "CAPTURE_RIVER" && action.handCard)
         return action.handCard;
-    return state.hands[1][0];
+    throw "Illegal choice";
 }
 
 function cpuDecideKoikoi(state: GameState): boolean {
     const action = mctsChooseAction(state, 2000);
-    return action.type === "CALL_KOIKOI";
+    if (action.type === "CALL_KOIKOI") return true;
+
+    if (action.type === "CALL_STOP") return false;
+
+    throw "Illegal choice";
 }
 
 // --- CARD COMPONENT ---
