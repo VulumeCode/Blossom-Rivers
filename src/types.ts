@@ -204,7 +204,6 @@ export interface GameState {
   newYaku: YakuEntry[];
   yakuPlayer: number;
   message: string;
-  cpuAction: unknown;
   roundScoreInfo: RoundScoreInfo | null;
 }
 
@@ -218,5 +217,4 @@ export type GameAction =
   | { type: 'CALL_STOP' }
   | { type: 'CALL_KOIKOI' }
   | { type: 'NEXT_ROUND' }
-  | { type: 'SET_CPU_ACTION'; payload: unknown }
   | { type: 'CLEAR_MESSAGE' };

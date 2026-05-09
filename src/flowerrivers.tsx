@@ -85,7 +85,6 @@ function makeInitialState(): GameState {
         newYaku: [],
         yakuPlayer: -1,
         message: "",
-        cpuAction: null,
         roundScoreInfo: null,
     };
 }
@@ -110,7 +109,6 @@ function startRound(state: GameState): GameState {
         yakuPlayer: -1,
         turn: 1,
         message: "",
-        cpuAction: null,
         roundScoreInfo: null,
     };
 }
@@ -403,17 +401,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
             });
         }
 
-        case "SET_CPU_ACTION": {
-            // TODO not used?
-            return { ...state, cpuAction: action.payload };
-        }
-
         case "CLEAR_MESSAGE": {
             return { ...state, message: "" };
         }
-
-        default:
-            throw "Unknown action.";
     }
 }
 
