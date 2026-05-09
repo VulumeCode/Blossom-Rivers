@@ -1128,7 +1128,7 @@ export function FlowerRivers() {
         const ri = cpuChooseRiver(state);
         const timer = setTimeout(() => {
             dispatch({ type: "DROP_IN_RIVER", riverIdx: ri });
-        }, 500);
+        }, 0);
 
         return () => clearTimeout(timer);
     }, [animating]);
