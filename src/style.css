@@ -99,9 +99,13 @@ body,
     height: 100vh;
     width: 100vw;
     overflow: hidden;
-    background: var(--color-bg);
+    background: url(./img/tatami.jpg), var(--color-bg);
+    background-blend-mode: multiply;
+    background-attachment: fixed;
+    background-repeat: repeat;
     font-size: 2vmin;
 }
+
 
 button[data-role="card-button"] svg,
 river-icon svg {
@@ -179,24 +183,27 @@ river-lane {
     gap: 0.8vmin;
     padding: 0.8vmin;
     height: calc(var(--card-h-river) + 2*0.8vmin);
-    background: url("./img/river.png"), var(--gradient-river);
-    background-attachment: local, fixed;
-    background-blend-mode: multiply;
-    background-size: auto 50vh, auto;
+
     outline: 0.3vmin solid var(--color-purple);
     border-width: 0;
     border-radius: 1vmin 0 0 1vmin;
     transition: outline-color 0.2s;
     position: relative;
+
+    background: url("./img/wood.jpg"), var(--gradient-river);
+    background-attachment: fixed;
+    background-blend-mode: multiply;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain, auto;
+
+    @media (min-aspect-ratio: 16/9) {
+        background-size: cover, auto;
+    }
+
+
 }
 
-#river-1 {
-    background-position-y: calc(-1*(var(--card-h-river) + 2*0.8vmin));
-}
-
-#river-2 {
-    background-position-y: calc(-2*(var(--card-h-river) + 2*0.8vmin));
-}
 
 river-lane[data-has-special] {
     outline-style: dashed;
@@ -335,7 +342,6 @@ yaku-list {
     align-items: center;
     justify-content: center;
     height: 100vh;
-    background: var(--color-bg);
     color: var(--color-text);
     gap: 2vmin;
 }
@@ -474,7 +480,6 @@ yaku-list {
 /* --- GAME BOARD --- */
 #game-board {
     height: 100vh;
-    background: var(--color-bg);
     color: var(--color-text);
     overflow: visible;
 
