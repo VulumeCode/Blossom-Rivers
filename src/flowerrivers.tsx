@@ -1465,23 +1465,23 @@ export function FlowerRivers() {
     if (phase === "DEALING" && isHumanDealer && !drawnCard) {
         statusText = `Turn ${turn} — Drawing... (${dealStep + 1}/3)`;
     } else if (phase === "DEALING" && isHumanDealer && drawnCard) {
-        statusText = `Drop ${drawnCard.name} in a river. (${dealStep + 1}/3)`;
+        statusText = `Drop 🍃 ${drawnCard.name} in a river. (${dealStep + 1}/3)`;
     } else if (phase === "CAPTURING" && isHumanCapturer && !selectedHandCard) {
         statusText = "Select a card from your hand.";
     } else if (phase === "CAPTURING" && isHumanCapturer && selectedHandCard) {
-        statusText = "Click a river to capture or discard.";
+        statusText = "Click a river to capture 🫳 or discard 🍃.";
     } else if (
         phase === "FORCED_CAPTURE" &&
         isHumanCapturer &&
         !selectedHandCard
     ) {
-        statusText = `Lightning! Select a card to capture River ${lightningRiver !== null ? lightningRiver + 1 : ""}.`;
+        statusText = `Lightning! Select a card to capture 🫳 River ${lightningRiver !== null ? lightningRiver + 1 : ""}.`;
     } else if (
         phase === "FORCED_CAPTURE" &&
         isHumanCapturer &&
         selectedHandCard
     ) {
-        statusText = `Click River ${lightningRiver !== null ? lightningRiver + 1 : ""} to capture it.`;
+        statusText = `Click River ${lightningRiver !== null ? lightningRiver + 1 : ""} to capture 🫳 it.`;
     } else if (phase === "DEALING" && !isHumanDealer) {
         statusText = "CPU is dealing...";
     } else if (

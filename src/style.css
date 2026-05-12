@@ -94,7 +94,7 @@ icon {
 
 :root,
 button {
-    font-family: "Linux Biolinum", sans-serif;
+    font-family: 'Noto Emoji', "Linux Biolinum", sans-serif;
     font-style: normal;
 }
 
@@ -528,9 +528,11 @@ yaku-list {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1vmin 2vmin;
+    padding: 0 2vmin;
+    height: 4vmin;
+    align-content: center;
+
     background: var(--color-dark);
-    flex-shrink: 0;
 }
 
 top-title {
@@ -660,11 +662,11 @@ deck-label {
 
 #status-bar {
     grid-area: s;
-    padding: 1vmin 2vmin;
+    height: 4vmin;
     text-align: center;
     background: var(--color-dark);
     color: var(--color-text);
-    flex-shrink: 0;
+    align-content: center;
 }
 
 /* --- YAKU DIALOG --- */
