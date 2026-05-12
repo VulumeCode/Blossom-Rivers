@@ -7,9 +7,21 @@
     --card-red: #d81e1e;
     --card-amber: #ffb85a;
     --card-bark: #997664;
-    --card-purple: #6060bf;
     --card-pink: #ff8db6;
+    --card-purple: #6060bf;
     --card-teal: #82d8d0;
+
+
+    /* --card-paper: #f4f3ef; */
+    /* --card-green: #50B271; */
+    /* --card-frame-outer: black; */
+    /* --card-frame-inner: black; */
+    --card-red: #D81E1E;
+    --card-amber: #FF970D;
+    /* --card-bark: #FF970D; */
+    --card-pink: #FF8DB6;
+    --card-purple: #5D4E8C;
+    --card-teal: #80E3ED;
 
     --color-bg: #0e421b;
     --color-dark: var(--card-frame-outer);
@@ -55,6 +67,48 @@
         --card-w-river: 8vmin;
     }
 
+}
+
+path {
+    &.hf-paper {
+        fill: var(--card-paper);
+    }
+
+    &.hf-green {
+        fill: var(--card-green);
+    }
+
+    &.hf-gold {
+        fill: var(--card-amber);
+    }
+
+    &.hf-brown {
+        fill: var(--card-bark);
+    }
+
+    &.hf-blue {
+        fill: var(--card-purple);
+    }
+
+    &.hf-teal {
+        fill: var(--card-teal);
+    }
+
+    &.hf-red {
+        fill: var(--card-red);
+    }
+
+    &.hf-pink {
+        fill: var(--card-pink);
+    }
+
+    &.hf-dark-brown {
+        fill: var(--card-frame-outer);
+    }
+
+    &.hf-dark-red {
+        fill: var(--card-frame-inner);
+    }
 }
 
 @font-face {
