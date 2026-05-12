@@ -9,6 +9,7 @@ declare module 'preact' {
             'card-view': HTMLAttributes<HTMLElement>;
             'river-lane': HTMLAttributes<HTMLElement>;
             'river-icon': HTMLAttributes<HTMLElement>;
+            'icon': HTMLAttributes<HTMLElement>;
             'river-spacer': HTMLAttributes<HTMLElement>;
             'hand-view': HTMLAttributes<HTMLElement>;
             'captured-view': HTMLAttributes<HTMLElement>;

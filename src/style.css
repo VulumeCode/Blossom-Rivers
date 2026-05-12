@@ -81,6 +81,17 @@
     font-display: block;
 }
 
+@font-face {
+    font-family: 'Noto Emoji';
+    src: url('./fonts/Noto_Emoji.woff2') format('woff2');
+    font-display: block;
+    unicode-range: U+1F343, U+1FAF3;
+}
+
+icon {
+    font-family: 'Noto Emoji';
+}
+
 :root,
 button {
     font-family: "Linux Biolinum", sans-serif;
@@ -107,14 +118,13 @@ body,
 }
 
 
-button[data-role="card-button"] svg,
-river-icon svg {
-    width: 4vmin;
+button[data-role="card-button"] icon,
+river-icon icon {
     fill: currentColor;
-    stroke: var(--color-dark);
-    stroke-width: 0.3vmin;
+    -webkit-text-stroke: 0.6vmin var(--color-dark);
     paint-order: stroke fill;
     overflow: visible;
+    font-size: 6vmin;
 }
 
 /* --- CARD VIEW --- */
@@ -239,6 +249,7 @@ river-spacer {
 
 river-icon {
     display: block;
+    transform: scaleX(-1);
 }
 
 river-icon[data-highlight="capture"] {

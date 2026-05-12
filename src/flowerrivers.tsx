@@ -8,12 +8,9 @@ import {
     GameAction,
 } from "./types";
 import { images } from "./cardImages";
-import LeafsIcon from "./img/leafs.svg?react";
-import HandIcon from "./img/hand.svg?react";
 import { CARDS, isLightning, isRainMan, isWillow } from "./cards";
 import { computeYaku, nonJunkPoints } from "./yaku";
 import { Flipped, Flipper } from "react-flip-toolkit";
-import { vi } from "vitest";
 
 // --- GAME HELPERS ---
 function shuffle(arr: Card[]): Card[] {
@@ -871,11 +868,11 @@ function RiverView({
                         onDiscard && onDiscard();
                     }}
                 >
-                    <LeafsIcon />
+                    <icon>🍃</icon>
                 </CardButton>
             ) : highlightType === "drop" ? (
                 <CardButton variant="drop">
-                    <LeafsIcon />
+                    <icon>🍃</icon>
                 </CardButton>
             ) : null}
 
@@ -885,7 +882,7 @@ function RiverView({
 
             {(highlightType === "capture" || highlightType === "forced") && (
                 <river-icon data-highlight={highlightType}>
-                    <HandIcon />
+                    <icon>🫳</icon>
                 </river-icon>
             )}
         </river-lane>
