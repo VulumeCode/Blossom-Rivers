@@ -82,6 +82,7 @@
 }
 
 @font-face {
+    /* https://fontsubset.com/ */
     font-family: 'Noto Emoji';
     src: url('./fonts/Noto_Emoji.woff2') format('woff2');
     font-display: block;
