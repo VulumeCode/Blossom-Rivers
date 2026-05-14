@@ -162,7 +162,7 @@ button {
 html,
 body,
 #root {
-    height: 100vh;
+    height: 100dvh;
     width: 100vw;
     overflow: hidden;
     background: url(./img/tatami.jpg), var(--color-bg);
@@ -407,7 +407,7 @@ yaku-list {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    height: 100dvh;
     color: var(--color-text);
     gap: 2vmin;
 }
@@ -545,7 +545,7 @@ yaku-list {
 
 /* --- GAME BOARD --- */
 #game-board {
-    height: 100vh;
+    height: 100dvh;
     color: var(--color-text);
     overflow: visible;
 
