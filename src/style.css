@@ -247,7 +247,8 @@ river-lane {
     align-items: center;
     gap: 0.8vmin;
     padding: 0.8vmin;
-    height: calc(var(--card-h-river) + 2*0.8vmin);
+    --height: calc(var(--card-h-river) + 2*0.8vmin);
+    height: var(--height);
 
     outline: 0.3vmin solid var(--color-purple);
     border-width: 0;
@@ -256,16 +257,23 @@ river-lane {
     position: relative;
 
     background: url("./img/wood.jpg"), var(--gradient-river);
-    background-attachment: fixed;
+    background-attachment: local, fixed;
     background-blend-mode: multiply;
     background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain, auto;
+    background-size: cover, auto;
 
-    @media (min-aspect-ratio: 16/9) {
-        background-size: cover, auto;
+
+    &#river-0 {
+        background-position-y: calc(-2*var(--height)), center;
     }
 
+    &#river-1 {
+        background-position-y: calc(-1*var(--height)), center;
+    }
+
+    &#river-2 {
+        background-position-y: 0, center;
+    }
 
 }
 
