@@ -171,6 +171,8 @@ body,
     background-attachment: fixed;
     background-repeat: repeat;
     font-size: 2vmin;
+
+    touch-action: none;
 }
 
 
