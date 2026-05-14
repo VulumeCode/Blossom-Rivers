@@ -159,6 +159,13 @@ button {
     box-sizing: border-box;
 }
 
+
+html,
+body {
+    /* Android Chrome handle */
+    background-color: var(--color-dark) !important;
+}
+
 html,
 body,
 #root {
