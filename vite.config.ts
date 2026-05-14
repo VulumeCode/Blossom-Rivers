@@ -5,4 +5,7 @@ import svgr from 'vite-plugin-svgr';
 export default defineConfig({
   base: '/Blossom-Rivers/',
   plugins: [svgr(), preact()],
+  server: {
+    allowedHosts: ["tuf-vincent"]
+  }
 });
