@@ -6,8 +6,7 @@ export default defineConfig({
   base: '/Blossom-Rivers/',
   plugins: [svgr(), preact()
     ,
-  VitePWA({
-    includeAssets: ['hanafudaicon.svg'],
+    VitePWA({
     manifest: {
       "name": "花川 - Blossom Rivers",
       "short_name": "花川",
@@ -24,16 +23,19 @@ export default defineConfig({
         {
           src: '/Blossom-Rivers/hanafudaicon-192.png',
           sizes: '192x192',
+          type: 'image/png',
           "purpose": "any"
         },
         {
           src: '/Blossom-Rivers/hanafudaicon-512.png',
           sizes: '512x512',
+          type: 'image/png',
           "purpose": "any"
         },
         {
           "src": "/Blossom-Rivers/hanafudaicon.svg",
           "sizes": "any",
+          type: 'image/svg+xml',
           "purpose": "any"
         }
       ],
