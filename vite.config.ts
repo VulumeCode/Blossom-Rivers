@@ -22,12 +22,12 @@ export default defineConfig({
       "id": "com.vulumecode.blossomrivers",
       "icons": [
         {
-          src: '/Blossom-Rivers/hanafudaicon.svg',
+          src: '/Blossom-Rivers/hanafudaicon-192.png',
           sizes: '192x192',
           "purpose": "any"
         },
         {
-          src: '/Blossom-Rivers/hanafudaicon.svg',
+          src: '/Blossom-Rivers/hanafudaicon-512.png',
           sizes: '512x512',
           "purpose": "any"
         },
