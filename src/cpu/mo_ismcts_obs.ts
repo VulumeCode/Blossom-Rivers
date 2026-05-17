@@ -1,4 +1,4 @@
-import { GameAction, GameState } from "../types";
+import { Card, GameAction, GameState } from "../types";
 import { gameReducer, setSimMode } from "../game";
 import {
     CPUBudget,
@@ -11,34 +11,27 @@ import {
     rolloutToEnd,
 } from "./cpu";
 
-// Multi-Observer ISMCTS (MO-ISMCTS).
+// MO-ISMCTS with chance-observation nodes.
 //
-// Reference: Cowling, Powley & Whitehouse (2012), §3.2.
+// Combines the two extensions from ./mo_ismcts.ts and ./ismcts_obs.ts:
+//   * Per-player trees: each player p maintains their own tree T_p, with
+//     stats accumulated in p's reward POV. Selection uses the active
+//     player's own tree's UCB1; no sign-flip hack at opponent nodes.
+//   * Chance-observation nodes: when the iteration hits a pre-`DRAW_CARD`
+//     state, we apply the draw and descend through an *observation* child in
+//     both trees, keyed by the drawn card's id. Each possible reveal lives in
+//     its own subtree, so the subsequent `DROP_IN_RIVER` decision is no
+//     longer averaged over cards.
 //
-// Where SO-ISMCTS uses one tree and flips the sign of reward at opponent
-// nodes, MO-ISMCTS keeps a separate tree per player. Every iteration walks
-// both trees in lockstep along the path of observations: when the active
-// player p decides, p selects from p's *own* tree via UCB1; the non-active
-// player q's tree merely advances to the child for the observed action
-// (creating a passthrough node if missing). At backprop each tree records
-// the reward from its own owner's POV — no sign juggling.
-//
-// Note on this game: every action is public and `evaluateRollout` is almost
-// strictly zero-sum (the tie penalty is the only asymmetry), so MO-ISMCTS is
-// numerically near-equivalent to SO-ISMCTS here. Specifically: opp's MO-stats
-// are the negation of CPU's SO-stats edge-for-edge, and UCB picks the same
-// action either way. We still split it out because:
-//   * Cleaner mental model: each tree maximizes its owner's reward without
-//     any sign hack, which matches the literature and avoids edge cases when
-//     the reward function isn't strictly zero-sum.
-//   * It does *not* fix the chance-reveal strategy fusion at `DRAW_CARD` —
-//     that requires adding observation nodes keyed by the drawn card. MO is
-//     the natural framework for layering that on later.
+// This is the variant that actually targets the strategy-fusion problem we
+// identified: post-draw decisions are now conditioned on the *observed* card,
+// not the (averaged-over-deck) action sequence. In our public-actions
+// near-zero-sum game the MO half is mostly a cleaner restructuring; the obs
+// half is where the real expected gain lives.
 
 interface Node {
     visits: number;
-    // Reward accumulator in the *owning tree's* player POV.
-    totalReward: number;
+    totalReward: number; // owning tree's player POV
     availability: number;
     children: Map<string, { action: GameAction; node: Node }>;
 }
@@ -77,28 +70,47 @@ function actionKey(a: GameAction): string {
     }
 }
 
-// Rewards are in [-1, 1], so the UCB1 exploration constant is doubled.
+function drawObsKey(card: Card): string {
+    return `DRAW:${card.id}`;
+}
+
 const C = 1.41 * 2;
 
 function runIteration(roots: [Node, Node], rootState: GameState): void {
     let state = rootState;
-    // Current node in each player's tree.
     const here: [Node, Node] = [roots[0], roots[1]];
     const paths: [Node[], Node[]] = [[roots[0]], [roots[1]]];
     let expanded = false;
 
     while (!expanded) {
         if (state.phase === "GAME_OVER" || state.phase === "ROUND_OVER") break;
+
+        // Chance routing — mirror the observation hop into both trees.
+        if (state.phase === "DEALING" && !state.drawnCard) {
+            const drawAction: GameAction = { type: "DRAW_CARD" };
+            state = gameReducer(state, drawAction);
+            const drawn = state.drawnCard!;
+            const key = drawObsKey(drawn);
+            for (const pl of [0, 1] as const) {
+                let entry = here[pl].children.get(key);
+                if (!entry) {
+                    entry = { action: drawAction, node: newNode() };
+                    here[pl].children.set(key, entry);
+                }
+                entry.node.availability++;
+                here[pl] = entry.node;
+                paths[pl].push(here[pl]);
+            }
+            continue;
+        }
+
         const legal = getLegalActions(state);
         if (legal.length === 0) break;
         const p = playerToMove(state);
         if (p !== 0 && p !== 1) break;
         const q = (1 - p) as 0 | 1;
 
-        // Bump availability for legal children in BOTH trees. The active
-        // player's tree uses this for UCB at the current node. The non-active
-        // tree's count is incremented in lockstep so its semantics stay
-        // consistent for whenever its own owner is the decider elsewhere.
+        // Bump availability for legal children in both trees.
         for (const a of legal) {
             const key = actionKey(a);
             const pEntry = here[p].children.get(key);
@@ -107,7 +119,7 @@ function runIteration(roots: [Node, Node], rootState: GameState): void {
             if (qEntry) qEntry.node.availability++;
         }
 
-        // Untried in active player's tree → expand once and break out.
+        // Untried in active player's tree → expand once.
         const untried = legal.filter(
             (a) => !here[p].children.has(actionKey(a)),
         );
@@ -119,7 +131,6 @@ function runIteration(roots: [Node, Node], rootState: GameState): void {
             pChild.availability = 1;
             here[p].children.set(key, { action: chosen, node: pChild });
 
-            // Mirror into q's tree (create passthrough if q hasn't seen it).
             let qEntry = here[q].children.get(key);
             if (!qEntry) {
                 qEntry = { action: chosen, node: newNode() };
@@ -136,7 +147,7 @@ function runIteration(roots: [Node, Node], rootState: GameState): void {
             break;
         }
 
-        // All legal children exist in p's tree — UCB1 selection in p's tree.
+        // UCB1 selection in p's tree.
         let bestKey: string | null = null;
         let bestUCB = -Infinity;
         for (const a of legal) {
@@ -153,9 +164,7 @@ function runIteration(roots: [Node, Node], rootState: GameState): void {
         const pEntry = here[p].children.get(bestKey!)!;
         chosen = pEntry.action;
 
-        // q's tree may lag p's in expansion shape (e.g. q hasn't yet had an
-        // iteration that descended this branch). Create the passthrough node
-        // on demand so q has somewhere to be while p makes its decisions.
+        // Advance q's tree, creating a passthrough if missing.
         let qEntry = here[q].children.get(bestKey!);
         if (!qEntry) {
             qEntry = { action: chosen, node: newNode() };
@@ -170,13 +179,11 @@ function runIteration(roots: [Node, Node], rootState: GameState): void {
         paths[1].push(here[1]);
     }
 
-    // Rollout from current state (or use it directly if already terminal).
     const terminal =
         state.phase === "GAME_OVER" || state.phase === "ROUND_OVER"
             ? state
             : rolloutToEnd(state);
 
-    // Backprop each tree with its own owner's POV reward.
     for (const pl of [0, 1] as const) {
         const reward = evaluateRollout(terminal, pl);
         for (const n of paths[pl]) {
@@ -186,7 +193,7 @@ function runIteration(roots: [Node, Node], rootState: GameState): void {
     }
 }
 
-export class MOISMCTSPlayer implements CPUPlayer {
+export class MOISMCTSObsPlayer implements CPUPlayer {
     constructor(private readonly budget: CPUBudget = DEFAULT_BUDGET) {}
 
     chooseAction(state: GameState): GameAction {
@@ -212,7 +219,6 @@ export class MOISMCTSPlayer implements CPUPlayer {
             setSimMode(false);
         }
 
-        // Robust child from the calling player's *own* tree.
         const myRoot = roots[me];
         let bestKey: string | null = null;
         let bestVisits = -1;
@@ -226,7 +232,7 @@ export class MOISMCTSPlayer implements CPUPlayer {
         }
         if (!bestKey) throw "No move chosen.";
         console.log(
-            "MO-ISMCTS",
+            "MO-ISMCTS+obs",
             state.phase,
             "visits",
             bestVisits,

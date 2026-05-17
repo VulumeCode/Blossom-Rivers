@@ -1,7 +1,9 @@
 import { GameAction, GameState } from "../types";
 import { gameReducer, setSimMode } from "../game";
 import {
+    CPUBudget,
     CPUPlayer,
+    DEFAULT_BUDGET,
     evaluateRollout,
     getLegalActions,
     playerToMove,
@@ -83,17 +85,15 @@ function mctsChooseAction(
 }
 
 export class SimpleMCTSPlayer implements CPUPlayer {
-    private readonly budget = {
-        DEALING: 2000,
-        CAPTURING: 4000,
-        FORCED_CAPTURE: 2000,
-        YAKU_CHOICE: 2000,
-    } as const;
+    constructor(private readonly budget: CPUBudget = DEFAULT_BUDGET) {}
 
     chooseAction(state: GameState): GameAction {
         const cpuPlayer = playerToMove(state);
         const sims =
-            (this.budget as Record<string, number>)[state.phase] ?? (() => { throw "No budget defined" })();
+            (this.budget as Record<string, number>)[state.phase] ??
+            (() => {
+                throw "No budget defined";
+            })();
         return mctsChooseAction(state, sims, cpuPlayer);
     }
 }

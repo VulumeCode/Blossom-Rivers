@@ -12,6 +12,26 @@ export interface CPUPlayer {
     chooseAction(state: GameState): GameAction;
 }
 
+// Phases at which a CPU implementation needs to make a real decision. Other
+// phases (MENU / ROUND_OVER / GAME_OVER) never reach a player's `chooseAction`.
+export type DecisionPhase =
+    | "DEALING"
+    | "CAPTURING"
+    | "FORCED_CAPTURE"
+    | "YAKU_CHOICE";
+
+// Per-phase simulation budget. Players accept this in their constructor so
+// callers (benchmarks, UI, self-play harnesses) can tune compute without
+// touching the player code.
+export type CPUBudget = Record<DecisionPhase, number>;
+
+export const DEFAULT_BUDGET: CPUBudget = {
+    DEALING: 2000,
+    CAPTURING: 4000,
+    FORCED_CAPTURE: 2000,
+    YAKU_CHOICE: 2000,
+};
+
 // Which seat is to act in this state — used by ISMCTS to flip the sign of
 // reward at opponent nodes.
 export function playerToMove(state: GameState): number {

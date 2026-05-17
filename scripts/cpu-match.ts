@@ -20,6 +20,8 @@ import { RandomLegalPlayer } from "../src/cpu/random_legal";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
 import { ISMCTSPlayer } from "../src/cpu/ismcts";
 import { MOISMCTSPlayer } from "../src/cpu/mo_ismcts";
+import { ISMCTSObsPlayer } from "../src/cpu/ismcts_obs";
+import { MOISMCTSObsPlayer } from "../src/cpu/mo_ismcts_obs";
 
 type Builder = () => CPUPlayer;
 
@@ -27,8 +29,16 @@ const BUILDERS: Record<string, Builder> = {
     random: () => new RandomPlayer(),
     randomL: () => new RandomLegalPlayer(),
     simple: () => new SimpleMCTSPlayer(),
+    simpley: () => new SimpleMCTSPlayer({
+        DEALING: 2000,
+        CAPTURING: 4000,
+        FORCED_CAPTURE: 2000,
+        YAKU_CHOICE: 20000,
+    }),
     sois: () => new ISMCTSPlayer(),
     mois: () => new MOISMCTSPlayer(),
+    soisobs: () => new ISMCTSObsPlayer(),
+    moisobs: () => new MOISMCTSObsPlayer(),
 };
 
 interface Args {

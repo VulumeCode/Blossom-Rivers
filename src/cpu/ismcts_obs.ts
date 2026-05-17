@@ -1,4 +1,4 @@
-import { GameAction, GameState } from "../types";
+import { Card, GameAction, GameState } from "../types";
 import { gameReducer, setSimMode } from "../game";
 import {
     CPUBudget,
@@ -11,31 +11,30 @@ import {
     rolloutToEnd,
 } from "./cpu";
 
-// Information Set Monte Carlo Tree Search (SO-ISMCTS).
+// SO-ISMCTS with chance-observation nodes.
 //
-// Reference: Cowling, Powley & Whitehouse, "Information Set Monte Carlo Tree
-// Search" (https://www.aifactory.co.uk/newsletter/2013_01_reduce_burden.htm),
-// and the algorithmic shape used by github.com/dbravender/mittmcts.
+// The plain SO-ISMCTS in ./ismcts.ts keys tree edges by *action only*, so the
+// post-`DRAW_CARD` child aggregates statistics across every possible card the
+// determinization might have drawn. That's strategy fusion at a chance reveal:
+// the right `DROP_IN_RIVER` choice depends on which card was drawn, but the
+// tree only learns "average best river over all drawable cards."
 //
-// Where flat MCTS-with-determinization throws away the tree on every iteration,
-// ISMCTS keeps one tree shared across determinizations. A node is keyed by the
-// sequence of *observed* actions from the root (an information-set path). When
-// we descend into a sampled world, we only consider children whose actions are
-// legal in *that* determinization; each child also tracks an "availability
-// count" — how many iterations it was *available* to be chosen — and UCB1 uses
-// that in place of the parent visit count.
+// Fix: insert an *observation node* between the chance event and the next
+// decision. When the iteration reaches a pre-draw state we apply DRAW_CARD
+// against the determinization, then descend through a tree child keyed by the
+// drawn card's id (`DRAW:<card-id>`). Each possible reveal lands on its own
+// child, with its own subtree of `DROP_IN_RIVER` decisions conditioned on
+// what was actually seen.
 //
-// Without that adjustment, a sometimes-legal action looks artificially worse
-// than an always-legal sibling: it accumulates visits only when its
-// determinization happens to make it legal, so `ln(parent_visits)` would over-
-// inflate its exploration term. `ln(availability)` instead measures "how often
-// we got a fair shot at this child" — the right denominator for the bandit.
+// Important: observation hops are *chance routing*, not decisions, and do
+// NOT consume the iteration's expansion budget. We keep descending through
+// them until a real decision-node selection or expansion takes place. The
+// only chance event in this game's search horizon is the deck draw; new-round
+// deals are outside `rolloutToEnd`'s scope.
 
 interface Node {
     visits: number;
-    // Reward accumulator in the CPU's POV. Opponent nodes negate during
-    // selection but the stored statistic stays root-centric.
-    totalReward: number;
+    totalReward: number; // CPU's POV
     availability: number;
     children: Map<string, { action: GameAction; node: Node }>;
 }
@@ -49,11 +48,10 @@ function newNode(): Node {
     };
 }
 
-// Canonicalize an action so two structurally-equal actions hash to the same
-// tree slot. Card identity is by `id`, which is stable across determinizations.
 function actionKey(a: GameAction): string {
     switch (a.type) {
         case "DRAW_CARD":
+            // Unused in this variant — chance routing replaces it.
             return "DRAW";
         case "DROP_IN_RIVER":
             return `DROP:${a.riverIdx}`;
@@ -76,8 +74,10 @@ function actionKey(a: GameAction): string {
     }
 }
 
-// Rewards are in [-1, 1], so the UCB1 exploration constant is doubled vs the
-// textbook √2 (which assumes [0, 1] rewards).
+function drawObsKey(card: Card): string {
+    return `DRAW:${card.id}`;
+}
+
 const C = 1.41 * 2;
 
 function runIteration(
@@ -88,16 +88,35 @@ function runIteration(
     let node = root;
     let state = rootState;
     const path: Node[] = [root];
-
-    // Selection + expansion. Each iteration adds at most one new node.
     let expanded = false;
+
     while (!expanded) {
         if (state.phase === "GAME_OVER" || state.phase === "ROUND_OVER") break;
+
+        // Chance routing. Apply the draw and descend through the observation
+        // child for whichever card the determinization put on top of the deck.
+        if (state.phase === "DEALING" && !state.drawnCard) {
+            const drawAction: GameAction = { type: "DRAW_CARD" };
+            state = gameReducer(state, drawAction);
+            const drawn = state.drawnCard!;
+            const key = drawObsKey(drawn);
+            let entry = node.children.get(key);
+            if (!entry) {
+                entry = { action: drawAction, node: newNode() };
+                node.children.set(key, entry);
+            }
+            // Only one observation child is "legal" per iteration (the one
+            // matching this determinization's draw). Bump its availability;
+            // siblings represent counterfactual draws that didn't happen.
+            entry.node.availability++;
+            node = entry.node;
+            path.push(node);
+            continue;
+        }
+
         const legal = getLegalActions(state);
         if (legal.length === 0) break;
 
-        // Bump availability for every legal child — including the one we end
-        // up traversing — so the count reflects "I could have picked you".
         for (const a of legal) {
             const entry = node.children.get(actionKey(a));
             if (entry) entry.node.availability++;
@@ -107,16 +126,15 @@ function runIteration(
         if (untried.length > 0) {
             const a = untried[Math.floor(Math.random() * untried.length)];
             const child = newNode();
-            // The new child was available this iteration too.
             child.availability = 1;
             node.children.set(actionKey(a), { action: a, node: child });
             state = gameReducer(state, a);
-            path.push(child);
+            node = child;
+            path.push(node);
             expanded = true;
             break;
         }
 
-        // All legal children exist — pick best by UCB1 with availability.
         const toMove = playerToMove(state);
         const sign = toMove === cpuPlayer ? 1 : -1;
         let bestKey: string | null = null;
@@ -138,19 +156,19 @@ function runIteration(
         path.push(node);
     }
 
-    // Rollout.
-    const terminal = rolloutToEnd(state);
+    const terminal =
+        state.phase === "GAME_OVER" || state.phase === "ROUND_OVER"
+            ? state
+            : rolloutToEnd(state);
     const reward = evaluateRollout(terminal, cpuPlayer);
 
-    // Backprop. All nodes on the path are updated with the same root-centric
-    // reward; sign-flipping happens at selection time, not here.
     for (const n of path) {
         n.visits++;
         n.totalReward += reward;
     }
 }
 
-export class ISMCTSPlayer implements CPUPlayer {
+export class ISMCTSObsPlayer implements CPUPlayer {
     constructor(private readonly budget: CPUBudget = DEFAULT_BUDGET) {}
 
     chooseAction(state: GameState): GameAction {
@@ -161,7 +179,6 @@ export class ISMCTSPlayer implements CPUPlayer {
                 throw "No budget defined";
             })();
 
-        // Single legal action — skip the search entirely.
         const legal = getLegalActions(state);
         if (legal.length === 0) throw "No available actions.";
         if (legal.length === 1) return legal[0];
@@ -177,8 +194,6 @@ export class ISMCTSPlayer implements CPUPlayer {
             setSimMode(false);
         }
 
-        // Robust child: pick the most-visited action at the root. Visit count
-        // is a more stable selector than reward rate (Cowling et al., §4.2).
         let bestKey: string | null = null;
         let bestVisits = -1;
         let bestRate = 0;
@@ -189,11 +204,9 @@ export class ISMCTSPlayer implements CPUPlayer {
                 bestRate = node.totalReward / Math.max(1, node.visits);
             }
         }
-        if (!bestKey) {
-            throw "No move chosen."
-        }
+        if (!bestKey) throw "No move chosen.";
         console.log(
-            "ISMCTS",
+            "ISMCTS+obs",
             state.phase,
             "visits",
             bestVisits,

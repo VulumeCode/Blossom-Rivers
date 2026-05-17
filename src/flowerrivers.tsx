@@ -16,9 +16,11 @@ import { CPUPlayer } from "./cpu/cpu";
 import { ISMCTSPlayer } from "./cpu/ismcts";
 
 // CPU players (swap freely):
-//   SimpleMCTSPlayer (./cpu/simple_mcts) — flat determinized MCTS, 1-deep tree.
-//   ISMCTSPlayer    (./cpu/ismcts)      — SO-ISMCTS, one tree, sign-flipped opp.
-//   MOISMCTSPlayer  (./cpu/mo_ismcts)   — MO-ISMCTS, separate tree per player.
+//   SimpleMCTSPlayer   (./cpu/simple_mcts)   — flat determinized MCTS, 1-deep.
+//   ISMCTSPlayer       (./cpu/ismcts)        — SO-ISMCTS, one tree, sign-flip.
+//   MOISMCTSPlayer     (./cpu/mo_ismcts)     — MO-ISMCTS, tree-per-player.
+//   ISMCTSObsPlayer    (./cpu/ismcts_obs)    — SO-ISMCTS + draw-observation nodes.
+//   MOISMCTSObsPlayer  (./cpu/mo_ismcts_obs) — MO-ISMCTS + draw-observation nodes.
 const cpu: CPUPlayer = new ISMCTSPlayer();
 
 // --- CPU ADAPTERS ---
