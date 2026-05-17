@@ -1,8 +1,8 @@
 import { GameAction, GameState } from "../types";
 import { CPUPlayer, getRolloutAction } from "./cpu";
 
-// Baseline CPU that picks a random legal action — the same distribution the
-// MCTS rollouts use. Useful as a sanity floor for self-play evaluation: any
+// Baseline CPU that picks a random legal action with the same heuristic the
+// MCTS rollouts uses. Useful as a sanity floor for self-play evaluation: any
 // non-trivial player should beat it consistently.
 export class RandomPlayer implements CPUPlayer {
     chooseAction(state: GameState): GameAction {

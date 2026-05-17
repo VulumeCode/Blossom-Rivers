@@ -16,6 +16,7 @@ import { GameState } from "../src/types";
 import { gameReducer, makeInitialState } from "../src/game";
 import { CPUPlayer, playerToMove } from "../src/cpu/cpu";
 import { RandomPlayer } from "../src/cpu/random";
+import { RandomLegalPlayer } from "../src/cpu/random_legal";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
 import { ISMCTSPlayer } from "../src/cpu/ismcts";
 
@@ -23,6 +24,7 @@ type Builder = () => CPUPlayer;
 
 const BUILDERS: Record<string, Builder> = {
     random: () => new RandomPlayer(),
+    randomL: () => new RandomLegalPlayer(),
     simple: () => new SimpleMCTSPlayer(),
     ismcts: () => new ISMCTSPlayer(),
 };
