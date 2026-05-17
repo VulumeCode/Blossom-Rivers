@@ -100,7 +100,7 @@ export function getLegalActions(state: GameState): GameAction[] {
 // Cheap random action for rollouts — biased toward capturing when available.
 export function getRolloutAction(state: GameState): GameAction | null {
     if (state.phase === "GAME_OVER") throw "Already GAME_OVER";
-    if (state.phase === "ROUND_OVER") return null;
+    if (state.phase === "ROUND_OVER") throw "Already ROUND_OVER";
     if (state.phase === "DEALING") {
         if (!state.drawnCard) return { type: "DRAW_CARD" };
         const avail = [0, 1, 2].filter((i) => !state.riversUsedThisTurn[i]);
@@ -166,16 +166,17 @@ export function rolloutToEnd(state: GameState): GameState {
     let s = state;
     for (
         let i = 0;
-        i < 600 && s.phase !== "GAME_OVER" && s.phase !== "ROUND_OVER";
+        i < 500;
         i++
     ) {
+        if (s.phase === "GAME_OVER" || s.phase === "ROUND_OVER") return s;
         const action = getRolloutAction(s);
-        if (!action) break;
+        if (!action) throw "No rollout action available.";
         const next = gameReducer(s, action);
-        if (next === s) break;
+        if (next === s) throw "No change.";
         s = next;
     }
-    return s;
+    throw "Rollout didn't end.";
 }
 
 // Std dev of per-round score differential — tune via self-play.

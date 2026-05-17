@@ -56,10 +56,11 @@ function mctsChooseAction(
             }
 
             const next = gameReducer(detState, actions[idx]);
+            // Rollout.
             const terminal = rolloutToEnd(next);
-            const score = evaluateRollout(terminal, cpuPlayer);
+            const reward = evaluateRollout(terminal, cpuPlayer);
 
-            wins[idx] += score;
+            wins[idx] += reward;
             visits[idx]++;
         }
     } finally {

@@ -137,10 +137,7 @@ function runIteration(
     }
 
     // Rollout.
-    const terminal =
-        state.phase === "GAME_OVER" || state.phase === "ROUND_OVER"
-            ? state
-            : rolloutToEnd(state);
+    const terminal = rolloutToEnd(state);
     const reward = evaluateRollout(terminal, cpuPlayer);
 
     // Backprop. All nodes on the path are updated with the same root-centric
