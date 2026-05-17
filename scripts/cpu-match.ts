@@ -84,7 +84,7 @@ function playGame(
     seat0: CPUPlayer,
     seat1: CPUPlayer,
     p0Starts: boolean,
-): GameState {
+): { state: GameState; steps: number } {
     let s = gameReducer(makeInitialState(), { type: "START_GAME" });
     if (p0Starts) {
         // Default seating has player 1 deal first / player 0 capture first.
@@ -93,7 +93,8 @@ function playGame(
     }
     // Safety: bound the loop. A normal 3-round game is well under 1000 steps;
     // anything larger means a bug in a player.
-    for (let step = 0; step < 5000 && s.phase !== "GAME_OVER"; step++) {
+    let step = 0;
+    for (; step < 5000 && s.phase !== "GAME_OVER"; step++) {
         if (s.phase === "ROUND_OVER") {
             s = gameReducer(s, { type: "NEXT_ROUND" });
             continue;
@@ -111,7 +112,38 @@ function playGame(
     if (s.phase !== "GAME_OVER") {
         throw new Error("Game did not terminate within 5000 steps.");
     }
-    return s;
+    return { state: s, steps: step };
+}
+
+// Linear-interpolation percentile (numpy-style). Returns NaN for empty input.
+function percentile(arr: number[], p: number): number {
+    if (arr.length === 0) return NaN;
+    const sorted = [...arr].sort((a, b) => a - b);
+    const idx = (p / 100) * (sorted.length - 1);
+    const lo = Math.floor(idx);
+    const hi = Math.ceil(idx);
+    if (lo === hi) return sorted[lo];
+    return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+}
+
+interface Stats {
+    avg: number;
+    max: number;
+    p5: number;
+    p95: number;
+}
+function stats(arr: number[]): Stats {
+    const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
+    return {
+        avg,
+        max: Math.max(...arr),
+        p5: percentile(arr, 5),
+        p95: percentile(arr, 95),
+    };
+}
+function fmt(s: Stats, decimals = 1): string {
+    const d = (n: number) => n.toFixed(decimals);
+    return `avg=${d(s.avg)}  max=${d(s.max)}  p5=${d(s.p5)}  p95=${d(s.p95)}`;
 }
 
 async function main(): Promise<void> {
@@ -130,7 +162,10 @@ async function main(): Promise<void> {
     // Stats tracked strictly by seat. The algorithm at each seat is fixed
     // across the whole run, so the algo name is just informational.
     const wins = { p0: 0, p1: 0 };
-    const totalScore = { p0: 0, p1: 0 };
+    // Keep every game's outcome so we can compute percentiles at the end —
+    // running sums would only give us the mean.
+    const scores: { p0: number[]; p1: number[] } = { p0: [], p1: [] };
+    const lengths: number[] = [];
     let ties = 0;
 
     const start = Date.now();
@@ -145,12 +180,13 @@ async function main(): Promise<void> {
             const p0Starts = args.swap && g % 2 === 1;
 
             const t0 = Date.now();
-            const result = playGame(seat0, seat1, p0Starts);
+            const { state: result, steps } = playGame(seat0, seat1, p0Starts);
             const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
 
             const [s0, s1] = result.scores;
-            totalScore.p0 += s0;
-            totalScore.p1 += s1;
+            scores.p0.push(s0);
+            scores.p1.push(s1);
+            lengths.push(steps);
             if (s0 > s1) wins.p0++;
             else if (s1 > s0) wins.p1++;
             else ties++;
@@ -159,7 +195,7 @@ async function main(): Promise<void> {
                 ? `  starts=${p0Starts ? "p0" : "p1"}`
                 : "";
             log(
-                `  game ${g + 1}/${args.games} [${elapsed}s]  ` +
+                `  game ${g + 1}/${args.games} [${elapsed}s, ${steps} steps]  ` +
                 `p0(${args.p0})=${s0}  p1(${args.p1})=${s1}` +
                 startsTag +
                 "  " +
@@ -175,15 +211,15 @@ async function main(): Promise<void> {
     const row = (seat: "p0" | "p1", algo: string) => {
         const w = wins[seat];
         const rate = ((w / args.games) * 100).toFixed(1);
-        const avg = (totalScore[seat] / args.games).toFixed(1);
         log(
-            `  ${seat} (${algo.padEnd(6)})  wins=${w}/${args.games} (${rate}%)  avg=${avg}`,
+            `  ${seat} (${algo.padEnd(6)})  wins=${w}/${args.games} (${rate}%)  scores: ${fmt(stats(scores[seat]))}`,
         );
     };
     row("p0", args.p0);
     row("p1", args.p1);
-    log(`  ties           ${ties}/${args.games}`);
-    log(`  elapsed        ${totalSec}s`);
+    log(`  game length:    ${fmt(stats(lengths), 0)}`);
+    log(`  ties            ${ties}/${args.games}`);
+    log(`  elapsed         ${totalSec}s`);
 }
 
 main().catch((err) => {
