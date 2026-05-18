@@ -4,7 +4,7 @@ import {
     CPUBudget,
     CPUPlayer,
     DEFAULT_BUDGET,
-    evaluateRollout,
+    evaluateRolloutSigmoid,
     getLegalActions,
     playerToMove,
     randomizeHiddenCards,
@@ -185,7 +185,7 @@ function runIteration(roots: [Node, Node], rootState: GameState): void {
             : rolloutToEnd(state);
 
     for (const pl of [0, 1] as const) {
-        const reward = evaluateRollout(terminal, pl);
+        const reward = evaluateRolloutSigmoid(terminal, pl);
         for (const n of paths[pl]) {
             n.visits++;
             n.totalReward += reward;

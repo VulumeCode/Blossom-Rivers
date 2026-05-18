@@ -4,7 +4,7 @@ import {
     CPUBudget,
     CPUPlayer,
     DEFAULT_BUDGET,
-    evaluateRollout,
+    evaluateRolloutSigmoid,
     getLegalActions,
     playerToMove,
     randomizeHiddenCards,
@@ -23,7 +23,7 @@ import {
 // (creating a passthrough node if missing). At backprop each tree records
 // the reward from its own owner's POV — no sign juggling.
 //
-// Note on this game: every action is public and `evaluateRollout` is almost
+// Note on this game: every action is public and `evaluateRolloutSigmoid` is almost
 // strictly zero-sum (the tie penalty is the only asymmetry), so MO-ISMCTS is
 // numerically near-equivalent to SO-ISMCTS here. Specifically: opp's MO-stats
 // are the negation of CPU's SO-stats edge-for-edge, and UCB picks the same
@@ -178,7 +178,7 @@ function runIteration(roots: [Node, Node], rootState: GameState): void {
 
     // Backprop each tree with its own owner's POV reward.
     for (const pl of [0, 1] as const) {
-        const reward = evaluateRollout(terminal, pl);
+        const reward = evaluateRolloutSigmoid(terminal, pl);
         for (const n of paths[pl]) {
             n.visits++;
             n.totalReward += reward;

@@ -4,7 +4,7 @@ import {
     CPUBudget,
     CPUPlayer,
     DEFAULT_BUDGET,
-    evaluateRollout,
+    evaluateRolloutSigmoid,
     getLegalActions,
     playerToMove,
     randomizeHiddenCards,
@@ -160,7 +160,7 @@ function runIteration(
         state.phase === "GAME_OVER" || state.phase === "ROUND_OVER"
             ? state
             : rolloutToEnd(state);
-    const reward = evaluateRollout(terminal, cpuPlayer);
+    const reward = evaluateRolloutSigmoid(terminal, cpuPlayer);
 
     for (const n of path) {
         n.visits++;

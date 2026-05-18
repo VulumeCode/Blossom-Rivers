@@ -180,7 +180,7 @@ export function getRolloutAction(state: GameState): GameAction | null {
 }
 
 // Roll out random actions until the current round (or game) ends.
-// Inter-round variance is folded into `evaluateRollout` rather than dealing
+// Inter-round variance is folded into `evaluateRolloutSigmoid` rather than dealing
 // fresh rounds inside the rollout itself.
 export function rolloutToEnd(state: GameState): GameState {
     let s = state;
@@ -220,7 +220,7 @@ function normCdf(z: number): number {
 // At GAME_OVER: sigmoid of score diff (ties punished).
 // At ROUND_OVER (rounds left): Gaussian P(win match) — naturally rewards
 // widening variance when behind and tightening it when ahead.
-export function evaluateRollout(state: GameState, forPlayer: number): number {
+export function evaluateRolloutSigmoid(state: GameState, forPlayer: number): number {
     const me = forPlayer;
     const them = 1 - forPlayer;
     const diff = state.scores[me] - state.scores[them];
@@ -229,10 +229,28 @@ export function evaluateRollout(state: GameState, forPlayer: number): number {
     }
     const roundsLeft = TOTAL_ROUNDS - state.round;
     if (roundsLeft <= 0) {
-        return diff === 0 ? -1 : diff / (1 + Math.abs(diff));
+        throw "Not game over but rounds left"
     }
     const mult = state.drawMultiplier;
     const totalStd = ROUND_SIGMA * Math.sqrt(mult * mult + roundsLeft - 1);
     const z = diff / totalStd;
-    return 2 * normCdf(z) - 1;
+    const cdf = 2 * normCdf(z) - 1;
+    return cdf
+}
+
+export function evaluateRolloutCut(state: GameState, forPlayer: number): number {
+    const me = forPlayer;
+    const them = 1 - forPlayer;
+    const diff = state.scores[me] - state.scores[them];
+    if (state.phase === "GAME_OVER") {
+        return diff > 0 ? 1 : -1;
+    }
+    const roundsLeft = TOTAL_ROUNDS - state.round;
+    if (roundsLeft <= 0) {
+        throw "Not game over but rounds left"
+    }
+    const mult = state.drawMultiplier;
+    const totalStd = ROUND_SIGMA * Math.sqrt(mult * mult + roundsLeft - 1);
+    const OPTIMISM_SIGMAS = 1; // how favourable a future swing we're willing to bank on
+    return diff + OPTIMISM_SIGMAS * totalStd > 0 ? 1 : -1;
 }

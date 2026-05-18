@@ -14,7 +14,7 @@
 
 import { GameState } from "../src/types";
 import { gameReducer, makeInitialState } from "../src/game";
-import { CPUPlayer, playerToMove } from "../src/cpu/cpu";
+import { CPUPlayer, playerToMove, evaluateRolloutCut } from "../src/cpu/cpu";
 import { RandomPlayer } from "../src/cpu/random";
 import { RandomLegalPlayer } from "../src/cpu/random_legal";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
@@ -29,6 +29,7 @@ const BUILDERS: Record<string, Builder> = {
     random: () => new RandomPlayer(),
     randomL: () => new RandomLegalPlayer(),
     simple: () => new SimpleMCTSPlayer(),
+    simplec: () => new SimpleMCTSPlayer(undefined, evaluateRolloutCut),
     simpley: () => new SimpleMCTSPlayer({
         DEALING: 2000,
         CAPTURING: 4000,
@@ -198,12 +199,20 @@ async function main(): Promise<void> {
             const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
 
             const [s0, s1] = result.scores;
-            scores.p0.push(s0);
-            scores.p1.push(s1);
             lengths.push(steps);
-            if (s0 > s1) wins.p0++;
-            else if (s1 > s0) wins.p1++;
-            else ties++;
+            if (s0 > s1) {
+                wins.p0++;
+                scores.p0.push(s0);
+            }
+            else if (s1 > s0) {
+                wins.p1++;
+                scores.p1.push(s1);
+            }
+            else {
+                ties++;
+                scores.p0.push(s0);
+                scores.p1.push(s1);
+            }
 
             const startsTag = args.swap
                 ? `  starts=${p0Starts ? "p0" : "p1"}`

@@ -4,7 +4,7 @@ import {
     CPUBudget,
     CPUPlayer,
     DEFAULT_BUDGET,
-    evaluateRollout,
+    evaluateRolloutSigmoid,
     getLegalActions,
     playerToMove,
     randomizeHiddenCards,
@@ -140,7 +140,7 @@ function runIteration(
 
     // Rollout.
     const terminal = rolloutToEnd(state);
-    const reward = evaluateRollout(terminal, cpuPlayer);
+    const reward = evaluateRolloutSigmoid(terminal, cpuPlayer);
 
     // Backprop. All nodes on the path are updated with the same root-centric
     // reward; sign-flipping happens at selection time, not here.
