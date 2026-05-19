@@ -143,22 +143,29 @@ function percentile(arr: number[], p: number): number {
 
 interface Stats {
     avg: number;
+    std: number;
     max: number;
     p5: number;
     p95: number;
 }
 function stats(arr: number[]): Stats {
-    const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
+    const p5 = percentile(arr, 5);
+    const p95 = percentile(arr, 95);
+    const trimmed = arr.filter((x) => x >= p5 && x <= p95);
+    const avg = trimmed.reduce((a, b) => a + b, 0) / trimmed.length;
+    const variance =
+        trimmed.reduce((a, b) => a + (b - avg) ** 2, 0) / trimmed.length;
     return {
         avg,
+        std: Math.sqrt(variance),
         max: Math.max(...arr),
-        p5: percentile(arr, 5),
-        p95: percentile(arr, 95),
+        p5,
+        p95,
     };
 }
 function fmt(s: Stats, decimals = 1): string {
     const d = (n: number) => n.toFixed(decimals);
-    return `avg=${d(s.avg)}  max=${d(s.max)}  p5=${d(s.p5)}  p95=${d(s.p95)}`;
+    return `avg=${d(s.avg)}  std=${d(s.std)}  max=${d(s.max)}  p5=${d(s.p5)}  p95=${d(s.p95)}`;
 }
 
 async function main(): Promise<void> {
