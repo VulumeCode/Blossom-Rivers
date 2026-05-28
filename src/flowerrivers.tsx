@@ -1,7 +1,7 @@
 import { useEffect, useReducer, useState } from "preact/hooks";
 import type { ComponentChildren } from "preact";
-import { Card, GameState, RiverHighlightType } from "./types";
-import { images } from "./cardImages";
+import type { Card, GameState, RiverHighlightType } from "./types";
+import { cardImageById, images } from "./cardImages";
 import { isLightning, isRainMan } from "./cards";
 import { computeYaku } from "./yaku";
 import { Flipped, Flipper } from "react-flip-toolkit";
@@ -12,8 +12,19 @@ import {
     playerName,
     TOTAL_ROUNDS,
 } from "./game";
-import { CPUPlayer } from "./cpu/cpu";
-import { ISMCTSPlayer } from "./cpu/ismcts";
+import {
+    type CPUPlayer,
+    playerToMove,
+    evaluateRolloutCut,
+    evaluateRolloutInv,
+} from "../src/cpu/cpu";
+import { RandomPlayer } from "../src/cpu/random";
+import { RandomLegalPlayer } from "../src/cpu/random_legal";
+import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
+import { ISMCTSPlayer } from "../src/cpu/ismcts";
+import { MOISMCTSPlayer } from "../src/cpu/mo_ismcts";
+import { ISMCTSObsPlayer } from "../src/cpu/ismcts_obs";
+import { MOISMCTSObsPlayer } from "../src/cpu/mo_ismcts_obs";
 
 // CPU players (swap freely):
 //   SimpleMCTSPlayer   (./cpu/simple_mcts)   — flat determinized MCTS, 1-deep.
@@ -21,7 +32,7 @@ import { ISMCTSPlayer } from "./cpu/ismcts";
 //   MOISMCTSPlayer     (./cpu/mo_ismcts)     — MO-ISMCTS, tree-per-player.
 //   ISMCTSObsPlayer    (./cpu/ismcts_obs)    — SO-ISMCTS + draw-observation nodes.
 //   MOISMCTSObsPlayer  (./cpu/mo_ismcts_obs) — MO-ISMCTS + draw-observation nodes.
-const cpu: CPUPlayer = new ISMCTSPlayer();
+const cpu: CPUPlayer = new SimpleMCTSPlayer(undefined, evaluateRolloutInv);
 
 // --- CPU ADAPTERS ---
 // The CPU returns a generic GameAction; these helpers narrow it down for each
@@ -98,7 +109,7 @@ function CardView({
     onMouseLeave,
     flipped = true,
 }: CardViewProps) {
-    const Svg = faceDown ? images.card_back : card.img;
+    const Svg = faceDown ? images.card_back : cardImageById[card.id];
     const clickable = !!(onClick && !disabled);
 
     const view = (

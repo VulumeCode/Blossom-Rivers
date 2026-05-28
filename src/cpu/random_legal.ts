@@ -1,5 +1,5 @@
-import { GameAction, GameState } from "../types";
-import { CPUPlayer, getLegalActions } from "./cpu";
+import type { GameAction, GameState } from "../types";
+import { type CPUPlayer, getLegalActions } from "./cpu";
 
 // Baseline CPU that picks a random legal action uniformly.
 // Useful as a sanity floor for self-play evaluation: any

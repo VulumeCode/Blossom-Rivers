@@ -1,5 +1,5 @@
 import { countType, hasCard } from './cards';
-import { Card, YakuDef, YakuEntry, YakuResult } from './types';
+import type { Card, YakuDef, YakuEntry, YakuResult } from './types';
 
 const YAKU_DEFS: YakuDef[] = [
     {

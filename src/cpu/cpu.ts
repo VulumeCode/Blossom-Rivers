@@ -1,4 +1,4 @@
-import { Card, GameAction, GameState } from "../types";
+import type { Card, GameAction, GameState } from "../types";
 import {
     canCaptureRiver,
     gameReducer,
@@ -200,7 +200,7 @@ export function rolloutToEnd(state: GameState): GameState {
 }
 
 // Std dev of per-round score differential — tune via self-play.
-const ROUND_SIGMA = 7;
+const ROUND_SIGMA = 5;
 
 // Normal CDF (Abramowitz & Stegun 26.2.17).
 function normCdf(z: number): number {
@@ -253,4 +253,22 @@ export function evaluateRolloutCut(state: GameState, forPlayer: number): number 
     const totalStd = ROUND_SIGMA * Math.sqrt(mult * mult + roundsLeft - 1);
     const OPTIMISM_SIGMAS = 1; // how favourable a future swing we're willing to bank on
     return diff + OPTIMISM_SIGMAS * totalStd > 0 ? 1 : -1;
+}
+
+
+export function evaluateRolloutInv(state: GameState, forPlayer: number): number {
+    const me = forPlayer;
+    const them = 1 - forPlayer;
+    const diff = state.scores[me] - state.scores[them];
+    if (state.phase === "GAME_OVER") {
+        return diff > 0 ? 1 / diff : -1;
+    }
+    const roundsLeft = TOTAL_ROUNDS - state.round;
+    if (roundsLeft <= 0) {
+        throw "Not game over but rounds left"
+    }
+    const mult = state.drawMultiplier;
+    const totalStd = ROUND_SIGMA * Math.sqrt(mult * mult + roundsLeft - 1);
+    const OPTIMISM_SIGMAS = 1; // how favourable a future swing we're willing to bank on
+    return diff + OPTIMISM_SIGMAS * totalStd > 0 ? 1 / diff : -1;
 }

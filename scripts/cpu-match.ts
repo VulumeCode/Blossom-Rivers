@@ -12,9 +12,13 @@
 
 /// <reference types="node" />
 
-import { GameState } from "../src/types";
+import { Worker, isMainThread } from "node:worker_threads";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import type { GameState } from "../src/types";
 import { gameReducer, makeInitialState } from "../src/game";
-import { CPUPlayer, playerToMove, evaluateRolloutCut } from "../src/cpu/cpu";
+import { type CPUPlayer, playerToMove, evaluateRolloutCut, evaluateRolloutInv } from "../src/cpu/cpu";
 import { RandomPlayer } from "../src/cpu/random";
 import { RandomLegalPlayer } from "../src/cpu/random_legal";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
@@ -25,11 +29,12 @@ import { MOISMCTSObsPlayer } from "../src/cpu/mo_ismcts_obs";
 
 type Builder = () => CPUPlayer;
 
-const BUILDERS: Record<string, Builder> = {
+export const BUILDERS: Record<string, Builder> = {
     random: () => new RandomPlayer(),
     randomL: () => new RandomLegalPlayer(),
     simple: () => new SimpleMCTSPlayer(),
     simplec: () => new SimpleMCTSPlayer(undefined, evaluateRolloutCut),
+    simplei: () => new SimpleMCTSPlayer(undefined, evaluateRolloutInv),
     simpley: () => new SimpleMCTSPlayer({
         DEALING: 2000,
         CAPTURING: 4000,
@@ -47,6 +52,7 @@ interface Args {
     p1: string;
     games: number;
     swap: boolean;
+    threads: number;
 }
 
 function parseArgs(): Args {
@@ -56,6 +62,7 @@ function parseArgs(): Args {
         p1: "ismcts",
         games: 10,
         swap: false,
+        threads: 7,
     };
     for (let i = 0; i < argv.length; i++) {
         const a = argv[i];
@@ -64,6 +71,8 @@ function parseArgs(): Args {
         else if (a === "--games" || a === "-n")
             args.games = parseInt(argv[++i], 10);
         else if (a === "--swap") args.swap = true;
+        else if (a === "--threads" || a === "-j")
+            args.threads = parseInt(argv[++i], 10);
         else if (a === "--help" || a === "-h") {
             printHelp();
             process.exit(0);
@@ -91,11 +100,12 @@ function printHelp(): void {
         `  --p1 <name>    Player at seat 1 (default: ismcts)\n` +
         `  --games N      Number of games (default: 10)\n` +
         `  --swap         Let p0 start first every other game\n` +
+        `  --threads N    Worker threads (default: 16)\n` +
         `\nPlayers: ${Object.keys(BUILDERS).join(", ")}\n`,
     );
 }
 
-function playGame(
+export function playGame(
     seat0: CPUPlayer,
     seat1: CPUPlayer,
     p0Starts: boolean,
@@ -168,73 +178,115 @@ function fmt(s: Stats, decimals = 1): string {
     return `avg=${d(s.avg)}  std=${d(s.std)}  max=${d(s.max)}  p5=${d(s.p5)}  p95=${d(s.p95)}`;
 }
 
+interface GameResult {
+    steps: number;
+    s0: number;
+    s1: number;
+    elapsed: number;
+    p0Starts: boolean;
+}
+
 async function main(): Promise<void> {
     const args = parseArgs();
-
-    // Print under the real console.log; everything else gets silenced so the
-    // CPU players' debug chatter doesn't drown the summary.
     const log = console.log.bind(console);
-    const origLog = console.log;
 
+    const threads = Math.max(1, Math.min(args.threads, args.games));
     log(
-        `Match: p0=${args.p0} vs p1=${args.p1} — ${args.games} games` +
+        `Match: p0=${args.p0} vs p1=${args.p1} — ${args.games} games  (${threads} threads)` +
         (args.swap ? "  (--swap: p0 starts every other game)" : ""),
     );
 
-    // Stats tracked strictly by seat. The algorithm at each seat is fixed
-    // across the whole run, so the algo name is just informational.
+    // Spin up the pool. Each worker registers the TS resolver hook, imports
+    // this file to grab BUILDERS/playGame, and then services games via
+    // postMessage. Workers are long-lived so the per-worker startup cost is
+    // paid once.
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    const workerPath = path.resolve(__dirname, "cpu-match-worker.mjs");
+    const tSpawn = Date.now();
+    const workers = await Promise.all(
+        Array.from({ length: threads }, () => new Promise<Worker>((resolve, reject) => {
+            const w = new Worker(workerPath, {
+                execArgv: ["--experimental-transform-types"],
+            });
+            const onReady = (msg: { type: string }) => {
+                if (msg.type === "ready") {
+                    w.off("message", onReady);
+                    resolve(w);
+                }
+            };
+            w.on("message", onReady);
+            w.on("error", reject);
+        })),
+    );
+    log(`  workers ready in ${((Date.now() - tSpawn) / 1000).toFixed(1)}s`);
+
+    // One persistent listener per worker, dispatching results back to the
+    // promise that issued the request.
+    const pending = new Map<number, (r: GameResult) => void>();
+    for (const w of workers) {
+        w.on("message", (msg: { type: string; id: number; result: GameResult }) => {
+            if (msg.type === "result") {
+                const cb = pending.get(msg.id);
+                if (cb) {
+                    pending.delete(msg.id);
+                    cb(msg.result);
+                }
+            }
+        });
+    }
+
     const wins = { p0: 0, p1: 0 };
-    // Keep every game's outcome so we can compute percentiles at the end —
-    // running sums would only give us the mean.
     const scores: { p0: number[]; p1: number[] } = { p0: [], p1: [] };
     const lengths: number[] = [];
     let ties = 0;
+    let completed = 0;
+    let nextGame = 0;
+    let nextId = 0;
+    const workerArgs = { p0: args.p0, p1: args.p1, swap: args.swap };
 
     const start = Date.now();
-    console.log = () => { };
-    try {
-        for (let g = 0; g < args.games; g++) {
-            const seat0 = BUILDERS[args.p0]();
-            const seat1 = BUILDERS[args.p1]();
-            // Default: p1 deals (the conventional first-mover). With --swap,
-            // flip every other game so any opening-seat advantage cancels out
-            // across the sample.
-            const p0Starts = args.swap && g % 2 === 1;
+    const dispatchNext = (w: Worker): Promise<void> => {
+        const g = nextGame++;
+        if (g >= args.games) return Promise.resolve();
+        return new Promise<void>((resolve) => {
+            const id = nextId++;
+            pending.set(id, (r) => {
+                completed++;
+                lengths.push(r.steps);
+                if (r.s0 > r.s1) {
+                    wins.p0++;
+                    scores.p0.push(r.s0);
+                } else if (r.s1 > r.s0) {
+                    wins.p1++;
+                    scores.p1.push(r.s1);
+                } else {
+                    ties++;
+                    scores.p0.push(r.s0);
+                    scores.p1.push(r.s1);
+                }
+                const startsTag = args.swap
+                    ? `  starts=${r.p0Starts ? "p0" : "p1"}`
+                    : "";
+                log(
+                    `  [${completed}/${args.games}] game ${g + 1} [${r.elapsed.toFixed(1)}s, ${r.steps} steps]  ` +
+                    `p0(${args.p0})=${r.s0}  p1(${args.p1})=${r.s1}` +
+                    startsTag +
+                    "  " +
+                    (r.s0 === r.s1 ? "tie" : `winner=${r.s0 > r.s1 ? "p0" : "p1"}`),
+                );
+                resolve();
+            });
+            w.postMessage({ type: "game", id, g, args: workerArgs });
+        }).then(() => dispatchNext(w));
+    };
 
-            const t0 = Date.now();
-            const { state: result, steps } = playGame(seat0, seat1, p0Starts);
-            const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
+    await Promise.all(workers.map(dispatchNext));
 
-            const [s0, s1] = result.scores;
-            lengths.push(steps);
-            if (s0 > s1) {
-                wins.p0++;
-                scores.p0.push(s0);
-            }
-            else if (s1 > s0) {
-                wins.p1++;
-                scores.p1.push(s1);
-            }
-            else {
-                ties++;
-                scores.p0.push(s0);
-                scores.p1.push(s1);
-            }
+    await Promise.all(workers.map((w) => new Promise<void>((resolve) => {
+        w.once("exit", () => resolve());
+        w.postMessage({ type: "shutdown" });
+    })));
 
-            const startsTag = args.swap
-                ? `  starts=${p0Starts ? "p0" : "p1"}`
-                : "";
-            log(
-                `  game ${g + 1}/${args.games} [${elapsed}s, ${steps} steps]  ` +
-                `p0(${args.p0})=${s0}  p1(${args.p1})=${s1}` +
-                startsTag +
-                "  " +
-                (s0 === s1 ? "tie" : `winner=${s0 > s1 ? "p0" : "p1"}`),
-            );
-        }
-    } finally {
-        console.log = origLog;
-    }
     const totalSec = ((Date.now() - start) / 1000).toFixed(1);
 
     log("\n--- Results ---");
@@ -252,7 +304,9 @@ async function main(): Promise<void> {
     log(`  elapsed         ${totalSec}s`);
 }
 
-main().catch((err) => {
-    console.error(err);
-    process.exit(1);
-});
+if (isMainThread) {
+    main().catch((err) => {
+        console.error(err);
+        process.exit(1);
+    });
+}

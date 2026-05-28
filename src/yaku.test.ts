@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { computeYaku } from './yaku';
 import { CARDS } from './cards';
-import { AnimalCardName, BrightCardName, Card, RibbonCardName, JunkCardName, YakuName } from './types';
+import type { AnimalCardName, BrightCardName, Card, RibbonCardName, JunkCardName, YakuName } from './types';
 
 
 const brights = Object.fromEntries(CARDS.filter(c => c.type == "bright").map(c => [c.name, c])) as Record<BrightCardName, Card>;

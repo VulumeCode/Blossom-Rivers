@@ -1,5 +1,5 @@
-import { GameAction, GameState } from "../types";
-import { CPUPlayer, getRolloutAction } from "./cpu";
+import type { GameAction, GameState } from "../types";
+import { type CPUPlayer, getRolloutAction } from "./cpu";
 
 // Baseline CPU that picks a random legal action with the same heuristic the
 // MCTS rollouts uses. Useful as a sanity floor for self-play evaluation: any

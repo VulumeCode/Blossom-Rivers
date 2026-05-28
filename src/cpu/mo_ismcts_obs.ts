@@ -1,8 +1,8 @@
-import { Card, GameAction, GameState } from "../types";
+import type { Card, GameAction, GameState } from "../types";
 import { gameReducer, setSimMode } from "../game";
 import {
-    CPUBudget,
-    CPUPlayer,
+    type CPUBudget,
+    type CPUPlayer,
     DEFAULT_BUDGET,
     evaluateRolloutSigmoid,
     getLegalActions,
