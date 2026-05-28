@@ -32,7 +32,11 @@ import { MOISMCTSObsPlayer } from "../src/cpu/mo_ismcts_obs";
 //   MOISMCTSPlayer     (./cpu/mo_ismcts)     — MO-ISMCTS, tree-per-player.
 //   ISMCTSObsPlayer    (./cpu/ismcts_obs)    — SO-ISMCTS + draw-observation nodes.
 //   MOISMCTSObsPlayer  (./cpu/mo_ismcts_obs) — MO-ISMCTS + draw-observation nodes.
-const cpu: CPUPlayer = new SimpleMCTSPlayer(undefined, evaluateRolloutInv);
+const cpu: CPUPlayer = new SimpleMCTSPlayer(
+    undefined,
+    undefined,
+    evaluateRolloutInv,
+);
 
 // --- CPU ADAPTERS ---
 // The CPU returns a generic GameAction; these helpers narrow it down for each

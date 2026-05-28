@@ -32,6 +32,13 @@ export const DEFAULT_BUDGET: CPUBudget = {
     YAKU_CHOICE: 2000,
 };
 
+
+export const DEFAULT_OPTIONS = {
+    yaku_bias: false
+};
+
+
+
 // Which seat is to act in this state — used by ISMCTS to flip the sign of
 // reward at opponent nodes.
 export function playerToMove(state: GameState): number {
@@ -118,7 +125,7 @@ export function getLegalActions(state: GameState): GameAction[] {
 }
 
 // Cheap random action for rollouts — biased toward capturing when available.
-export function getRolloutAction(state: GameState): GameAction | null {
+export function getRolloutAction(state: GameState, options = DEFAULT_OPTIONS): GameAction {
     if (state.phase === "GAME_OVER") throw "Already GAME_OVER";
     if (state.phase === "ROUND_OVER") throw "Already ROUND_OVER";
     if (state.phase === "DEALING") {
@@ -151,7 +158,9 @@ export function getRolloutAction(state: GameState): GameAction | null {
         }
         if (caps.length > 0)
             return caps[Math.floor(Math.random() * caps.length)];
-        const card = hand[Math.floor(Math.random() * hand.length)];
+        const hand_junk = hand.filter((c) => c.type === "junk");
+        const avail = hand_junk.length > 0 ? hand_junk : hand;
+        const card = avail[Math.floor(Math.random() * avail.length)];
         return {
             type: "DISCARD_TO_RIVER",
             riverIdx: Math.floor(Math.random() * 3),
@@ -171,7 +180,16 @@ export function getRolloutAction(state: GameState): GameAction | null {
         if (state.hands[state.yakuPlayer].length == 0) {
             return { type: "CALL_STOP" };
         } else {
-            return Math.random() < 0.5
+            let r: number;
+            if (options.yaku_bias) {
+                const next = gameReducer(state, { type: "CALL_STOP" });
+                const diff = next.scores[state.yakuPlayer] - next.scores[1 - state.yakuPlayer];
+                r = (diff / (1 + Math.abs(diff))) / 2 + .5;
+            }
+            else {
+                r = 0.5;
+            }
+            return Math.random() < r
                 ? { type: "CALL_STOP" }
                 : { type: "CALL_KOIKOI" };
         }
@@ -179,10 +197,12 @@ export function getRolloutAction(state: GameState): GameAction | null {
     throw "Nothing to do.";
 }
 
+
+
 // Roll out random actions until the current round (or game) ends.
 // Inter-round variance is folded into `evaluateRolloutSigmoid` rather than dealing
 // fresh rounds inside the rollout itself.
-export function rolloutToEnd(state: GameState): GameState {
+export function rolloutToEnd(state: GameState, options = DEFAULT_OPTIONS): GameState {
     let s = state;
     for (
         let i = 0;
@@ -190,7 +210,7 @@ export function rolloutToEnd(state: GameState): GameState {
         i++
     ) {
         if (s.phase === "GAME_OVER" || s.phase === "ROUND_OVER") return s;
-        const action = getRolloutAction(s);
+        const action = getRolloutAction(s, options);
         if (!action) throw "No rollout action available.";
         const next = gameReducer(s, action);
         if (next === s) throw "No change.";

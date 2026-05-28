@@ -33,9 +33,10 @@ export const BUILDERS: Record<string, Builder> = {
     random: () => new RandomPlayer(),
     randomL: () => new RandomLegalPlayer(),
     simple: () => new SimpleMCTSPlayer(),
-    simplec: () => new SimpleMCTSPlayer(undefined, evaluateRolloutCut),
-    simplei: () => new SimpleMCTSPlayer(undefined, evaluateRolloutInv),
-    simpled: () => new SimpleMCTSPlayer(undefined, evaluateRolloutDiv),
+    simpleyb: () => new SimpleMCTSPlayer(undefined, { yaku_bias: true }),
+    simplec: () => new SimpleMCTSPlayer(undefined, undefined, evaluateRolloutCut),
+    simplei: () => new SimpleMCTSPlayer(undefined, undefined, evaluateRolloutInv),
+    simpled: () => new SimpleMCTSPlayer(undefined, undefined, evaluateRolloutDiv),
     simpley: () => new SimpleMCTSPlayer({
         DEALING: 2000,
         CAPTURING: 4000,

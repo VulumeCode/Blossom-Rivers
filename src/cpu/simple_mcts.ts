@@ -4,6 +4,7 @@ import {
     type CPUBudget,
     type CPUPlayer,
     DEFAULT_BUDGET,
+    DEFAULT_OPTIONS,
     evaluateRolloutSigmoid,
     getLegalActions,
     playerToMove,
@@ -18,6 +19,7 @@ export class SimpleMCTSPlayer implements CPUPlayer {
 
     constructor(
         private readonly budget: CPUBudget = DEFAULT_BUDGET,
+        private readonly options = DEFAULT_OPTIONS,
         private readonly evaluateRollout = evaluateRolloutSigmoid
     ) { }
 
@@ -70,7 +72,7 @@ export class SimpleMCTSPlayer implements CPUPlayer {
 
                 const next = gameReducer(detState, actions[idx]);
                 // Rollout.
-                const terminal = rolloutToEnd(next);
+                const terminal = rolloutToEnd(next, this.options);
                 const reward = this.evaluateRollout(terminal, cpuPlayer);
 
                 wins[idx] += reward;
