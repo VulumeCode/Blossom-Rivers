@@ -34,7 +34,8 @@ export const DEFAULT_BUDGET: CPUBudget = {
 
 
 export const DEFAULT_OPTIONS = {
-    yaku_bias: false
+    yaku_bias: false,
+    junk_bias: false,
 };
 
 
@@ -158,8 +159,14 @@ export function getRolloutAction(state: GameState, options = DEFAULT_OPTIONS): G
         }
         if (caps.length > 0)
             return caps[Math.floor(Math.random() * caps.length)];
-        const hand_junk = hand.filter((c) => c.type === "junk");
-        const avail = hand_junk.length > 0 ? hand_junk : hand;
+
+        let avail: Card[]
+        if (options.junk_bias) {
+            const hand_junk = hand.filter((c) => c.type === "junk");
+            avail = hand_junk.length > 0 ? hand_junk : hand;
+        } else {
+            avail = hand;
+        }
         const card = avail[Math.floor(Math.random() * avail.length)];
         return {
             type: "DISCARD_TO_RIVER",
