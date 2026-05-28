@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 
 import type { GameState } from "../src/types";
 import { gameReducer, makeInitialState } from "../src/game";
-import { type CPUPlayer, playerToMove, evaluateRolloutCut, evaluateRolloutInv } from "../src/cpu/cpu";
+import { type CPUPlayer, playerToMove, evaluateRolloutCut, evaluateRolloutInv, evaluateRolloutDiv } from "../src/cpu/cpu";
 import { RandomPlayer } from "../src/cpu/random";
 import { RandomLegalPlayer } from "../src/cpu/random_legal";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
@@ -35,6 +35,7 @@ export const BUILDERS: Record<string, Builder> = {
     simple: () => new SimpleMCTSPlayer(),
     simplec: () => new SimpleMCTSPlayer(undefined, evaluateRolloutCut),
     simplei: () => new SimpleMCTSPlayer(undefined, evaluateRolloutInv),
+    simpled: () => new SimpleMCTSPlayer(undefined, evaluateRolloutDiv),
     simpley: () => new SimpleMCTSPlayer({
         DEALING: 2000,
         CAPTURING: 4000,

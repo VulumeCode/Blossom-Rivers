@@ -256,6 +256,29 @@ export function evaluateRolloutCut(state: GameState, forPlayer: number): number 
 }
 
 
+export function evaluateRolloutDiv(state: GameState, forPlayer: number): number {
+    const me = forPlayer;
+    const them = 1 - forPlayer;
+    const diff = state.scores[me] - state.scores[them];
+    if (state.phase === "GAME_OVER") {
+        return diff / 70;
+    }
+    const roundsLeft = TOTAL_ROUNDS - state.round;
+    if (roundsLeft <= 0) {
+        throw "Not game over but rounds left"
+    }
+    if (diff > 0) {
+        return diff / 70;
+    }
+    if ((diff + 7) > 0 && state.drawMultiplier) {
+        return (diff + 7) / 70;
+    }
+    return diff / 70;
+}
+
+
+
+
 export function evaluateRolloutInv(state: GameState, forPlayer: number): number {
     const me = forPlayer;
     const them = 1 - forPlayer;
