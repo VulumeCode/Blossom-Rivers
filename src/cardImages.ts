@@ -1,5 +1,6 @@
 import type { SVGProps } from 'preact/compat';
 import type { FunctionComponent } from 'preact';
+import type { CardId } from './types';
 
 export type SvgComponent = FunctionComponent<SVGProps<SVGSVGElement>>;
 
@@ -68,3 +69,54 @@ export const images = {
     december_hikari, december_kasu_1, december_kasu_2, december_kasu_3,
     card_back,
 } as Record<string, SvgComponent>;
+
+export const cardImageById: Record<CardId, SvgComponent> = {
+    '1-bright': january_hikari,
+    '1-ribbon': january_tanzaku,
+    '1-junk-1': january_kasu_1,
+    '1-junk-2': january_kasu_2,
+    '2-animal': february_tane,
+    '2-ribbon': february_tanzaku,
+    '2-junk-1': february_kasu_1,
+    '2-junk-2': february_kasu_2,
+    '3-bright': march_hikari,
+    '3-ribbon': march_tanzaku,
+    '3-junk-1': march_kasu_1,
+    '3-junk-2': march_kasu_2,
+    '4-animal': april_tane,
+    '4-ribbon': april_tanzaku,
+    '4-junk-1': april_kasu_1,
+    '4-junk-2': april_kasu_2,
+    '5-animal': may_tane,
+    '5-ribbon': may_tanzaku,
+    '5-junk-1': may_kasu_1,
+    '5-junk-2': may_kasu_2,
+    '6-animal': june_tane,
+    '6-ribbon': june_tanzaku,
+    '6-junk-1': june_kasu_1,
+    '6-junk-2': june_kasu_2,
+    '7-animal': july_tane,
+    '7-ribbon': july_tanzaku,
+    '7-junk-1': july_kasu_1,
+    '7-junk-2': july_kasu_2,
+    '8-bright': august_hikari,
+    '8-animal': august_tane,
+    '8-junk-1': august_kasu_1,
+    '8-junk-2': august_kasu_2,
+    '9-animal': september_tane,
+    '9-ribbon': september_tanzaku,
+    '9-junk-1': september_kasu_1,
+    '9-junk-2': september_kasu_2,
+    '10-animal': october_tane,
+    '10-ribbon': october_tanzaku,
+    '10-junk-1': october_kasu_1,
+    '10-junk-2': october_kasu_2,
+    '11-bright-rainman': november_hikari,
+    '11-animal': november_tane,
+    '11-ribbon': november_tanzaku,
+    '11-junk-lightning': november_kasu,
+    '12-bright': december_hikari,
+    '12-junk-1': december_kasu_1,
+    '12-junk-2': december_kasu_2,
+    '12-junk-3': december_kasu_3,
+};

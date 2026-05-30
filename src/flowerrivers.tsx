@@ -1,734 +1,61 @@
 import { useEffect, useReducer, useState } from "preact/hooks";
 import type { ComponentChildren } from "preact";
-import {
-    Card,
-    RiverHighlightType,
-    RoundScoreInfo,
-    GameState,
-    GameAction,
-} from "./types";
-import { images } from "./cardImages";
-import { CARDS, isLightning, isRainMan, isWillow } from "./cards";
-import { computeYaku, nonJunkPoints } from "./yaku";
+import type { Card, GameState, RiverHighlightType } from "./types";
+import { cardImageById, images } from "./cardImages";
+import { isLightning, isRainMan } from "./cards";
+import { computeYaku } from "./yaku";
 import { Flipped, Flipper } from "react-flip-toolkit";
+import {
+    canCaptureRiver,
+    gameReducer,
+    makeInitialState,
+    playerName,
+    TOTAL_ROUNDS,
+} from "./game";
+import {
+    type CPUPlayer,
+    playerToMove,
+    evaluateRolloutCut,
+    evaluateRolloutInv,
+    DEFAULT_OPTIONS,
+    randomizeHiddenAndCapturedCards,
+} from "../src/cpu/cpu";
+import { RandomPlayer } from "../src/cpu/random";
+import { RandomLegalPlayer } from "../src/cpu/random_legal";
+import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
+import { ISMCTSPlayer } from "../src/cpu/ismcts";
+import { MOISMCTSPlayer } from "../src/cpu/mo_ismcts";
+import { ISMCTSObsPlayer } from "../src/cpu/ismcts_obs";
+import { MOISMCTSObsPlayer } from "../src/cpu/mo_ismcts_obs";
 
-// --- GAME HELPERS ---
-function shuffle(arr: Card[]): Card[] {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-}
+// CPU players (swap freely):
+//   SimpleMCTSPlayer   (./cpu/simple_mcts)   — flat determinized MCTS, 1-deep.
+//   ISMCTSPlayer       (./cpu/ismcts)        — SO-ISMCTS, one tree, sign-flip.
+//   MOISMCTSPlayer     (./cpu/mo_ismcts)     — MO-ISMCTS, tree-per-player.
+//   ISMCTSObsPlayer    (./cpu/ismcts_obs)    — SO-ISMCTS + draw-observation nodes.
+//   MOISMCTSObsPlayer  (./cpu/mo_ismcts_obs) — MO-ISMCTS + draw-observation nodes.
+const cpu: CPUPlayer = new SimpleMCTSPlayer({
+    ...DEFAULT_OPTIONS,
+    stop_bias: true,
+});
 
-function playerName(p: number): string {
-    return p === 0 ? "You" : "CPU";
-}
-
-function canCaptureRiver(handCard: Card, river: Card[]) {
-    if (river.length === 0) return false;
-    // Lightning from hand is wild — captures any river
-    if (isLightning(handCard)) return true;
-    const riverHasLightning = river.some(isLightning);
-    const riverHasRainMan = river.some(isRainMan);
-    // Lightning in river overrides Rain Man — any card can capture
-    if (riverHasLightning) return true;
-    // Rain Man blocks non-Willow captures
-    if (riverHasRainMan && !isWillow(handCard)) return false;
-    // Standard month match
-    return river.some((c) => c.month === handCard.month);
-}
-
-interface DealResult {
-    deck: Card[];
-    hands: [Card[], Card[]];
-    rivers: [Card[], Card[], Card[]];
-}
-
-function dealNewRound(deckIn: Card[]): DealResult {
-    const d = shuffle(deckIn);
-    return {
-        deck: d.slice(12),
-        hands: [d.slice(0, 6), d.slice(6, 12)] as [Card[], Card[]],
-        rivers: [[], [], []] as [Card[], Card[], Card[]],
-    };
-}
-
-// --- CONSTANTS ---
-const TOTAL_ROUNDS = 3;
-
-// Phases: MENU, DEALING, CAPTURING, FORCED_CAPTURE, YAKU_CHOICE, ROUND_OVER, GAME_OVER
-function makeInitialState(): GameState {
-    return {
-        phase: "MENU",
-        deck: [],
-        hands: [[], []],
-        captured: [[], []],
-        rivers: [[], [], []],
-        dealerIdx: 1,
-        capturerIdx: 0,
-        dealStep: 0,
-        drawnCard: null,
-        riversUsedThisTurn: [false, false, false],
-        lightningRiver: null,
-        selectedHandCard: null,
-        koikoiCounts: [0, 0],
-        scores: [0, 0],
-        round: 1,
-        turn: 1,
-        drawMultiplier: 1,
-        previousPoints: [0, 0],
-        newYaku: [],
-        yakuPlayer: -1,
-        message: "",
-        roundScoreInfo: null,
-    };
-}
-
-function startRound(state: GameState): GameState {
-    const deal = dealNewRound(CARDS);
-    return {
-        ...state,
-        phase: "DEALING",
-        deck: deal.deck,
-        hands: deal.hands,
-        captured: [[], []],
-        rivers: deal.rivers,
-        dealStep: 0,
-        drawnCard: null,
-        riversUsedThisTurn: [false, false, false],
-        lightningRiver: null,
-        selectedHandCard: null,
-        koikoiCounts: [0, 0],
-        previousPoints: [0, 0],
-        newYaku: [],
-        yakuPlayer: -1,
-        turn: 1,
-        message: "",
-        roundScoreInfo: null,
-    };
-}
-
-let _simMode = false;
-
-function gameReducer(state: GameState, action: GameAction): GameState {
-    if (!_simMode) console.log(action);
-    switch (action.type) {
-        case "START_GAME": {
-            const s = makeInitialState();
-            return startRound({
-                ...s,
-                scores: [0, 0],
-                round: 1,
-                drawMultiplier: 1,
-            });
-        }
-
-        case "DRAW_CARD": {
-            if (state.phase !== "DEALING" || state.drawnCard)
-                throw "Can't draw a card right now.";
-            if (state.deck.length === 0) throw "Can't draw from an empty deck.";
-            const card = state.deck[0];
-            return {
-                ...state,
-                deck: state.deck.slice(1),
-                drawnCard: card,
-                message:
-                    state.dealerIdx === 0
-                        ? `You drew ${card.name}. Choose a river.`
-                        : `CPU draws a card...`,
-            };
-        }
-
-        case "DROP_IN_RIVER": {
-            if (state.phase !== "DEALING" || !state.drawnCard)
-                throw "Can't drop right now.";
-            const { riverIdx } = action;
-            if (state.riversUsedThisTurn[riverIdx])
-                throw "Can't drop in this river anymore.";
-
-            const newRivers = state.rivers.map((r, i) =>
-                i === riverIdx ? [state.drawnCard!, ...r] : [...r],
-            ) as [Card[], Card[], Card[]];
-            const newUsed = [...state.riversUsedThisTurn] as [
-                boolean,
-                boolean,
-                boolean,
-            ];
-            newUsed[riverIdx] = true;
-
-            const nextStep = state.dealStep + 1;
-
-            // Check if lightning was dropped
-            let lightningRiver = state.lightningRiver;
-            if (isLightning(state.drawnCard)) {
-                lightningRiver = riverIdx;
-            }
-
-            if (nextStep < 3) {
-                // More cards to deal
-                return {
-                    ...state,
-                    rivers: newRivers,
-                    riversUsedThisTurn: newUsed,
-                    drawnCard: null,
-                    dealStep: nextStep,
-                    lightningRiver,
-                    message:
-                        state.dealerIdx === 0
-                            ? "Draw the next card."
-                            : "CPU drops cards...",
-                };
-            }
-
-            // All 3 dealt — move to capture phase
-            // If lightning was dealt, capturer must capture that river
-            if (lightningRiver !== null) {
-                return {
-                    ...state,
-                    rivers: newRivers,
-                    riversUsedThisTurn: newUsed,
-                    drawnCard: null,
-                    dealStep: nextStep,
-                    lightningRiver,
-                    phase: "FORCED_CAPTURE",
-                    message:
-                        state.capturerIdx === 0
-                            ? `Lightning in River ${lightningRiver + 1}! You must capture it.`
-                            : `Lightning in River ${lightningRiver + 1}! CPU must capture it.`,
-                };
-            }
-
-            return {
-                ...state,
-                rivers: newRivers,
-                riversUsedThisTurn: newUsed,
-                drawnCard: null,
-                dealStep: nextStep,
-                lightningRiver,
-                phase: "CAPTURING",
-                message:
-                    state.capturerIdx === 0
-                        ? "Choose a card to play, then capture a river or discard."
-                        : "CPU is deciding...",
-            };
-        }
-
-        case "SELECT_HAND_CARD": {
-            if (state.phase !== "CAPTURING" && state.phase !== "FORCED_CAPTURE")
-                throw "Can't select right now.";
-            if (action.card == state.selectedHandCard) {
-                return { ...state, selectedHandCard: null };
-            } else {
-                return { ...state, selectedHandCard: action.card };
-            }
-        }
-
-        case "CAPTURE_RIVER": {
-            const { riverIdx, handCard } = action;
-            const who = state.capturerIdx;
-            const card = handCard || state.selectedHandCard;
-            if (!card) throw "Can't capture without a selected card.";
-            const river = state.rivers[riverIdx];
-
-            // For forced capture, any card works (lightning in river matches all)
-            if (state.phase === "FORCED_CAPTURE") {
-                if (riverIdx !== state.lightningRiver)
-                    throw "Must capture the lightning river.";
-            } else {
-                if (!canCaptureRiver(card, river))
-                    throw "Can't capture this river with selected card.";
-            }
-
-            // Remove card from hand
-            const newHands = state.hands.map((h, i) =>
-                i === who ? h.filter((c) => c.id !== card.id) : [...h],
-            ) as [Card[], Card[]];
-            // Add river cards + hand card to captured
-            const capturedCards = [...river, card];
-            const newCaptured = state.captured.map((cp, i) =>
-                i === who ? [...cp, ...capturedCards] : [...cp],
-            ) as [Card[], Card[]];
-            // Clear the river
-            const newRivers = state.rivers.map((r, i) =>
-                i === riverIdx ? [] : [...r],
-            ) as [Card[], Card[], Card[]];
-
-            // Check yaku — trigger choice if non-junk points increased
-            const yaku = computeYaku(newCaptured[who]);
-            const currentNonJunk = nonJunkPoints(yaku.yakuList);
-            const improved = currentNonJunk > state.previousPoints[who];
-
-            if (improved) {
-                const newPrev = [...state.previousPoints] as [number, number];
-                newPrev[who] = currentNonJunk;
-                return {
-                    ...state,
-                    hands: newHands,
-                    captured: newCaptured,
-                    rivers: newRivers,
-                    selectedHandCard: null,
-                    lightningRiver: null,
-                    phase: "YAKU_CHOICE",
-                    yakuPlayer: who,
-                    newYaku: yaku.yakuList.filter((y) => !y.isJunk),
-                    previousPoints: newPrev,
-                    message:
-                        who === 0
-                            ? `Yaku! ${yaku.yakuList
-                                  .filter((y) => !y.isJunk)
-                                  .map((y) => y.name)
-                                  .join(
-                                      ", ",
-                                  )} (${currentNonJunk} pts). Stop or Koi-Koi?`
-                            : `CPU has ${currentNonJunk} pts: ${yaku.yakuList
-                                  .filter((y) => !y.isJunk)
-                                  .map((y) => y.name)
-                                  .join(", ")}`,
-                };
-            }
-
-            // No point increase — advance turn
-            return advanceTurn({
-                ...state,
-                hands: newHands,
-                captured: newCaptured,
-                rivers: newRivers,
-                selectedHandCard: null,
-                lightningRiver: null,
-            });
-        }
-
-        case "DISCARD_TO_RIVER": {
-            if (state.phase === "FORCED_CAPTURE")
-                throw "Can't discard during forced capture.";
-            if (state.phase !== "CAPTURING") throw "Can't discard right now.";
-            const { riverIdx, handCard } = action;
-            const who = state.capturerIdx;
-            const card = handCard || state.selectedHandCard;
-            if (!card) throw "Must select a card to discard.";
-
-            const newHands = state.hands.map((h, i) =>
-                i === who ? h.filter((c) => c.id !== card.id) : [...h],
-            ) as [Card[], Card[]];
-            const newRivers = state.rivers.map((r, i) =>
-                i === riverIdx ? [card, ...r] : [...r],
-            ) as [Card[], Card[], Card[]];
-
-            return advanceTurn({
-                ...state,
-                hands: newHands,
-                rivers: newRivers,
-                selectedHandCard: null,
-                lightningRiver: null,
-            });
-        }
-
-        case "CALL_STOP": {
-            if (state.phase !== "YAKU_CHOICE")
-                throw "Can't call stop right now.";
-            const winner = state.yakuPlayer;
-            const loser = 1 - winner;
-            const yaku = computeYaku(state.captured[winner]);
-            let pts = yaku.total;
-            // 7+ doubling
-            if (pts >= 7) pts *= 2;
-            // Opponent's koikoi count doubles winner's points
-            const oppKoikoi = state.koikoiCounts[loser];
-            pts *= Math.pow(2, oppKoikoi);
-            // Draw multiplier
-            pts *= state.drawMultiplier;
-
-            const newScores = [...state.scores] as [number, number];
-            newScores[winner] += pts;
-
-            const roundScoreInfo: RoundScoreInfo = {
-                winner,
-                yakuList: yaku.yakuList,
-                basePoints: yaku.total,
-                sevenBonus: yaku.total >= 7,
-                oppKoikoi,
-                drawMultiplier: state.drawMultiplier,
-                finalPoints: pts,
-            };
-
-            if (state.round >= TOTAL_ROUNDS) {
-                return {
-                    ...state,
-                    phase: "GAME_OVER",
-                    scores: newScores,
-                    roundScoreInfo,
-                    message: `Round over! ${playerName(winner)} scored ${pts} points!`,
-                };
-            }
-
-            return {
-                ...state,
-                phase: "ROUND_OVER",
-                scores: newScores,
-                roundScoreInfo,
-                drawMultiplier: 1,
-                dealerIdx: loser,
-                capturerIdx: winner,
-                message: `Round over! ${playerName(winner)} scored ${pts} points!`,
-            };
-        }
-
-        case "CALL_KOIKOI": {
-            if (state.phase !== "YAKU_CHOICE")
-                throw "Can't call koikoi right now.";
-            const who = state.yakuPlayer;
-            if (state.hands[who].length == 0)
-                throw "Can't call koikoi with an empty hand.";
-            const newKoikoi = [...state.koikoiCounts] as [number, number];
-            newKoikoi[who] += 1;
-
-            return advanceTurn({
-                ...state,
-                koikoiCounts: newKoikoi,
-                message: `${playerName(who)} called Koi-Koi!`,
-            });
-        }
-
-        case "NEXT_ROUND": {
-            return startRound({
-                ...state,
-                round: state.round + 1,
-            });
-        }
-
-        case "CLEAR_MESSAGE": {
-            return { ...state, message: "" };
-        }
-    }
-}
-
-function advanceTurn(state: GameState): GameState {
-    const nextTurn = state.turn + 1;
-
-    // Swap roles
-    const newDealer = state.capturerIdx;
-    const newCapturer = state.dealerIdx;
-
-    // Check if round is over (both players out of cards)
-    if (state.hands[0].length === 0 && state.hands[1].length === 0) {
-        // Draw — no one stopped
-        const drawMultiplier = state.drawMultiplier * 2;
-        const roundScoreInfo: RoundScoreInfo = {
-            winner: -1,
-            yakuList: [],
-            basePoints: 0,
-            finalPoints: 0,
-            drawMultiplier,
-        };
-        if (state.round >= TOTAL_ROUNDS) {
-            return {
-                ...state,
-                phase: "GAME_OVER",
-                roundScoreInfo,
-                drawMultiplier,
-                message: "Round drawn! No points awarded.",
-            };
-        }
-        return {
-            ...state,
-            phase: "ROUND_OVER",
-            drawMultiplier,
-            roundScoreInfo,
-            dealerIdx: newDealer,
-            capturerIdx: newCapturer,
-            message: "Round drawn! Points doubled next round.",
-        };
-    }
-
-    return {
-        ...state,
-        phase: "DEALING",
-        dealerIdx: newDealer,
-        capturerIdx: newCapturer,
-        dealStep: 0,
-        drawnCard: null,
-        riversUsedThisTurn: [false, false, false],
-        lightningRiver: null,
-        selectedHandCard: null,
-        turn: nextTurn,
-        newYaku: [],
-        yakuPlayer: -1,
-        message:
-            newDealer === 0
-                ? "Your turn to deal. Draw a card."
-                : "CPU is dealing...",
-    };
-}
-
-// --- CPU LOGIC (Monte Carlo Tree Search) ---
-
-// Randomize cards unknown to CPU (player 1): opponent's hand and the deck
-function randomizeHiddenCards(state: GameState): GameState {
-    const hidden = [...state.deck, ...state.hands[0]];
-    const shuffled = shuffle(hidden);
-    const oppSize = state.hands[0].length;
-    return {
-        ...state,
-        hands: [shuffled.slice(0, oppSize), state.hands[1]] as [Card[], Card[]],
-        deck: shuffled.slice(oppSize),
-    };
-}
-
-// Enumerate valid actions for CPU (player 1) in the given state
-function getCPUActions(state: GameState): GameAction[] {
-    if (
-        state.phase === "DEALING" &&
-        state.dealerIdx === 1 &&
-        state.drawnCard !== null
-    ) {
-        const avail = [0, 1, 2].filter((i) => !state.riversUsedThisTurn[i]);
-
-        // Don't think if they're all empty.
-        if (avail.every((river) => state.rivers[river].length == 0)) {
-            return [{ type: "DROP_IN_RIVER", riverIdx: avail[0] }];
-        }
-
-        return avail.map((riverIdx) => ({ type: "DROP_IN_RIVER", riverIdx }));
-    }
-    if (state.phase === "CAPTURING" && state.capturerIdx === 1) {
-        const actions: GameAction[] = [];
-        for (const card of state.hands[1]) {
-            for (let ri = 0; ri < 3; ri++) {
-                actions.push({
-                    type: "DISCARD_TO_RIVER",
-                    riverIdx: ri,
-                    handCard: card,
-                });
-                if (
-                    state.rivers[ri].length > 0 &&
-                    canCaptureRiver(card, state.rivers[ri])
-                ) {
-                    actions.push({
-                        type: "CAPTURE_RIVER",
-                        riverIdx: ri,
-                        handCard: card,
-                    });
-                }
-            }
-        }
-        return actions;
-    }
-    if (state.phase === "FORCED_CAPTURE" && state.capturerIdx === 1) {
-        const ri = state.lightningRiver!;
-        return state.hands[1].map((card) => ({
-            type: "CAPTURE_RIVER",
-            riverIdx: ri,
-            handCard: card,
-        }));
-    }
-    if (state.phase === "YAKU_CHOICE" && state.yakuPlayer === 1) {
-        const actions: GameAction[] = [{ type: "CALL_STOP" }];
-        if (state.hands[1].length > 0) {
-            actions.push({ type: "CALL_KOIKOI" });
-        }
-        return actions;
-    }
-    throw "Nothing to do.";
-}
-
-// Get a random valid action for whichever player needs to act (used in rollouts)
-function getSimAction(state: GameState): GameAction | null {
-    if (state.phase === "GAME_OVER") throw "Already GAME_OVER";
-    if (state.phase === "ROUND_OVER") return null; // stop rollout; evaluate match-aware
-    if (state.phase === "DEALING") {
-        if (!state.drawnCard) return { type: "DRAW_CARD" };
-        const avail = [0, 1, 2].filter((i) => !state.riversUsedThisTurn[i]);
-        if (avail.length === 0) throw "No rivers to deal to.";
-        return {
-            type: "DROP_IN_RIVER",
-            riverIdx: avail[Math.floor(Math.random() * avail.length)],
-        };
-    }
-    if (state.phase === "CAPTURING") {
-        const who = state.capturerIdx;
-        const hand = state.hands[who];
-        if (hand.length === 0) throw "Nothing to capture with.";
-        const caps: GameAction[] = [];
-        for (const card of hand) {
-            for (let ri = 0; ri < 3; ri++) {
-                if (
-                    state.rivers[ri].length > 0 &&
-                    canCaptureRiver(card, state.rivers[ri])
-                ) {
-                    caps.push({
-                        type: "CAPTURE_RIVER",
-                        riverIdx: ri,
-                        handCard: card,
-                    });
-                }
-            }
-        }
-        if (caps.length > 0)
-            return caps[Math.floor(Math.random() * caps.length)];
-        const card = hand[Math.floor(Math.random() * hand.length)];
-        return {
-            type: "DISCARD_TO_RIVER",
-            riverIdx: Math.floor(Math.random() * 3),
-            handCard: card,
-        };
-    }
-    if (state.phase === "FORCED_CAPTURE") {
-        const hand = state.hands[state.capturerIdx];
-        if (hand.length === 0) throw "Nothing to capture with.";
-        return {
-            type: "CAPTURE_RIVER",
-            riverIdx: state.lightningRiver!,
-            handCard: hand[Math.floor(Math.random() * hand.length)],
-        };
-    }
-    if (state.phase === "YAKU_CHOICE") {
-        if (state.hands[state.yakuPlayer].length == 0) {
-            return { type: "CALL_STOP" };
-        } else {
-            return Math.random() < 0.5
-                ? { type: "CALL_STOP" }
-                : { type: "CALL_KOIKOI" };
-        }
-    }
-    throw "Nothing to do.";
-}
-
-// Fast random rollout — stops at GAME_OVER or ROUND_OVER (inter-round variance is
-// folded into evaluateRollout instead of random redeals).
-function rolloutToEnd(state: GameState): GameState {
-    let s = state;
-    for (
-        let i = 0;
-        i < 600 && s.phase !== "GAME_OVER" && s.phase !== "ROUND_OVER";
-        i++
-    ) {
-        const action = getSimAction(s);
-        if (!action) break;
-        const next = gameReducer(s, action);
-        if (next === s) break; // action rejected — avoid infinite loop
-        s = next;
-    }
-    return s;
-}
-
-// Std dev of per-round score differential — tune via self-play.
-const ROUND_SIGMA = 7;
-
-// Normal CDF (Abramowitz & Stegun 26.2.17)
-function normCdf(z: number): number {
-    const t = 1 / (1 + 0.2316419 * Math.abs(z));
-    const d = 0.3989422804014327 * Math.exp((-z * z) / 2);
-    const p =
-        d *
-        t *
-        (0.31938153 +
-            t *
-                (-0.356563782 +
-                    t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))));
-    return z >= 0 ? 1 - p : p;
-}
-
-// Score a terminal rollout state from CPU (player 1)'s POV, in [-1, 1].
-// At GAME_OVER: sigmoid of score diff, ties punished.
-// At ROUND_OVER (rounds remaining): Gaussian P(win match) given diff and rounds left —
-// naturally rewards widening the score distribution when trailing and narrowing it when ahead.
-function evaluateRollout(state: GameState): number {
-    const diff = state.scores[1] - state.scores[0];
-    if (state.phase === "GAME_OVER") {
-        return diff === 0 ? -1 : diff / (1 + Math.abs(diff));
-    }
-    const roundsLeft = TOTAL_ROUNDS - state.round;
-    if (roundsLeft <= 0) {
-        return diff === 0 ? -1 : diff / (1 + Math.abs(diff));
-    }
-    // Next round's σ is scaled by drawMultiplier (carried over from a drawn round);
-    // subsequent rounds assumed σ. Forcing a draw keeps diff flat but widens variance
-    // next round — good play when trailing, captured automatically here.
-    const mult = state.drawMultiplier;
-    const totalStd = ROUND_SIGMA * Math.sqrt(mult * mult + roundsLeft - 1);
-    const z = diff / totalStd;
-    return 2 * normCdf(z) - 1;
-}
-
-// MCTS: choose the best action for CPU given the current (partially observable) state.
-// Uses determinization: hidden cards are randomized once per simulation.
-function mctsChooseAction(state: GameState, simCount: number): GameAction {
-    const actions = getCPUActions(state);
-    if (actions.length === 0) throw "No available actions.";
-    if (actions.length === 1) return actions[0];
-
-    const wins = new Float64Array(actions.length);
-    const visits = new Int32Array(actions.length);
-    const C = 1.41 * 2; // UCB1 exploration constant
-
-    _simMode = true;
-    {
-        for (let sim = 0; sim < simCount; sim++) {
-            // Determinize: randomly assign hidden cards for this simulation
-            const detState = randomizeHiddenCards(state);
-
-            // Select action via UCB1 (round-robin for the first pass)
-            let cpu: number;
-            if (sim < actions.length) {
-                cpu = sim;
-            } else {
-                const logTotal = Math.log(sim);
-                let bestUCB = -Infinity;
-                cpu = 0;
-                for (let i = 0; i < actions.length; i++) {
-                    const ucb =
-                        wins[i] / visits[i] +
-                        C * Math.sqrt(logTotal / visits[i]);
-                    if (ucb > bestUCB) {
-                        bestUCB = ucb;
-                        cpu = i;
-                    }
-                }
-            }
-
-            // Apply chosen action then roll out to game over
-            const next = gameReducer(detState, actions[cpu]);
-            const terminal = rolloutToEnd(next);
-
-            // Match-aware terminal evaluation (range [-1, 1], so UCB C is doubled).
-            const score = evaluateRollout(terminal);
-
-            wins[cpu] += score;
-            visits[cpu]++;
-        }
-    }
-    _simMode = false;
-
-    // Return the action with the highest win rate
-    let bestIdx = 0,
-        bestRate = -1;
-    for (let i = 0; i < actions.length; i++) {
-        if (visits[i] > 0) {
-            const rate = wins[i] / visits[i];
-            if (rate > bestRate) {
-                bestRate = rate;
-                bestIdx = i;
-            }
-        }
-    }
-    console.log("bestRate", state.phase, bestRate);
-    return actions[bestIdx];
-}
+// --- CPU ADAPTERS ---
+// The CPU returns a generic GameAction; these helpers narrow it down for each
+// of the UI's CPU-effect hooks (so the UI can show the chosen card before the
+// reducer applies the action, etc.).
 
 type cpuAction =
     | { type: "capture"; card: Card; riverIdx: number }
     | { type: "discard"; card: Card; riverIdx: number };
 
 function cpuChooseRiver(state: GameState): number {
-    const action = mctsChooseAction(state, 2000);
+    const action = cpu.chooseAction(state);
     if (action.type === "DROP_IN_RIVER") return action.riverIdx;
     throw "Illegal choice";
 }
 
 function cpuChooseCaptureAction(state: GameState): cpuAction {
-    const action = mctsChooseAction(state, 4000);
+    const action = cpu.chooseAction(state);
     if (action.type === "CAPTURE_RIVER" && action.handCard) {
         return {
             type: "capture",
@@ -747,21 +74,18 @@ function cpuChooseCaptureAction(state: GameState): cpuAction {
 }
 
 function cpuChooseForcedCaptureCard(state: GameState): Card {
-    const action = mctsChooseAction(state, 2000);
+    const action = cpu.chooseAction(state);
     if (action.type === "CAPTURE_RIVER" && action.handCard)
         return action.handCard;
     throw "Illegal choice";
 }
 
 function cpuDecideKoikoi(state: GameState): boolean {
-    const action = mctsChooseAction(state, 2000);
+    const action = cpu.chooseAction(state);
     if (action.type === "CALL_KOIKOI") return true;
-
     if (action.type === "CALL_STOP") return false;
-
     throw "Illegal choice";
 }
-
 // --- CARD COMPONENT ---
 type CardSize = "default" | "sm" | "river";
 
@@ -790,7 +114,7 @@ function CardView({
     onMouseLeave,
     flipped = true,
 }: CardViewProps) {
-    const Svg = faceDown ? images.card_back : card.img;
+    const Svg = faceDown ? images.card_back : cardImageById[card.id];
     const clickable = !!(onClick && !disabled);
 
     const view = (

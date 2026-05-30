@@ -8,10 +8,12 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest",
-    "setup": "node scripts/download-cards.mjs"
+    "setup": "node scripts/download-cards.mjs",
+    "cpu-match": "vite-node scripts/cpu-match.ts"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.5",
+    "@types/node": "^25.8.0",
     "jsdom": "^25.0.1",
     "prettier": "3.8.3",
     "typescript": "^5.6.2",

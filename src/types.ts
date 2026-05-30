@@ -114,14 +114,11 @@ export type CardName =
   | JunkCardName
 
 
-import type { SvgComponent } from './cardImages';
-
 export interface Card {
   id: CardId;
   month: number;
   type: CardType;
   name: CardName;
-  img: SvgComponent;
 }
 
 export type YakuName =
