@@ -34,7 +34,7 @@ export const DEFAULT_BUDGET: CPUBudget = {
 
 
 export const DEFAULT_OPTIONS = {
-    yaku_bias: false,
+    stop_bias: false,
     junk_bias: false,
     randomize: randomizeHiddenCards,
     budget: DEFAULT_BUDGET,
@@ -183,8 +183,9 @@ export function getRolloutAction(state: GameState, options = DEFAULT_OPTIONS): G
                 }
             }
         }
-        if (caps.length > 0)
+        if (caps.length > 0) {
             return caps[Math.floor(Math.random() * caps.length)];
+        }
 
         let avail: Card[]
         if (options.junk_bias) {
@@ -214,7 +215,7 @@ export function getRolloutAction(state: GameState, options = DEFAULT_OPTIONS): G
             return { type: "CALL_STOP" };
         } else {
             let r: number;
-            if (options.yaku_bias) {
+            if (options.stop_bias) {
                 const next = gameReducer(state, { type: "CALL_STOP" });
                 const diff = next.scores[state.yakuPlayer] - next.scores[1 - state.yakuPlayer];
                 r = (diff / (1 + Math.abs(diff))) / 2 + .5;

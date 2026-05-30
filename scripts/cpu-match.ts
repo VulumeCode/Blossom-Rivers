@@ -35,14 +35,14 @@ export const BUILDERS: Record<string, Builder> = {
     simple: () => new SimpleMCTSPlayer(),
     simplerc: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, randomize: randomizeHiddenAndCapturedCards }),
     simplejb: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, junk_bias: true }),
-    simpleyb: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, yaku_bias: true }),
-    simplercyb: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, yaku_bias: true, randomize: randomizeHiddenAndCapturedCards }),
+    simplesb: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, stop_bias: true }),
+    simplercsb: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, stop_bias: true, randomize: randomizeHiddenAndCapturedCards }),
     simplec: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, evaluateRollout: evaluateRolloutCut }),
     simplei: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, evaluateRollout: evaluateRolloutInv }),
     simpled: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, evaluateRollout: evaluateRolloutDiv }),
     simplebd: () => new SimpleMCTSPlayer({
-        ...DEFAULT_OPTIONS, yaku_bias: true, budget: {
-            DEALING: 20000,
+        ...DEFAULT_OPTIONS, stop_bias: true, budget: {
+            DEALING: 200,
             CAPTURING: 4000,
             FORCED_CAPTURE: 2000,
             YAKU_CHOICE: 20000,
