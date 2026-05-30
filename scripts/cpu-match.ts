@@ -33,15 +33,15 @@ export const BUILDERS: Record<string, Builder> = {
     random: () => new RandomPlayer(),
     randomL: () => new RandomLegalPlayer(),
     simple: () => new SimpleMCTSPlayer(),
-    simplerc: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, randomize: randomizeHiddenAndCapturedCards }),
-    simplejb: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, junk_bias: true }),
-    simplesb: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, stop_bias: true }),
-    simplercsb: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, stop_bias: true, randomize: randomizeHiddenAndCapturedCards }),
-    simplec: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, evaluateRollout: evaluateRolloutCut }),
-    simplei: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, evaluateRollout: evaluateRolloutInv }),
-    simpled: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, evaluateRollout: evaluateRolloutDiv }),
+    simplerc: () => new SimpleMCTSPlayer({ randomize: randomizeHiddenAndCapturedCards }),
+    simplejb: () => new SimpleMCTSPlayer({ junk_bias: true }),
+    simplesb: () => new SimpleMCTSPlayer({ stop_bias: true }),
+    simplercsb: () => new SimpleMCTSPlayer({ stop_bias: true, randomize: randomizeHiddenAndCapturedCards }),
+    simplec: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutCut }),
+    simplei: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutInv }),
+    simpled: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutDiv }),
     simplebd: () => new SimpleMCTSPlayer({
-        ...DEFAULT_OPTIONS, stop_bias: true, budget: {
+        stop_bias: true, budget: {
             DEALING: 200,
             CAPTURING: 4000,
             FORCED_CAPTURE: 2000,

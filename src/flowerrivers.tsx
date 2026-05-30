@@ -35,7 +35,6 @@ import { MOISMCTSObsPlayer } from "../src/cpu/mo_ismcts_obs";
 //   ISMCTSObsPlayer    (./cpu/ismcts_obs)    — SO-ISMCTS + draw-observation nodes.
 //   MOISMCTSObsPlayer  (./cpu/mo_ismcts_obs) — MO-ISMCTS + draw-observation nodes.
 const cpu: CPUPlayer = new SimpleMCTSPlayer({
-    ...DEFAULT_OPTIONS,
     stop_bias: true,
 });
 

@@ -41,7 +41,7 @@ export const DEFAULT_OPTIONS = {
     evaluateRollout: evaluateRolloutSigmoid
 };
 
-
+export type Options = typeof DEFAULT_OPTIONS;
 
 // Which seat is to act in this state — used by ISMCTS to flip the sign of
 // reward at opponent nodes.

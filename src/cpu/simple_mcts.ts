@@ -1,11 +1,8 @@
 import type { GameAction, GameState } from "../types";
+import type { CPUPlayer, Options } from "./cpu";
 import { gameReducer, setSimMode } from "../game";
 import {
-    type CPUBudget,
-    type CPUPlayer,
-    DEFAULT_BUDGET,
     DEFAULT_OPTIONS,
-    evaluateRolloutSigmoid,
     getLegalActions,
     playerToMove,
     rolloutToEnd,
@@ -14,11 +11,11 @@ import {
 
 export class SimpleMCTSPlayer implements CPUPlayer {
 
+    options: Options
 
-
-    constructor(
-        private readonly options = DEFAULT_OPTIONS,
-    ) { }
+    constructor(options?: Partial<Options>) {
+        this.options = { ...DEFAULT_OPTIONS, ...options };
+    }
 
 
     // Flat MCTS with determinization: each iteration draws a fresh assignment of
