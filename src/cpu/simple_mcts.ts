@@ -8,7 +8,6 @@ import {
     evaluateRolloutSigmoid,
     getLegalActions,
     playerToMove,
-    randomizeHiddenCards,
     rolloutToEnd,
 } from "./cpu";
 
@@ -18,9 +17,7 @@ export class SimpleMCTSPlayer implements CPUPlayer {
 
 
     constructor(
-        private readonly budget: CPUBudget = DEFAULT_BUDGET,
         private readonly options = DEFAULT_OPTIONS,
-        private readonly evaluateRollout = evaluateRolloutSigmoid
     ) { }
 
 
@@ -49,7 +46,7 @@ export class SimpleMCTSPlayer implements CPUPlayer {
         setSimMode(true);
         try {
             for (let sim = 0; sim < simCount; sim++) {
-                const detState = randomizeHiddenCards(state, cpuPlayer);
+                const detState = this.options.randomize(state, cpuPlayer);
 
                 let idx: number;
                 if (sim < actions.length) {
@@ -73,7 +70,7 @@ export class SimpleMCTSPlayer implements CPUPlayer {
                 const next = gameReducer(detState, actions[idx]);
                 // Rollout.
                 const terminal = rolloutToEnd(next, this.options);
-                const reward = this.evaluateRollout(terminal, cpuPlayer);
+                const reward = this.options.evaluateRollout(terminal, cpuPlayer);
 
                 wins[idx] += reward;
                 visits[idx]++;
@@ -100,7 +97,7 @@ export class SimpleMCTSPlayer implements CPUPlayer {
     chooseAction(state: GameState): GameAction {
         const cpuPlayer = playerToMove(state);
         const sims =
-            (this.budget as Record<string, number>)[state.phase] ??
+            (this.options.budget as Record<string, number>)[state.phase] ??
             (() => {
                 throw "No budget defined";
             })();

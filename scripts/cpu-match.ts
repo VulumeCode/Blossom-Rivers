@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 
 import type { GameState } from "../src/types";
 import { gameReducer, makeInitialState } from "../src/game";
-import { type CPUPlayer, playerToMove, evaluateRolloutCut, evaluateRolloutInv, evaluateRolloutDiv, DEFAULT_OPTIONS } from "../src/cpu/cpu";
+import { type CPUPlayer, playerToMove, evaluateRolloutCut, evaluateRolloutInv, evaluateRolloutDiv, randomizeHiddenAndCapturedCards, DEFAULT_OPTIONS } from "../src/cpu/cpu";
 import { RandomPlayer } from "../src/cpu/random";
 import { RandomLegalPlayer } from "../src/cpu/random_legal";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
@@ -33,16 +33,20 @@ export const BUILDERS: Record<string, Builder> = {
     random: () => new RandomPlayer(),
     randomL: () => new RandomLegalPlayer(),
     simple: () => new SimpleMCTSPlayer(),
-    simplejb: () => new SimpleMCTSPlayer(undefined, { ...DEFAULT_OPTIONS, junk_bias: true }),
-    simpleyb: () => new SimpleMCTSPlayer(undefined, { ...DEFAULT_OPTIONS, yaku_bias: true }),
-    simplec: () => new SimpleMCTSPlayer(undefined, undefined, evaluateRolloutCut),
-    simplei: () => new SimpleMCTSPlayer(undefined, undefined, evaluateRolloutInv),
-    simpled: () => new SimpleMCTSPlayer(undefined, undefined, evaluateRolloutDiv),
-    simpley: () => new SimpleMCTSPlayer({
-        DEALING: 2000,
-        CAPTURING: 4000,
-        FORCED_CAPTURE: 2000,
-        YAKU_CHOICE: 20000,
+    simplerc: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, randomize: randomizeHiddenAndCapturedCards }),
+    simplejb: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, junk_bias: true }),
+    simpleyb: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, yaku_bias: true }),
+    simplercyb: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, yaku_bias: true, randomize: randomizeHiddenAndCapturedCards }),
+    simplec: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, evaluateRollout: evaluateRolloutCut }),
+    simplei: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, evaluateRollout: evaluateRolloutInv }),
+    simpled: () => new SimpleMCTSPlayer({ ...DEFAULT_OPTIONS, evaluateRollout: evaluateRolloutDiv }),
+    simplebd: () => new SimpleMCTSPlayer({
+        ...DEFAULT_OPTIONS, yaku_bias: true, budget: {
+            DEALING: 20000,
+            CAPTURING: 4000,
+            FORCED_CAPTURE: 2000,
+            YAKU_CHOICE: 20000,
+        }
     }),
     sois: () => new ISMCTSPlayer(),
     mois: () => new MOISMCTSPlayer(),
@@ -313,3 +317,4 @@ if (isMainThread) {
         process.exit(1);
     });
 }
+

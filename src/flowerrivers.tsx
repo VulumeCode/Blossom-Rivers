@@ -17,6 +17,8 @@ import {
     playerToMove,
     evaluateRolloutCut,
     evaluateRolloutInv,
+    DEFAULT_OPTIONS,
+    randomizeHiddenAndCapturedCards,
 } from "../src/cpu/cpu";
 import { RandomPlayer } from "../src/cpu/random";
 import { RandomLegalPlayer } from "../src/cpu/random_legal";
@@ -32,11 +34,11 @@ import { MOISMCTSObsPlayer } from "../src/cpu/mo_ismcts_obs";
 //   MOISMCTSPlayer     (./cpu/mo_ismcts)     — MO-ISMCTS, tree-per-player.
 //   ISMCTSObsPlayer    (./cpu/ismcts_obs)    — SO-ISMCTS + draw-observation nodes.
 //   MOISMCTSObsPlayer  (./cpu/mo_ismcts_obs) — MO-ISMCTS + draw-observation nodes.
-const cpu: CPUPlayer = new SimpleMCTSPlayer(
-    undefined,
-    undefined,
-    evaluateRolloutInv,
-);
+const cpu: CPUPlayer = new SimpleMCTSPlayer({
+    ...DEFAULT_OPTIONS,
+    yaku_bias: true,
+    randomize: randomizeHiddenAndCapturedCards,
+});
 
 // --- CPU ADAPTERS ---
 // The CPU returns a generic GameAction; these helpers narrow it down for each

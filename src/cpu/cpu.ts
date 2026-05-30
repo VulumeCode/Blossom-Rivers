@@ -36,6 +36,9 @@ export const DEFAULT_BUDGET: CPUBudget = {
 export const DEFAULT_OPTIONS = {
     yaku_bias: false,
     junk_bias: false,
+    randomize: randomizeHiddenCards,
+    budget: DEFAULT_BUDGET,
+    evaluateRollout: evaluateRolloutSigmoid
 };
 
 
@@ -66,6 +69,29 @@ export function randomizeHiddenCards(
         ...state,
         hands: newHands,
         deck: shuffled.slice(oppSize),
+    };
+}
+
+// Re-deal the opponent's hand & captures, and remaining deck from the union of unseen
+// cards. Everything visible (the searcher's hand & captures, and rivers) is kept.
+export function randomizeHiddenAndCapturedCards(
+    state: GameState,
+    fromPlayer: number,
+): GameState {
+    const opp = 1 - fromPlayer;
+    const hidden = [...state.deck, ...state.hands[opp], ...state.captured[opp]];
+    const shuffled = shuffle(hidden);
+    const oppHandSize = state.hands[opp].length;
+    const oppCapSize = state.captured[opp].length;
+    const newHands: [Card[], Card[]] = [state.hands[0], state.hands[1]];
+    const newCaptured: [Card[], Card[]] = [state.captured[0], state.captured[1]];
+    newHands[opp] = shuffled.slice(0, oppHandSize);
+    newCaptured[opp] = shuffled.slice(oppHandSize, oppHandSize + oppCapSize);
+    return {
+        ...state,
+        hands: newHands,
+        captured: newCaptured,
+        deck: shuffled.slice(oppHandSize + oppCapSize),
     };
 }
 
