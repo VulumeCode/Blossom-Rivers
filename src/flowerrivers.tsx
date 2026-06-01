@@ -913,7 +913,7 @@ export function FlowerRivers() {
                     {/* Deck + Drawn card */}
                     <div id="deck-column">
                         {/* Deck */}
-                        <div id="deck">
+                        <div id="deck" style={{ "--cards-left": deck.length }}>
                             {deck.length > 0 ? (
                                 <CardView card={deck[0]} faceDown />
                             ) : (
