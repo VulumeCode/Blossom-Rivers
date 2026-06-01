@@ -31,6 +31,7 @@ type Builder = () => CPUPlayer;
 
 export const BUILDERS: Record<string, Builder> = {
     random: () => new RandomPlayer(),
+    randomsb: () => new RandomPlayer({ stop_bias: true }),
     randomL: () => new RandomLegalPlayer(),
     simple: () => new SimpleMCTSPlayer(),
     simplerc: () => new SimpleMCTSPlayer({ randomize: randomizeHiddenAndCapturedCards }),
@@ -40,6 +41,8 @@ export const BUILDERS: Record<string, Builder> = {
     simplec: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutCut }),
     simplei: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutInv }),
     simpled: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutDiv }),
+    simplesbd: () => new SimpleMCTSPlayer({ stop_bias: true, evaluateRollout: evaluateRolloutDiv }),
+    simplesbi: () => new SimpleMCTSPlayer({ stop_bias: true, evaluateRollout: evaluateRolloutInv }),
     simplebd: () => new SimpleMCTSPlayer({
         stop_bias: true, budget: {
             DEALING: 200,
@@ -51,6 +54,7 @@ export const BUILDERS: Record<string, Builder> = {
     sois: () => new ISMCTSPlayer(),
     mois: () => new MOISMCTSPlayer(),
     soisobs: () => new ISMCTSObsPlayer(),
+    soisobssb: () => new ISMCTSObsPlayer({ stop_bias: true }),
     moisobs: () => new MOISMCTSObsPlayer(),
 };
 

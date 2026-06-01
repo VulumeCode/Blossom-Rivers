@@ -1,13 +1,10 @@
 import type { Card, GameAction, GameState } from "../types";
+import type { CPUPlayer, Options } from "./cpu";
 import { gameReducer, setSimMode } from "../game";
 import {
-    type CPUBudget,
-    type CPUPlayer,
-    DEFAULT_BUDGET,
-    evaluateRolloutSigmoid,
+    DEFAULT_OPTIONS,
     getLegalActions,
     playerToMove,
-    randomizeHiddenCards,
     rolloutToEnd,
 } from "./cpu";
 
@@ -84,6 +81,7 @@ function runIteration(
     root: Node,
     rootState: GameState,
     cpuPlayer: number,
+    options: Options,
 ): void {
     let node = root;
     let state = rootState;
@@ -159,8 +157,8 @@ function runIteration(
     const terminal =
         state.phase === "GAME_OVER" || state.phase === "ROUND_OVER"
             ? state
-            : rolloutToEnd(state);
-    const reward = evaluateRolloutSigmoid(terminal, cpuPlayer);
+            : rolloutToEnd(state, options);
+    const reward = options.evaluateRollout(terminal, cpuPlayer);
 
     for (const n of path) {
         n.visits++;
@@ -169,12 +167,16 @@ function runIteration(
 }
 
 export class ISMCTSObsPlayer implements CPUPlayer {
-    constructor(private readonly budget: CPUBudget = DEFAULT_BUDGET) {}
+    options: Options
+
+    constructor(options?: Partial<Options>) {
+        this.options = { ...DEFAULT_OPTIONS, ...options };
+    }
 
     chooseAction(state: GameState): GameAction {
         const cpuPlayer = playerToMove(state);
         const sims =
-            (this.budget as Record<string, number>)[state.phase] ??
+            (this.options.budget as Record<string, number>)[state.phase] ??
             (() => {
                 throw "No budget defined";
             })();
@@ -187,8 +189,8 @@ export class ISMCTSObsPlayer implements CPUPlayer {
         setSimMode(true);
         try {
             for (let i = 0; i < sims; i++) {
-                const det = randomizeHiddenCards(state, cpuPlayer);
-                runIteration(root, det, cpuPlayer);
+                const det = this.options.randomize(state, cpuPlayer);
+                runIteration(root, det, cpuPlayer, this.options);
             }
         } finally {
             setSimMode(false);

@@ -1,13 +1,10 @@
 import type { Card, GameAction, GameState } from "../types";
+import type { CPUPlayer, Options } from "./cpu";
 import { gameReducer, setSimMode } from "../game";
 import {
-    type CPUBudget,
-    type CPUPlayer,
-    DEFAULT_BUDGET,
-    evaluateRolloutSigmoid,
+    DEFAULT_OPTIONS,
     getLegalActions,
     playerToMove,
-    randomizeHiddenCards,
     rolloutToEnd,
 } from "./cpu";
 
@@ -76,7 +73,7 @@ function drawObsKey(card: Card): string {
 
 const C = 1.41 * 2;
 
-function runIteration(roots: [Node, Node], rootState: GameState): void {
+function runIteration(roots: [Node, Node], rootState: GameState, options: Options): void {
     let state = rootState;
     const here: [Node, Node] = [roots[0], roots[1]];
     const paths: [Node[], Node[]] = [[roots[0]], [roots[1]]];
@@ -182,10 +179,10 @@ function runIteration(roots: [Node, Node], rootState: GameState): void {
     const terminal =
         state.phase === "GAME_OVER" || state.phase === "ROUND_OVER"
             ? state
-            : rolloutToEnd(state);
+            : rolloutToEnd(state, options);
 
     for (const pl of [0, 1] as const) {
-        const reward = evaluateRolloutSigmoid(terminal, pl);
+        const reward = options.evaluateRollout(terminal, pl);
         for (const n of paths[pl]) {
             n.visits++;
             n.totalReward += reward;
@@ -194,7 +191,11 @@ function runIteration(roots: [Node, Node], rootState: GameState): void {
 }
 
 export class MOISMCTSObsPlayer implements CPUPlayer {
-    constructor(private readonly budget: CPUBudget = DEFAULT_BUDGET) {}
+    options: Options
+
+    constructor(options?: Partial<Options>) {
+        this.options = { ...DEFAULT_OPTIONS, ...options };
+    }
 
     chooseAction(state: GameState): GameAction {
         const me = playerToMove(state);
@@ -212,8 +213,8 @@ export class MOISMCTSObsPlayer implements CPUPlayer {
         setSimMode(true);
         try {
             for (let i = 0; i < sims; i++) {
-                const det = randomizeHiddenCards(state, me);
-                runIteration(roots, det);
+                const det = this.options.randomize(state, me);
+                runIteration(roots, det, this.options);
             }
         } finally {
             setSimMode(false);

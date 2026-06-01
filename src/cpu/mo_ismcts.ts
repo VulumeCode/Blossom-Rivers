@@ -1,13 +1,10 @@
 import type { GameAction, GameState } from "../types";
+import type { CPUPlayer, Options } from "./cpu";
 import { gameReducer, setSimMode } from "../game";
 import {
-    type CPUBudget,
-    type CPUPlayer,
-    DEFAULT_BUDGET,
-    evaluateRolloutSigmoid,
+    DEFAULT_OPTIONS,
     getLegalActions,
     playerToMove,
-    randomizeHiddenCards,
     rolloutToEnd,
 } from "./cpu";
 
@@ -80,7 +77,7 @@ function actionKey(a: GameAction): string {
 // Rewards are in [-1, 1], so the UCB1 exploration constant is doubled.
 const C = 1.41 * 2;
 
-function runIteration(roots: [Node, Node], rootState: GameState): void {
+function runIteration(roots: [Node, Node], rootState: GameState, options: Options): void {
     let state = rootState;
     // Current node in each player's tree.
     const here: [Node, Node] = [roots[0], roots[1]];
@@ -174,11 +171,11 @@ function runIteration(roots: [Node, Node], rootState: GameState): void {
     const terminal =
         state.phase === "GAME_OVER" || state.phase === "ROUND_OVER"
             ? state
-            : rolloutToEnd(state);
+            : rolloutToEnd(state, options);
 
     // Backprop each tree with its own owner's POV reward.
     for (const pl of [0, 1] as const) {
-        const reward = evaluateRolloutSigmoid(terminal, pl);
+        const reward = options.evaluateRollout(terminal, pl);
         for (const n of paths[pl]) {
             n.visits++;
             n.totalReward += reward;
@@ -187,12 +184,16 @@ function runIteration(roots: [Node, Node], rootState: GameState): void {
 }
 
 export class MOISMCTSPlayer implements CPUPlayer {
-    constructor(private readonly budget: CPUBudget = DEFAULT_BUDGET) {}
+    options: Options
+
+    constructor(options?: Partial<Options>) {
+        this.options = { ...DEFAULT_OPTIONS, ...options };
+    }
 
     chooseAction(state: GameState): GameAction {
         const me = playerToMove(state);
         const sims =
-            (this.budget as Record<string, number>)[state.phase] ??
+            (this.options.budget as Record<string, number>)[state.phase] ??
             (() => {
                 throw "No budget defined";
             })();
@@ -205,8 +206,8 @@ export class MOISMCTSPlayer implements CPUPlayer {
         setSimMode(true);
         try {
             for (let i = 0; i < sims; i++) {
-                const det = randomizeHiddenCards(state, me);
-                runIteration(roots, det);
+                const det = this.options.randomize(state, me);
+                runIteration(roots, det, this.options);
             }
         } finally {
             setSimMode(false);
