@@ -389,7 +389,7 @@ function YakuList({ captured }: YakuListProps) {
 // --- MAIN COMPONENT ---
 export function FlowerRivers() {
     const [state, dispatch] = useReducer(gameReducer, makeInitialState());
-    const [animating, setAnimating] = useState(false);
+    const [ping, setPing] = useState(123); // Changes on animation ended.
     const [hoveredRiver, setHoveredRiver] = useState<number | null>(null);
     const [hoveredHandCard, setHoveredHandCard] = useState<Card | null>(null);
     const [revealedCpuCard, setRevealedCpuCard] = useState<Card | null>(null);
@@ -433,19 +433,18 @@ export function FlowerRivers() {
     // --- CPU EFFECTS ---
     // Auto-draw: whenever it's the dealing phase and no card is drawn yet, draw automatically
     useEffect(() => {
-        if (phase !== "DEALING" || drawnCard || animating) return;
+        if (phase !== "DEALING" || drawnCard) return;
         console.log("DEALING");
         const delay = isHumanDealer ? 0 : 0;
         const timer = setTimeout(() => {
             dispatch({ type: "DRAW_CARD" });
         }, delay);
         return () => clearTimeout(timer);
-    }, [phase, animating]);
+    }, [phase, ping]);
 
     // CPU dealing: drop drawn cards
     useEffect(() => {
-        if (phase !== "DEALING" || isHumanDealer || !drawnCard || animating)
-            return;
+        if (phase !== "DEALING" || isHumanDealer || !drawnCard) return;
 
         const ri = cpuChooseRiver(state);
         const timer = setTimeout(() => {
@@ -453,11 +452,11 @@ export function FlowerRivers() {
         }, 0);
 
         return () => clearTimeout(timer);
-    }, [animating]);
+    }, [ping]);
 
     // CPU capturing
     useEffect(() => {
-        if (phase !== "CAPTURING" || isHumanCapturer || animating) return;
+        if (phase !== "CAPTURING" || isHumanCapturer) return;
         console.log("CAPTURING");
         const action = cpuChooseCaptureAction(state);
         setRevealedCpuCard(action.card);
@@ -483,11 +482,11 @@ export function FlowerRivers() {
             clearTimeout(timer);
             setRevealedCpuCard(null);
         };
-    }, [animating]);
+    }, [ping]);
 
     // CPU forced capture
     useEffect(() => {
-        if (phase !== "FORCED_CAPTURE" || isHumanCapturer || animating) return;
+        if (phase !== "FORCED_CAPTURE" || isHumanCapturer) return;
 
         const card = cpuChooseForcedCaptureCard(state);
         setRevealedCpuCard(card);
@@ -505,11 +504,11 @@ export function FlowerRivers() {
             clearTimeout(timer);
             setRevealedCpuCard(null);
         };
-    }, [animating]);
+    }, [ping]);
 
     // CPU yaku choice (koikoi or stop)
     useEffect(() => {
-        if (phase !== "YAKU_CHOICE" || yakuPlayer !== 1 || animating) return;
+        if (phase !== "YAKU_CHOICE" || yakuPlayer !== 1) return;
 
         const timer = setTimeout(() => {
             const koikoi = cpuDecideKoikoi(state);
@@ -517,7 +516,7 @@ export function FlowerRivers() {
         }, 2000);
 
         return () => clearTimeout(timer);
-    }, [animating]);
+    }, [ping]);
 
     // --- HUMAN HANDLERS ---
     const handleDropInRiver = (ri: number) => {
@@ -860,8 +859,7 @@ export function FlowerRivers() {
         <Flipper
             flipKey={flipState}
             spring={"noWobble"}
-            onStart={() => setAnimating(true)}
-            onComplete={() => setAnimating(false)}
+            onComplete={() => setPing(ping + 1)}
             // spring={{ stiffness: 500, damping: 500 }}
             staggerConfig={{
                 // the "default" config will apply to staggered elements without explicit keys
