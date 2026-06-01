@@ -200,7 +200,7 @@ export class MOISMCTSObsPlayer implements CPUPlayer {
     chooseAction(state: GameState): GameAction {
         const me = playerToMove(state);
         const sims =
-            (this.budget as Record<string, number>)[state.phase] ??
+            (this.options.budget as Record<string, number>)[state.phase] ??
             (() => {
                 throw "No budget defined";
             })();

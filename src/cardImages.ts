@@ -1,8 +1,8 @@
-import type { SVGProps } from 'preact/compat';
 import type { FunctionComponent } from 'preact';
 import type { CardId } from './types';
 
-export type SvgComponent = FunctionComponent<SVGProps<SVGSVGElement>>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SvgComponent = FunctionComponent<any>;
 
 import january_hikari from './cards/Hanafuda_January_Hikari.svg?react';
 import january_tanzaku from './cards/Hanafuda_January_Tanzaku.svg?react';
