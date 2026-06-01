@@ -167,7 +167,7 @@ export type GamePhase =
   | 'GAME_OVER';
 
 export type RiverHighlightType =
-  | 'capture' | 'forced' | 'drop' | null;
+  | 'capture' | 'forced' | 'cpu_drop' | 'human_drop' | null;
 
 export interface RoundScoreInfo {
   winner: number;

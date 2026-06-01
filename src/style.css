@@ -308,7 +308,8 @@ river-lane[data-highlight="forced"] {
     outline-color: var(--color-forced);
 }
 
-river-lane[data-highlight="drop"] {
+river-lane[data-highlight="human_drop"],
+river-lane[data-highlight="cpu_drop"] {
     outline-color: var(--color-drop);
 }
 

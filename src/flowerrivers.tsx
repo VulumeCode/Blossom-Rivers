@@ -193,10 +193,12 @@ function RiverView({
                 >
                     <icon>🍃</icon>
                 </CardButton>
-            ) : highlightType === "drop" ? (
+            ) : highlightType === "human_drop" ? (
                 <CardButton variant="drop">
                     <icon>🍃</icon>
                 </CardButton>
+            ) : highlightType === "cpu_drop" ? (
+                <CardButton variant="drop"></CardButton>
             ) : null}
 
             {cards.map((card) => (
@@ -701,8 +703,12 @@ export function FlowerRivers() {
     // --- MAIN GAME BOARD ---
     // Determine river highlights
     const getRiverHighlight = (ri: number): RiverHighlightType => {
-        if (phase === "DEALING" && isHumanDealer && !riversUsedThisTurn[ri]) {
-            return "drop";
+        if (phase === "DEALING" && !riversUsedThisTurn[ri]) {
+            if (isHumanDealer) {
+                return "human_drop";
+            } else {
+                return "cpu_drop";
+            }
         }
         if (
             phase === "FORCED_CAPTURE" &&
@@ -861,7 +867,7 @@ export function FlowerRivers() {
                 // the "default" config will apply to staggered elements without explicit keys
                 default: {
                     // default direction is forwards
-                    reverse: true,
+                    // reverse: true,
                     // default is .1, 0 < n < 1
                     speed: 1,
                 },

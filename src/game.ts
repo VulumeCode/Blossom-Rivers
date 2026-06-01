@@ -105,8 +105,8 @@ export function setSimMode(on: boolean): void {
 }
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
-    if (!_simMode) console.log(action);
-    switch (action.type) {
+    const go: () => GameState = () => {
+        switch (action.type) {
         case "START_GAME": {
             const s = makeInitialState();
             return startRound({
@@ -381,6 +381,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             return { ...state, message: "" };
         }
     }
+    }
+    const result = go();
+    if (!_simMode) console.log(result);
+    return result;
 }
 
 function advanceTurn(state: GameState): GameState {
