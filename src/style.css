@@ -473,7 +473,7 @@ yaku-list {
     padding: 2vmin 4vmin;
     font-size: 3vmin;
     background: var(--color-purple);
-    color: var(--color-bg);
+    color: var(--color-dark);
     border: none;
     border-radius: 1vmin;
     cursor: pointer;
@@ -521,7 +521,7 @@ yaku-list {
     font-size: 3vmin;
     font-weight: bold;
     background: var(--color-purple);
-    color: var(--color-bg);
+    color: var(--color-dark);
     border: none;
     border-radius: 1vmin;
     cursor: pointer;
@@ -563,7 +563,7 @@ yaku-list {
     font-size: 3vmin;
     font-weight: bold;
     background: var(--color-pink);
-    color: var(--color-bg);
+    color: var(--color-dark);
     border: none;
     border-radius: 1vmin;
     cursor: pointer;
