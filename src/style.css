@@ -320,8 +320,8 @@ river-spacer {
     flex-shrink: 0;
 }
 
-river-icon {
-    display: block;
+.reverse {
+    display: inline-block;
     transform: scaleX(-1);
 }
 
