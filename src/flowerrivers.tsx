@@ -184,32 +184,45 @@ function RiverView({
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
         >
+            <card-squish>
+                {(highlightType === "capture" ||
+                    highlightType === "forced") && (
+                    <river-icon data-highlight={highlightType}>
+                        <icon class="reverse">🫳</icon>
+                    </river-icon>
+                )}
+            </card-squish>
+            {cards
+                .slice()
+                .reverse()
+                .map((card) => (
+                    <card-squish>
+                        <CardView key={card.id} card={card} size="river" />
+                    </card-squish>
+                ))}
+
             {showDiscard ? (
-                <CardButton
-                    variant="discard"
-                    onClick={() => {
-                        onDiscard && onDiscard();
-                    }}
-                >
-                    <icon>🍃</icon>
-                </CardButton>
+                <card-squish>
+                    <CardButton
+                        variant="discard"
+                        onClick={() => {
+                            onDiscard && onDiscard();
+                        }}
+                    >
+                        <icon>🍃</icon>
+                    </CardButton>
+                </card-squish>
             ) : highlightType === "human_drop" ? (
-                <CardButton variant="drop">
-                    <icon>🍃</icon>
-                </CardButton>
+                <card-squish>
+                    <CardButton variant="drop">
+                        <icon>🍃</icon>
+                    </CardButton>
+                </card-squish>
             ) : highlightType === "cpu_drop" ? (
-                <CardButton variant="drop"></CardButton>
+                <card-squish>
+                    <CardButton variant="drop"></CardButton>
+                </card-squish>
             ) : null}
-
-            {cards.map((card) => (
-                <CardView key={card.id} card={card} size="river" />
-            ))}
-
-            {(highlightType === "capture" || highlightType === "forced") && (
-                <river-icon data-highlight={highlightType}>
-                    <icon class="reverse">🫳</icon>
-                </river-icon>
-            )}
         </river-lane>
     );
 }

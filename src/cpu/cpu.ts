@@ -119,16 +119,16 @@ export function getLegalActions(state: GameState): GameAction[] {
                     riverIdx: ri,
                     handCard: card,
                 });
-                if (
-                    state.rivers[ri].length > 0 &&
-                    canCaptureRiver(card, state.rivers[ri])
-                ) {
-                    actions.push({
-                        type: "CAPTURE_RIVER",
-                        riverIdx: ri,
-                        handCard: card,
-                    });
-                }
+                // if (
+                //     state.rivers[ri].length > 0 &&
+                //     canCaptureRiver(card, state.rivers[ri])
+                // ) {
+                //     actions.push({
+                //         type: "CAPTURE_RIVER",
+                //         riverIdx: ri,
+                //         handCard: card,
+                //     });
+                // }
             }
         }
         return actions;

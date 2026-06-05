@@ -193,6 +193,29 @@ river-icon icon {
 }
 
 /* --- CARD VIEW --- */
+
+
+card-squish {
+    display: block;
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: var(--card-w-river);
+    height: var(--card-h-river);
+}
+
+card-squish:first-of-type {
+    flex: 1 0 var(--card-w-river);
+}
+
+card-squish card-view,
+card-squish river-icon,
+card-squish button[data-role="card-button"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 card-view {
     display: inline-block;
     flex-shrink: 0;
@@ -259,7 +282,8 @@ card-view[data-highlighted] svg {
 /* --- RIVER --- */
 river-lane {
     display: flex;
-    flex-direction: row;
+    justify-content: left;
+    flex-direction: row-reverse;
     align-items: center;
     gap: 0.8vmin;
     padding: 0.8vmin;
@@ -330,6 +354,15 @@ river-spacer {
 .reverse {
     display: inline-block;
     transform: scaleX(-1);
+}
+
+river-icon {
+    width: var(--card-w-river);
+    height: var(--card-h-river);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9000;
 }
 
 river-icon[data-highlight="capture"] {

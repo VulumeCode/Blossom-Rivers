@@ -7,6 +7,7 @@ declare module 'preact' {
     namespace JSX {
         interface IntrinsicElements {
             'card-view': HTMLAttributes<HTMLElement>;
+            'card-squish': HTMLAttributes<HTMLElement>;
             'river-lane': HTMLAttributes<HTMLElement>;
             'river-icon': HTMLAttributes<HTMLElement>;
             'icon': HTMLAttributes<HTMLElement>;
