@@ -137,8 +137,7 @@ function CardView({
             scale
             translate
             stagger
-            onStart={(el) => el.setAttribute("data-flipping", "")}
-            onComplete={(el) => el.removeAttribute("data-flipping")}
+            onStartImmediate={(el) => el.setAttribute("data-flipping", "")}
         >
             {view}
         </Flipped>
@@ -872,13 +871,18 @@ export function FlowerRivers() {
         <Flipper
             flipKey={flipState}
             spring={"noWobble"}
-            onComplete={() => setPing(ping + 1)}
+            onComplete={() => {
+                document
+                    .querySelectorAll("card-view[data-flipping]")
+                    .forEach((el) => el.removeAttribute("data-flipping"));
+                setPing(ping + 1);
+            }}
             // spring={{ stiffness: 500, damping: 500 }}
             staggerConfig={{
                 // the "default" config will apply to staggered elements without explicit keys
                 default: {
                     // default direction is forwards
-                    // reverse: true,
+                    reverse: true,
                     // default is .1, 0 < n < 1
                     speed: 1,
                 },
