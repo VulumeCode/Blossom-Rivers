@@ -369,10 +369,20 @@ function CapturedView({ id, cards }: CapturedViewProps) {
                 {groups.map(
                     (g) =>
                         g.cards.length > 0 && (
-                            <captured-group key={g.name} data-type={g.type}>
+                            <captured-group
+                                key={g.name}
+                                data-type={g.type}
+                                style={{ "--cols": g.cards.length }}
+                            >
                                 <group-count>{g.cards.length}</group-count>
                                 {g.cards.map((c) => (
-                                    <CardView key={c.id} card={c} size="sm" />
+                                    <card-squish>
+                                        <CardView
+                                            key={c.id}
+                                            card={c}
+                                            size="sm"
+                                        />
+                                    </card-squish>
                                 ))}
                             </captured-group>
                         ),

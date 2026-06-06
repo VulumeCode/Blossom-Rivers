@@ -204,7 +204,7 @@ card-squish {
     height: var(--card-h-river);
 }
 
-card-squish:first-of-type {
+river-lane card-squish:first-of-type {
     flex: 1 0 var(--card-w-river);
 }
 
@@ -215,6 +215,19 @@ card-squish button[data-role="card-button"] {
     top: 0;
     left: 0;
 }
+
+
+
+captured-group card-squish {
+    /* min-width: var(--card-w-sm); */
+    max-width: var(--card-w-sm);
+    height: var(--card-h-sm);
+}
+
+captured-group card-squish:last-of-type {
+    flex: 1 0 var(--card-w-sm);
+}
+
 
 card-view {
     display: inline-block;
@@ -416,6 +429,7 @@ captured-group {
     display: flex;
     align-items: center;
     flex: 0 1 auto;
+    width: calc(var(--cols, 0) * (var(--card-w-sm) + 0.5vmin));
 }
 
 group-count {
