@@ -183,7 +183,7 @@ function RiverView({
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
         >
-            <card-squish>
+            <card-squish key="capture">
                 {(highlightType === "capture" ||
                     highlightType === "forced") && (
                     <river-icon data-highlight={highlightType}>
@@ -195,13 +195,13 @@ function RiverView({
                 .slice()
                 .reverse()
                 .map((card) => (
-                    <card-squish>
-                        <CardView key={card.id} card={card} size="river" />
+                    <card-squish key={card.id}>
+                        <CardView card={card} size="river" />
                     </card-squish>
                 ))}
 
             {showDiscard ? (
-                <card-squish>
+                <card-squish key={"drop"}>
                     <CardButton
                         variant="discard"
                         onClick={() => {
@@ -212,13 +212,13 @@ function RiverView({
                     </CardButton>
                 </card-squish>
             ) : highlightType === "human_drop" ? (
-                <card-squish>
+                <card-squish key={"drop"}>
                     <CardButton variant="drop">
                         <icon>🍃</icon>
                     </CardButton>
                 </card-squish>
             ) : highlightType === "cpu_drop" ? (
-                <card-squish>
+                <card-squish key={"drop"}>
                     <CardButton variant="drop"></CardButton>
                 </card-squish>
             ) : null}
@@ -304,91 +304,81 @@ interface CapturedViewProps {
     cards: Card[];
 }
 
+function minBy<T>(items: T[], rank: (item: T) => number): T {
+    return items.reduce((best, next) =>
+        rank(next) < rank(best) ? next : best,
+    );
+}
+
 function CapturedView({ id, cards }: CapturedViewProps) {
     cards = cards.slice().sort((a, b) => a.month - b.month);
-    const brights = cards.filter((c) => c.type === "bright");
-    const animals = cards.filter((c) => c.type === "animal");
-    const ribbons = cards.filter((c) => c.type === "ribbon");
-    const junk = cards.filter((c) => c.type === "junk");
 
     const groups = [
-        { name: "Brights", type: "bright", cards: brights },
-        { name: "Animals", type: "animal", cards: animals },
-        { name: "Ribbons", type: "ribbon", cards: ribbons },
-        { name: "Junk", type: "junk", cards: junk },
-    ];
+        { name: "Brights", type: "bright" },
+        { name: "Animals", type: "animal" },
+        { name: "Ribbons", type: "ribbon" },
+        { name: "Junk", type: "junk" },
+    ]
+        .map((g) => ({ ...g, cards: cards.filter((c) => c.type === g.type) }))
+        .filter((g) => g.cards.length > 0);
 
-    const groupSizes = groups.map((g) => g.cards.length).filter((s) => s > 0);
+    type Group = (typeof groups)[number];
 
-    const groupsLength = groupSizes.length;
+    // A group occupies its card count plus 0.5 "card units" for the count label.
+    const footprint = (gs: Group[]) =>
+        gs.reduce((sum, g) => sum + g.cards.length + 0.5, 0);
 
-    const cols: number =
-        [
-            () => 0,
-            () => groupSizes[0],
-            () => Math.max(...groupSizes),
-            () =>
-                Math.min(
-                    Math.max(
-                        groupSizes[0] + 0.5 + groupSizes[1],
-                        groupSizes[2],
-                    ),
-                    Math.max(
-                        groupSizes[0],
-                        groupSizes[1] + 0.5 + groupSizes[2],
-                    ),
-                ),
-            () =>
-                Math.min(
-                    Math.max(
-                        groupSizes[0] +
-                            0.5 +
-                            groupSizes[1] +
-                            0.5 +
-                            groupSizes[2],
-                        groupSizes[3],
-                    ),
-                    Math.max(
-                        groupSizes[0] + 0.5 + groupSizes[1],
-                        groupSizes[2] + 0.5 + groupSizes[3],
-                    ),
-                    Math.max(
-                        groupSizes[0],
-                        groupSizes[1] +
-                            0.5 +
-                            groupSizes[2] +
-                            0.5 +
-                            groupSizes[3],
-                    ),
-                ),
-        ][groupsLength]() + 0.5;
+    // Distribute the groups over (up to) two rows of (up to) three columns,
+    // keeping group order. Pick the consecutive split that makes the wider row
+    // as narrow as possible, so both rows end up roughly balanced.
+    const rows: Group[][] =
+        groups.length <= 1
+            ? [groups]
+            : (() => {
+                  const splits = Array.from(
+                      { length: groups.length - 1 },
+                      (_, i) => i + 1,
+                  );
+                  const k = minBy(splits, (k) =>
+                      Math.max(
+                          footprint(groups.slice(0, k)),
+                          footprint(groups.slice(k)),
+                      ),
+                  );
+                  return [groups.slice(0, k), groups.slice(k)];
+              })();
+
+    // Width of the captured area (in card units) is the wider of the two rows.
+    const cols = Math.max(0, ...rows.map(footprint));
 
     return (
-        <>
-            <captured-view id={id} style={{ "--cols": cols }}>
-                {groups.map(
-                    (g) =>
-                        g.cards.length > 0 && (
-                            <captured-group
-                                key={g.name}
-                                data-type={g.type}
-                                style={{ "--cols": g.cards.length }}
-                            >
+        <captured-view id={id} style={{ "--cols": cols + 1 }}>
+            {rows.map((row, i) => {
+                // One Nfr column per group (cards + count label), then a slack
+                // column so the narrower row is left-aligned and every card
+                // across both rows renders at the same width.
+                const slack = cols - footprint(row);
+                const template =
+                    row.map((g) => `${g.cards.length + 0.5}fr`).join(" ") +
+                    ` ${slack}fr` +
+                    " 1fr";
+
+                return (
+                    <captured-row key={i} style={{ "--template": template }}>
+                        {row.map((g) => (
+                            <captured-group key={g.name} data-type={g.type}>
                                 <group-count>{g.cards.length}</group-count>
                                 {g.cards.map((c) => (
-                                    <card-squish>
-                                        <CardView
-                                            key={c.id}
-                                            card={c}
-                                            size="sm"
-                                        />
+                                    <card-squish key={c.id}>
+                                        <CardView card={c} size="sm" />
                                     </card-squish>
                                 ))}
                             </captured-group>
-                        ),
-                )}
-            </captured-view>
-        </>
+                        ))}
+                    </captured-row>
+                );
+            })}
+        </captured-view>
     );
 }
 
@@ -892,13 +882,86 @@ export function FlowerRivers() {
                 // the "default" config will apply to staggered elements without explicit keys
                 default: {
                     // default direction is forwards
-                    reverse: true,
+                    // reverse: true,
                     // default is .1, 0 < n < 1
                     speed: 1,
                 },
             }}
         >
             <div id="game-board">
+                {/* Yaku Choice Dialog */}
+                {phase === "YAKU_CHOICE" &&
+                    (() => {
+                        const winner = yakuPlayer;
+                        const loser = 1 - winner;
+                        const baseTotal = computeYaku(captured[winner]).total;
+                        const sevenBonus = baseTotal >= 7;
+                        const oppKoikoi = koikoiCounts[loser];
+                        const koikoiMult = Math.pow(2, oppKoikoi);
+                        const drawBonus = drawMultiplier > 1;
+                        let pts = baseTotal;
+                        if (sevenBonus) pts *= 2;
+                        pts *= koikoiMult;
+                        pts *= drawMultiplier;
+                        const hasMult =
+                            sevenBonus || oppKoikoi > 0 || drawBonus;
+                        return (
+                            <div id="yaku-dialog-overlay">
+                                <div id="yaku-dialog">
+                                    <div id="yaku-dialog-title">
+                                        {winner === 0 ? "Yaku!" : "CPU Yaku!"}
+                                    </div>
+                                    {newYaku.map((y) => (
+                                        <div key={y.name} data-row="yaku">
+                                            {y.name} — {y.points} pts
+                                        </div>
+                                    ))}
+                                    <div id="yaku-dialog-total">
+                                        Total so far: {baseTotal} pts
+                                        {sevenBonus && " × 2 (7+ bonus)"}
+                                        {oppKoikoi > 0 &&
+                                            ` × ${koikoiMult} (${winner === 0 ? "opponent" : "your"} koi-koi ×${oppKoikoi})`}
+                                        {drawBonus &&
+                                            ` × ${drawMultiplier} (draw bonus)`}
+                                        {hasMult && ` = ${pts} pts`}
+                                    </div>
+                                    <div id="yaku-dialog-buttons">
+                                        {winner === 0 ? (
+                                            <>
+                                                <button
+                                                    id="stop-button"
+                                                    onClick={() =>
+                                                        dispatch({
+                                                            type: "CALL_STOP",
+                                                        })
+                                                    }
+                                                >
+                                                    Stop
+                                                </button>
+                                                <button
+                                                    id="koikoi-button"
+                                                    disabled={
+                                                        hands[0].length == 0
+                                                    }
+                                                    onClick={() =>
+                                                        dispatch({
+                                                            type: "CALL_KOIKOI",
+                                                        })
+                                                    }
+                                                >
+                                                    Koi-Koi!
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <div id="cpu-deciding">
+                                                CPU is deciding...
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })()}
                 {/* Top Bar */}
                 <div id="top-bar">
                     <top-title>花川 - Blossom Rivers</top-title>
@@ -988,80 +1051,6 @@ export function FlowerRivers() {
 
                 {/* Status bar */}
                 <div id="status-bar">{statusText}</div>
-
-                {/* Yaku Choice Dialog */}
-                {phase === "YAKU_CHOICE" &&
-                    (() => {
-                        const winner = yakuPlayer;
-                        const loser = 1 - winner;
-                        const baseTotal = computeYaku(captured[winner]).total;
-                        const sevenBonus = baseTotal >= 7;
-                        const oppKoikoi = koikoiCounts[loser];
-                        const koikoiMult = Math.pow(2, oppKoikoi);
-                        const drawBonus = drawMultiplier > 1;
-                        let pts = baseTotal;
-                        if (sevenBonus) pts *= 2;
-                        pts *= koikoiMult;
-                        pts *= drawMultiplier;
-                        const hasMult =
-                            sevenBonus || oppKoikoi > 0 || drawBonus;
-                        return (
-                            <div id="yaku-dialog-overlay">
-                                <div id="yaku-dialog">
-                                    <div id="yaku-dialog-title">
-                                        {winner === 0 ? "Yaku!" : "CPU Yaku!"}
-                                    </div>
-                                    {newYaku.map((y) => (
-                                        <div key={y.name} data-row="yaku">
-                                            {y.name} — {y.points} pts
-                                        </div>
-                                    ))}
-                                    <div id="yaku-dialog-total">
-                                        Total so far: {baseTotal} pts
-                                        {sevenBonus && " × 2 (7+ bonus)"}
-                                        {oppKoikoi > 0 &&
-                                            ` × ${koikoiMult} (${winner === 0 ? "opponent" : "your"} koi-koi ×${oppKoikoi})`}
-                                        {drawBonus &&
-                                            ` × ${drawMultiplier} (draw bonus)`}
-                                        {hasMult && ` = ${pts} pts`}
-                                    </div>
-                                    <div id="yaku-dialog-buttons">
-                                        {winner === 0 ? (
-                                            <>
-                                                <button
-                                                    id="stop-button"
-                                                    onClick={() =>
-                                                        dispatch({
-                                                            type: "CALL_STOP",
-                                                        })
-                                                    }
-                                                >
-                                                    Stop
-                                                </button>
-                                                <button
-                                                    id="koikoi-button"
-                                                    disabled={
-                                                        hands[0].length == 0
-                                                    }
-                                                    onClick={() =>
-                                                        dispatch({
-                                                            type: "CALL_KOIKOI",
-                                                        })
-                                                    }
-                                                >
-                                                    Koi-Koi!
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <div id="cpu-deciding">
-                                                CPU is deciding...
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })()}
 
                 {/* Human Area */}
                 <div id="human-hand-row">
