@@ -7,12 +7,14 @@ declare module 'preact' {
     namespace JSX {
         interface IntrinsicElements {
             'card-view': HTMLAttributes<HTMLElement>;
+            'card-squish': HTMLAttributes<HTMLElement>;
             'river-lane': HTMLAttributes<HTMLElement>;
             'river-icon': HTMLAttributes<HTMLElement>;
             'icon': HTMLAttributes<HTMLElement>;
             'river-spacer': HTMLAttributes<HTMLElement>;
             'hand-view': HTMLAttributes<HTMLElement>;
             'captured-view': HTMLAttributes<HTMLElement>;
+            'captured-row': HTMLAttributes<HTMLElement>;
             'captured-group': HTMLAttributes<HTMLElement>;
             'captured-label': HTMLAttributes<HTMLElement>;
             'group-count': HTMLAttributes<HTMLElement>;

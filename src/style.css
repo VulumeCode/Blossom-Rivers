@@ -193,6 +193,39 @@ river-icon icon {
 }
 
 /* --- CARD VIEW --- */
+
+
+card-squish {
+    display: block;
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: var(--card-w-river);
+    height: var(--card-h-river);
+}
+
+river-lane card-squish:first-of-type {
+    flex: 1 0 var(--card-w-river);
+}
+
+card-squish card-view,
+card-squish river-icon,
+card-squish button[data-role="card-button"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+
+
+captured-group card-squish {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
+    height: var(--card-h-sm);
+}
+
+
 card-view {
     display: inline-block;
     flex-shrink: 0;
@@ -204,12 +237,8 @@ card-view[data-flipping] {
     z-index: 1001;
 }
 
-river-lane card-view:first-of-type {
-    z-index: 1002;
-}
-
-river-lane card-view[data-flipping]:first-of-type {
-    z-index: 1003;
+card-view:hover {
+    z-index: 2000;
 }
 
 card-view svg {
@@ -259,7 +288,8 @@ card-view[data-highlighted] svg {
 /* --- RIVER --- */
 river-lane {
     display: flex;
-    flex-direction: row;
+    justify-content: left;
+    flex-direction: row-reverse;
     align-items: center;
     gap: 0.8vmin;
     padding: 0.8vmin;
@@ -332,6 +362,15 @@ river-spacer {
     transform: scaleX(-1);
 }
 
+river-icon {
+    width: var(--card-w-river);
+    height: var(--card-h-river);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9000;
+}
+
 river-icon[data-highlight="capture"] {
     color: var(--color-capture);
 }
@@ -375,21 +414,28 @@ hand-view {
 
 captured-view {
     display: flex;
-    flex-direction: row;
-    gap: 0.5vmin 0;
-    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5vmin;
+    align-items: stretch;
     padding: 0.5vmin 0;
     min-height: calc((var(--card-h-sm) + 1vmin) * 2);
-    flex-wrap: wrap;
-    /* --cols is set by the component */
+    /* --cols (the wider row's width, in card units) is set by the component */
     width: calc(var(--cols, 0) * (var(--card-w-sm) + 0.5vmin));
+    max-width: 100vw;
+}
+
+captured-row {
+    display: grid;
+    /* one Nfr track per group (+ a trailing slack track), set by the component */
+    grid-template-columns: var(--template);
+    align-items: center;
+    min-height: var(--card-h-sm);
 }
 
 captured-group {
-    gap: 0.5vmin;
     display: flex;
     align-items: center;
-    flex: 0 1 auto;
+    min-width: 0;
 }
 
 group-count {
