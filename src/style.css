@@ -237,6 +237,9 @@ card-view[data-flipping] {
     z-index: 1001;
 }
 
+card-view:hover {
+    z-index: 2000;
+}
 
 card-view svg {
     width: var(--card-w);
