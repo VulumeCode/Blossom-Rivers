@@ -429,7 +429,11 @@ captured-view {
     min-height: calc((var(--card-h) + 1vmin) * 2);
     /* --cols (the wider row's width, in card units) is set by the component */
     width: calc(var(--cols, 0) * (var(--card-w) + 0.5vmin));
-    max-width: 100vw;
+    max-width: 66vw;
+
+    @media (max-aspect-ratio: 62/90) {
+        max-width: 100vw;
+    }
 }
 
 captured-row {
