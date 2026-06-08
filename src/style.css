@@ -54,18 +54,23 @@
 
     --card-ration: 1600.0/976.0;
 
-    --card-w: 7vmin;
+    --card-w-def: 7vmin;
     --card-w-sm: 4.5vmin;
     --card-w-river: 6.2vmin;
-    --card-h: calc(var(--card-w) * var(--card-ration));
+
+    --card-h-def: calc(var(--card-w-def) * var(--card-ration));
     --card-h-sm: calc(var(--card-w-sm) * var(--card-ration));
     --card-h-river: calc(var(--card-w-river) * var(--card-ration));
 
+    --card-w: var(--card-w-def);
+    --card-h: var(--card-h-def);
+
     @media (max-aspect-ratio: 62/90) {
-        --card-w: 9vmin;
+        --card-w-def: 9vmin;
         --card-w-sm: 7vmin;
         --card-w-river: 8vmin;
     }
+
 
 }
 
@@ -198,14 +203,24 @@ river-icon icon {
 card-squish {
     display: block;
     position: relative;
-    flex: 1 1 auto;
     min-width: 0;
-    max-width: var(--card-w-river);
-    height: var(--card-h-river);
+    flex: unset;
+    max-width: unset;
+    height: var(--card-h);
+}
+
+river-lane card-squish {
+    flex: 1 1 auto;
+    max-width: var(--card-w);
 }
 
 river-lane card-squish:first-of-type {
-    flex: 1 0 var(--card-w-river);
+    flex: 1 0 var(--card-w);
+}
+
+captured-group card-squish {
+    flex: 1 1 0;
+    max-width: none;
 }
 
 card-squish card-view,
@@ -214,15 +229,6 @@ card-squish button[data-role="card-button"] {
     position: absolute;
     top: 0;
     left: 0;
-}
-
-
-
-captured-group card-squish {
-    flex: 1 1 0;
-    min-width: 0;
-    max-width: none;
-    height: var(--card-h-sm);
 }
 
 
@@ -263,15 +269,6 @@ card-view svg {
     }
 }
 
-card-view[data-size="sm"] svg {
-    width: var(--card-w-sm);
-    height: var(--card-h-sm);
-}
-
-card-view[data-size="river"] svg {
-    width: var(--card-w-river);
-    height: var(--card-h-river);
-}
 
 card-view[data-clickable] {
     cursor: pointer;
@@ -286,6 +283,12 @@ card-view[data-highlighted] svg {
 }
 
 /* --- RIVER --- */
+
+river-lane {
+    --card-w: var(--card-w-river);
+    --card-h: var(--card-h-river);
+}
+
 river-lane {
     display: flex;
     justify-content: left;
@@ -293,7 +296,7 @@ river-lane {
     align-items: center;
     gap: 0.8vmin;
     padding: 0.8vmin;
-    --height: calc(var(--card-h-river) + 2*0.8vmin);
+    --height: calc(var(--card-h) + 2*0.8vmin);
     height: var(--height);
 
     outline: 0.3vmin solid var(--color-purple);
@@ -352,8 +355,8 @@ river-lane[data-highlight="cpu_drop"] {
 /* TODO remove if not used */
 river-spacer {
     display: block;
-    width: var(--card-w-river);
-    height: var(--card-h-river);
+    width: var(--card-w);
+    height: var(--card-h);
     flex-shrink: 0;
 }
 
@@ -363,8 +366,8 @@ river-spacer {
 }
 
 river-icon {
-    width: var(--card-w-river);
-    height: var(--card-h-river);
+    width: var(--card-w);
+    height: var(--card-h);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -381,8 +384,8 @@ river-icon[data-highlight="forced"] {
 
 /* --- CARD BUTTON (used inside a river) --- */
 button[data-role="card-button"] {
-    width: var(--card-w-river);
-    height: var(--card-h-river);
+    width: var(--card-w);
+    height: var(--card-h);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -413,14 +416,19 @@ hand-view {
 /* --- CAPTURED --- */
 
 captured-view {
+    --card-w: var(--card-w-sm);
+    --card-h: var(--card-h-sm);
+}
+
+captured-view {
     display: flex;
     flex-direction: column;
     gap: 0.5vmin;
     align-items: stretch;
     padding: 0.5vmin 0;
-    min-height: calc((var(--card-h-sm) + 1vmin) * 2);
+    min-height: calc((var(--card-h) + 1vmin) * 2);
     /* --cols (the wider row's width, in card units) is set by the component */
-    width: calc(var(--cols, 0) * (var(--card-w-sm) + 0.5vmin));
+    width: calc(var(--cols, 0) * (var(--card-w) + 0.5vmin));
     max-width: 100vw;
 }
 
@@ -429,7 +437,7 @@ captured-row {
     /* one Nfr track per group (+ a trailing slack track), set by the component */
     grid-template-columns: var(--template);
     align-items: center;
-    min-height: var(--card-h-sm);
+    min-height: var(--card-h);
 }
 
 captured-group {
@@ -441,7 +449,7 @@ captured-group {
 group-count {
     display: inline-block;
     font-weight: bold;
-    width: calc(var(--card-w-sm) / 2);
+    width: calc(var(--card-w) / 2);
     text-align: center;
 }
 

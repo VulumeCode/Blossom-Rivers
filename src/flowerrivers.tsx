@@ -85,15 +85,13 @@ function cpuDecideKoikoi(state: GameState): boolean {
     if (action.type === "CALL_STOP") return false;
     throw "Illegal choice";
 }
-// --- CARD COMPONENT ---
-type CardSize = "default" | "sm" | "river";
 
+// --- CARD COMPONENT ---
 interface CardViewProps {
     card: Card;
     faceDown?: boolean;
     onClick?: () => void;
     selected?: boolean;
-    size?: CardSize;
     disabled?: boolean;
     highlighted?: boolean;
     onMouseEnter?: () => void;
@@ -106,7 +104,6 @@ function CardView({
     faceDown,
     onClick,
     selected,
-    size = "default",
     disabled,
     highlighted,
     onMouseEnter,
@@ -120,7 +117,6 @@ function CardView({
         <card-view
             id={card.id}
             title={faceDown ? undefined : card.name}
-            data-size={size === "default" ? undefined : size}
             data-clickable={clickable || undefined}
             data-selected={selected || undefined}
             data-highlighted={highlighted || undefined}
@@ -196,7 +192,7 @@ function RiverView({
                 .reverse()
                 .map((card) => (
                     <card-squish key={card.id}>
-                        <CardView card={card} size="river" />
+                        <CardView card={card} />
                     </card-squish>
                 ))}
 
@@ -370,7 +366,7 @@ function CapturedView({ id, cards }: CapturedViewProps) {
                                 <group-count>{g.cards.length}</group-count>
                                 {g.cards.map((c) => (
                                     <card-squish key={c.id}>
-                                        <CardView card={c} size="sm" />
+                                        <CardView card={c} />
                                     </card-squish>
                                 ))}
                             </captured-group>
