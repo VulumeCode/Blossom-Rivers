@@ -66,8 +66,8 @@
     --card-h: var(--card-h-def);
 
     @media (max-aspect-ratio: 62/90) {
-        --card-w-def: 9vmin;
-        --card-w-sm: 7vmin;
+        --card-w-def: 11vmin;
+        --card-w-sm: 8vmin;
         --card-w-river: 8vmin;
     }
 
@@ -642,7 +642,7 @@ yaku-list {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows:
-        max-content 1fr max-content max-content 1fr;
+        4vmin 1fr max-content 4vmin 1fr;
     grid-template-areas:
         "t t"
         "ch cc"
@@ -655,7 +655,7 @@ yaku-list {
     @media (max-aspect-ratio: 62/90) {
         grid-template-columns: 1fr;
         grid-template-rows:
-            max-content 1fr 1fr max-content max-content 1fr 1fr;
+            4vmin 1fr 1.5fr min-content 4vmin 1.5fr 1fr;
         grid-template-areas:
             "t"
             "ch"
