@@ -12,21 +12,8 @@ import {
     playerName,
     TOTAL_ROUNDS,
 } from "./game";
-import {
-    type CPUPlayer,
-    playerToMove,
-    evaluateRolloutCut,
-    evaluateRolloutInv,
-    DEFAULT_OPTIONS,
-    randomizeHiddenAndCapturedCards,
-} from "../src/cpu/cpu";
-import { RandomPlayer } from "../src/cpu/random";
-import { RandomLegalPlayer } from "../src/cpu/random_legal";
+import { type CPUPlayer, evaluateRolloutSigmoidSW } from "../src/cpu/cpu";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
-import { ISMCTSPlayer } from "../src/cpu/ismcts";
-import { MOISMCTSPlayer } from "../src/cpu/mo_ismcts";
-import { ISMCTSObsPlayer } from "../src/cpu/ismcts_obs";
-import { MOISMCTSObsPlayer } from "../src/cpu/mo_ismcts_obs";
 
 // CPU players (swap freely):
 //   SimpleMCTSPlayer   (./cpu/simple_mcts)   — flat determinized MCTS, 1-deep.
@@ -36,6 +23,7 @@ import { MOISMCTSObsPlayer } from "../src/cpu/mo_ismcts_obs";
 //   MOISMCTSObsPlayer  (./cpu/mo_ismcts_obs) — MO-ISMCTS + draw-observation nodes.
 const cpu: CPUPlayer = new SimpleMCTSPlayer({
     stop_bias: true,
+    evaluateRollout: evaluateRolloutSigmoidSW,
 });
 
 // --- CPU ADAPTERS ---

@@ -282,9 +282,6 @@ export function evaluateRolloutSigmoid(state: GameState, forPlayer: number): num
         return diff === 0 ? -1 : diff / (1 + Math.abs(diff));
     }
     const roundsLeft = TOTAL_ROUNDS - state.round;
-    if (roundsLeft <= 0) {
-        throw "Not game over but rounds left"
-    }
     const mult = state.drawMultiplier;
     const totalStd = ROUND_SIGMA * Math.sqrt(mult * mult + roundsLeft - 1);
     const z = diff / totalStd;
@@ -300,9 +297,24 @@ export function evaluateRolloutSigmoidS(state: GameState, forPlayer: number): nu
         return diff === 0 ? -1 : diff / (1 + Math.abs(diff));
     }
     const roundsLeft = TOTAL_ROUNDS - state.round;
-    if (roundsLeft <= 0) {
-        throw "Not game over but rounds left"
+    const mult = state.drawMultiplier;
+    const totalStd = ROUND_SIGMA * Math.sqrt(mult * mult + roundsLeft - 1);
+    const z = diff / totalStd;
+    const cdf = 2 * normCdf(z) - 1;
+    return cdf
+}
+
+export function evaluateRolloutSigmoidSW(state: GameState, forPlayer: number): number {
+    const me = forPlayer;
+    const them = 1 - forPlayer;
+    let diff = (state.scores[me] - state.scores[them]);
+    if (diff > 0) {
+        diff = diff / (40. / state.scores[me])
     }
+    if (state.phase === "GAME_OVER") {
+        return diff === 0 ? -1 : diff / (1 + Math.abs(diff));
+    }
+    const roundsLeft = TOTAL_ROUNDS - state.round;
     const mult = state.drawMultiplier;
     const totalStd = ROUND_SIGMA * Math.sqrt(mult * mult + roundsLeft - 1);
     const z = diff / totalStd;
@@ -318,9 +330,6 @@ export function evaluateRolloutCut(state: GameState, forPlayer: number): number 
         return diff > 0 ? 1 : -1;
     }
     const roundsLeft = TOTAL_ROUNDS - state.round;
-    if (roundsLeft <= 0) {
-        throw "Not game over but rounds left"
-    }
     const mult = state.drawMultiplier;
     const totalStd = ROUND_SIGMA * Math.sqrt(mult * mult + roundsLeft - 1);
     const OPTIMISM_SIGMAS = 1; // how favourable a future swing we're willing to bank on
@@ -336,9 +345,6 @@ export function evaluateRolloutDiv(state: GameState, forPlayer: number): number 
         return diff / 70;
     }
     const roundsLeft = TOTAL_ROUNDS - state.round;
-    if (roundsLeft <= 0) {
-        throw "Not game over but rounds left"
-    }
     if (diff > 0) {
         return diff / 70;
     }
@@ -359,9 +365,6 @@ export function evaluateRolloutInv(state: GameState, forPlayer: number): number 
         return diff > 0 ? 1 / diff : -1;
     }
     const roundsLeft = TOTAL_ROUNDS - state.round;
-    if (roundsLeft <= 0) {
-        throw "Not game over but rounds left"
-    }
     const mult = state.drawMultiplier;
     const totalStd = ROUND_SIGMA * Math.sqrt(mult * mult + roundsLeft - 1);
     const OPTIMISM_SIGMAS = 1; // how favourable a future swing we're willing to bank on
