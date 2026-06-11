@@ -698,6 +698,37 @@ draw-multiplier {
     justify-content: end;
 }
 
+/* 
+#human-hand-row {
+    container-type: size;
+    container-name: human-hand-row;
+}
+
+@container human-hand-row {
+    #human-hand {
+
+
+        --card-h: 80cqh;
+        --card-w: calc(80cqh *(1./ var(--card-ration)));
+
+    }
+}
+
+#human-capture-row {
+    container-type: size;
+    container-name: human-capture-row;
+}
+
+@container human-capture-row {
+    #human-captured {
+
+
+        --card-h: 40cqh;
+        --card-w: calc(40cqh *(1./ var(--card-ration)));
+
+    }
+} */
+
 #cpu-capture-row,
 #human-capture-row {
     display: flex;

@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 
 import type { GameState } from "../src/types";
 import { gameReducer, makeInitialState } from "../src/game";
-import { type CPUPlayer, playerToMove, evaluateRolloutCut, evaluateRolloutInv, evaluateRolloutDiv, randomizeHiddenAndCapturedCards, DEFAULT_OPTIONS } from "../src/cpu/cpu";
+import { type CPUPlayer, playerToMove, evaluateRolloutCut, evaluateRolloutInv, evaluateRolloutDiv, randomizeHiddenAndCapturedCards, DEFAULT_OPTIONS, evaluateRolloutSigmoidS } from "../src/cpu/cpu";
 import { RandomPlayer } from "../src/cpu/random";
 import { RandomLegalPlayer } from "../src/cpu/random_legal";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
@@ -36,6 +36,7 @@ export const BUILDERS: Record<string, Builder> = {
     simple: () => new SimpleMCTSPlayer(),
     simplerc: () => new SimpleMCTSPlayer({ randomize: randomizeHiddenAndCapturedCards }),
     simplejb: () => new SimpleMCTSPlayer({ junk_bias: true }),
+    simplejbs40: () => new SimpleMCTSPlayer({ junk_bias: true, evaluateRollout: evaluateRolloutSigmoidS }),
     simplesb: () => new SimpleMCTSPlayer({ stop_bias: true }),
     simplercsb: () => new SimpleMCTSPlayer({ stop_bias: true, randomize: randomizeHiddenAndCapturedCards }),
     simplec: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutCut }),
