@@ -12,18 +12,22 @@ import {
     playerName,
     TOTAL_ROUNDS,
 } from "./game";
-import { type CPUPlayer, evaluateRolloutSigmoidSW } from "../src/cpu/cpu";
+import {
+    type CPUPlayer,
+    randomizeHiddenAndAllCapturedCards,
+} from "../src/cpu/cpu";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
 
-// CPU players (swap freely):
-//   SimpleMCTSPlayer   (./cpu/simple_mcts)   — flat determinized MCTS, 1-deep.
-//   ISMCTSPlayer       (./cpu/ismcts)        — SO-ISMCTS, one tree, sign-flip.
-//   MOISMCTSPlayer     (./cpu/mo_ismcts)     — MO-ISMCTS, tree-per-player.
-//   ISMCTSObsPlayer    (./cpu/ismcts_obs)    — SO-ISMCTS + draw-observation nodes.
-//   MOISMCTSObsPlayer  (./cpu/mo_ismcts_obs) — MO-ISMCTS + draw-observation nodes.
+// CPU players:
 const cpu: CPUPlayer = new SimpleMCTSPlayer({
     stop_bias: true,
-    evaluateRollout: evaluateRolloutSigmoidSW,
+    randomize: randomizeHiddenAndAllCapturedCards,
+    budget: {
+        DEALING: 8000,
+        CAPTURING: 8000,
+        FORCED_CAPTURE: 4000,
+        YAKU_CHOICE: 4000,
+    },
 });
 
 // --- CPU ADAPTERS ---
@@ -1078,3 +1082,4 @@ export function FlowerRivers() {
         </Flipper>
     );
 }
+

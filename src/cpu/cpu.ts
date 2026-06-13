@@ -1,4 +1,4 @@
-import type { Card, GameAction, GameState } from "../types";
+import type { Card, CardId, GameAction, GameState } from "../types";
 import {
     canCaptureRiver,
     gameReducer,
@@ -64,11 +64,13 @@ export function randomizeHiddenCards(
     const shuffled = shuffle(hidden);
     const oppSize = state.hands[opp].length;
     const newHands: [Card[], Card[]] = [state.hands[0], state.hands[1]];
-    newHands[opp] = shuffled.slice(0, oppSize);
+    newHands[opp] = shuffled.splice(0, oppSize);
+    const newDeck = shuffled.splice(0, state.deck.length);
+    if (shuffled.length != 0) throw "Not all cards redistributed"
     return {
         ...state,
         hands: newHands,
-        deck: shuffled.slice(oppSize),
+        deck: newDeck,
     };
 }
 
@@ -85,13 +87,158 @@ export function randomizeHiddenAndCapturedCards(
     const oppCapSize = state.captured[opp].length;
     const newHands: [Card[], Card[]] = [state.hands[0], state.hands[1]];
     const newCaptured: [Card[], Card[]] = [state.captured[0], state.captured[1]];
-    newHands[opp] = shuffled.slice(0, oppHandSize);
-    newCaptured[opp] = shuffled.slice(oppHandSize, oppHandSize + oppCapSize);
+    newHands[opp] = shuffled.splice(0, oppHandSize);
+    newCaptured[opp] = shuffled.splice(0, oppCapSize);
+    const newDeck = shuffled.splice(0, state.deck.length);
+    if (shuffled.length != 0) throw "Not all cards redistributed"
     return {
         ...state,
         hands: newHands,
         captured: newCaptured,
-        deck: shuffled.slice(oppHandSize + oppCapSize),
+        deck: newDeck,
+    };
+}
+
+
+type Category =
+    | 'animal'
+    | 'bdb'
+    | 'blue'
+    | 'bright'
+    | 'grass'
+    | 'junk'
+    | 'poetry'
+    | 'sake'
+    | 'wbright'
+    | 'wjunk'
+    | 'wribbon'
+
+const category: Record<CardId, Category> = {
+    // 1: Pine
+    '1-bright': 'bright',
+    '1-ribbon': 'poetry',
+    '1-junk-1': 'junk',
+    '1-junk-2': 'junk',
+    // 2: Plum
+    '2-animal': 'animal',
+    '2-ribbon': 'poetry',
+    '2-junk-1': 'junk',
+    '2-junk-2': 'junk',
+    // 3: Cherry
+    '3-bright': 'bright',
+    '3-ribbon': 'poetry',
+    '3-junk-1': 'junk',
+    '3-junk-2': 'junk',
+    // 4: Wisteria
+    '4-animal': 'animal',
+    '4-ribbon': 'grass',
+    '4-junk-1': 'junk',
+    '4-junk-2': 'junk',
+    // 5: Iris
+    '5-animal': 'animal',
+    '5-ribbon': 'grass',
+    '5-junk-1': 'junk',
+    '5-junk-2': 'junk',
+    // 6: Peony
+    '6-animal': 'bdb',
+    '6-ribbon': 'blue',
+    '6-junk-1': 'junk',
+    '6-junk-2': 'junk',
+    // 7: Bush Clover
+    '7-animal': 'bdb',
+    '7-ribbon': 'grass',
+    '7-junk-1': 'junk',
+    '7-junk-2': 'junk',
+    // 8: Pampas
+    '8-bright': 'bright',
+    '8-animal': 'animal',
+    '8-junk-1': 'junk',
+    '8-junk-2': 'junk',
+    // 9: Chrysanthemum
+    '9-animal': 'sake',
+    '9-ribbon': 'blue',
+    '9-junk-1': 'junk',
+    '9-junk-2': 'junk',
+    // 10: Maple
+    '10-animal': 'bdb',
+    '10-ribbon': 'blue',
+    '10-junk-1': 'junk',
+    '10-junk-2': 'junk',
+    // 11: Willow
+    '11-bright-rainman': 'wbright',
+    '11-animal': 'animal',
+    '11-ribbon': 'wribbon',
+    '11-junk-lightning': 'wjunk',
+    // 12: Paulownia
+    '12-bright': 'bright',
+    '12-junk-1': 'junk',
+    '12-junk-2': 'junk',
+    '12-junk-3': 'junk',
+}
+
+// Like randomizeHiddenCards (re-deal the opponent's hand and deck from the
+// unseen pool), but additionally swap each of fromPlayer's own captured cards
+// for a similar card — one in the same scoring category — drawn from that pool.
+// The displaced captured card returns to the pool, so every category's totals
+// are preserved while the exact identities of fromPlayer's captures are blurred.
+export function randomizeHiddenAndAllCapturedCards(
+    state: GameState,
+    fromPlayer: number,
+): GameState {
+    const opp = 1 - fromPlayer;
+
+    // Cards the searcher can't see: the deck plus the opponent's hand.
+    const hidden = shuffle([...state.deck, ...state.hands[opp], ...state.captured[opp], ...state.captured[fromPlayer]]);
+
+    // Swap each captured card for a same-category card from the hidden pool when
+    // one exists, putting the captured card back into the pool in its place.
+    const counts: Record<Category, number> = {
+        'animal': 0,
+        'bdb': 0,
+        'blue': 0,
+        'bright': 0,
+        'grass': 0,
+        'junk': 0,
+        'poetry': 0,
+        'sake': 0,
+        'wbright': 0,
+        'wjunk': 0,
+        'wribbon': 0,
+    }
+
+    for (const card of state.captured[fromPlayer]) {
+        counts[category[card.id]]++;
+    }
+
+    const restHidden: Card[] = [];
+    const newOwnCaptured: Card[] = [];
+
+    // Refill the captures with same-category cards drawn from the shuffled pool,
+    // matching the original category distribution; everything else stays hidden.
+    for (const card of hidden) {
+        const cat = category[card.id];
+        if (counts[cat] > 0) {
+            counts[cat]--;
+            newOwnCaptured.push(card);
+        } else {
+            restHidden.push(card);
+        }
+    }
+
+    const oppHandSize = state.hands[opp].length;
+    const oppCapSize = state.captured[opp].length;
+    const newHands: [Card[], Card[]] = [state.hands[0], state.hands[1]];
+    const newCaptured: [Card[], Card[]] = [state.captured[0], state.captured[1]];
+    newHands[opp] = restHidden.splice(0, oppHandSize);
+    newCaptured[opp] = restHidden.splice(0, oppCapSize);
+    newCaptured[fromPlayer] = newOwnCaptured;
+    const newDeck = restHidden.splice(0, state.deck.length);
+    if (restHidden.length != 0) throw "Not all cards redistributed"
+    return {
+        ...state,
+        hands: newHands,
+        captured: newCaptured,
+        deck: newDeck,
     };
 }
 

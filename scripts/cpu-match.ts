@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 
 import type { GameState } from "../src/types";
 import { gameReducer, makeInitialState } from "../src/game";
-import { type CPUPlayer, playerToMove, evaluateRolloutCut, evaluateRolloutInv, evaluateRolloutDiv, randomizeHiddenAndCapturedCards, evaluateRolloutSigmoidS, evaluateRolloutSigmoidSW } from "../src/cpu/cpu";
+import { type CPUPlayer, playerToMove, evaluateRolloutCut, evaluateRolloutInv, evaluateRolloutDiv, randomizeHiddenAndCapturedCards, evaluateRolloutSigmoidS, evaluateRolloutSigmoidSW, randomizeHiddenAndAllCapturedCards } from "../src/cpu/cpu";
 import { RandomPlayer } from "../src/cpu/random";
 import { RandomLegalPlayer } from "../src/cpu/random_legal";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
@@ -36,15 +36,17 @@ export const BUILDERS: Record<string, Builder> = {
     simple: () => new SimpleMCTSPlayer(),
     simplerc: () => new SimpleMCTSPlayer({ randomize: randomizeHiddenAndCapturedCards }),
     simplejb: () => new SimpleMCTSPlayer({ junk_bias: true }),
-    simplejbs: () => new SimpleMCTSPlayer({ junk_bias: true, evaluateRollout: evaluateRolloutSigmoidS }),
-    simplejbsw: () => new SimpleMCTSPlayer({ junk_bias: true, evaluateRollout: evaluateRolloutSigmoidSW }),
     simplesb: () => new SimpleMCTSPlayer({ stop_bias: true }),
     simplercsb: () => new SimpleMCTSPlayer({ stop_bias: true, randomize: randomizeHiddenAndCapturedCards }),
+    simpleracsb: () => new SimpleMCTSPlayer({ stop_bias: true, randomize: randomizeHiddenAndAllCapturedCards }),
+    simplerac: () => new SimpleMCTSPlayer({ randomize: randomizeHiddenAndAllCapturedCards }),
     simplec: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutCut }),
     simplei: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutInv }),
     simpled: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutDiv }),
     simplesbd: () => new SimpleMCTSPlayer({ stop_bias: true, evaluateRollout: evaluateRolloutDiv }),
     simplesbi: () => new SimpleMCTSPlayer({ stop_bias: true, evaluateRollout: evaluateRolloutInv }),
+    simplesbs: () => new SimpleMCTSPlayer({ stop_bias: true, evaluateRollout: evaluateRolloutSigmoidS }),
+    simplesbsw: () => new SimpleMCTSPlayer({ stop_bias: true, evaluateRollout: evaluateRolloutSigmoidSW }),
     simplebd: () => new SimpleMCTSPlayer({
         stop_bias: true, budget: {
             DEALING: 200,
