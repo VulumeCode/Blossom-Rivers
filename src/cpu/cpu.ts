@@ -53,8 +53,8 @@ export function playerToMove(state: GameState): number {
     return -1;
 }
 
-// Re-deal the opponent's hand and remaining deck from the union of unseen
-// cards. Everything visible (the searcher's hand, rivers, captures) is kept.
+
+// Re-deal the deck & the opponent's hand.
 export function randomizeHiddenCards(
     state: GameState,
     fromPlayer: number,
@@ -74,8 +74,8 @@ export function randomizeHiddenCards(
     };
 }
 
-// Re-deal the opponent's hand & captures, and remaining deck from the union of unseen
-// cards. Everything visible (the searcher's hand & captures, and rivers) is kept.
+
+// Re-deal the deck and the opponent's hand & captures.
 export function randomizeHiddenAndCapturedCards(
     state: GameState,
     fromPlayer: number,
@@ -105,6 +105,9 @@ type Category =
     | 'bdb'
     | 'blue'
     | 'bright'
+    | 'cbright'
+    | 'pbright'
+    | 'bright'
     | 'grass'
     | 'junk'
     | 'poetry'
@@ -125,7 +128,7 @@ const category: Record<CardId, Category> = {
     '2-junk-1': 'junk',
     '2-junk-2': 'junk',
     // 3: Cherry
-    '3-bright': 'bright',
+    '3-bright': 'cbright',
     '3-ribbon': 'poetry',
     '3-junk-1': 'junk',
     '3-junk-2': 'junk',
@@ -150,7 +153,7 @@ const category: Record<CardId, Category> = {
     '7-junk-1': 'junk',
     '7-junk-2': 'junk',
     // 8: Pampas
-    '8-bright': 'bright',
+    '8-bright': 'pbright',
     '8-animal': 'animal',
     '8-junk-1': 'junk',
     '8-junk-2': 'junk',
@@ -176,11 +179,8 @@ const category: Record<CardId, Category> = {
     '12-junk-3': 'junk',
 }
 
-// Like randomizeHiddenCards (re-deal the opponent's hand and deck from the
-// unseen pool), but additionally swap each of fromPlayer's own captured cards
-// for a similar card — one in the same scoring category — drawn from that pool.
-// The displaced captured card returns to the pool, so every category's totals
-// are preserved while the exact identities of fromPlayer's captures are blurred.
+
+// Re-deal the deck, the opponent's hand & captures, and blur own captures.
 export function randomizeHiddenAndAllCapturedCards(
     state: GameState,
     fromPlayer: number,
@@ -197,6 +197,8 @@ export function randomizeHiddenAndAllCapturedCards(
         'bdb': 0,
         'blue': 0,
         'bright': 0,
+        'cbright': 0,
+        'pbright': 0,
         'grass': 0,
         'junk': 0,
         'poetry': 0,
