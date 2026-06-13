@@ -435,11 +435,7 @@ export function FlowerRivers() {
     useEffect(() => {
         if (phase !== "DEALING" || drawnCard) return;
         console.log("DEALING");
-        const delay = isHumanDealer ? 0 : 0;
-        const timer = setTimeout(() => {
-            dispatch({ type: "DRAW_CARD" });
-        }, delay);
-        return () => clearTimeout(timer);
+        dispatch({ type: "DRAW_CARD" });
     }, [phase, ping]);
 
     // CPU dealing: drop drawn cards
