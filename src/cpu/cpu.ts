@@ -107,7 +107,6 @@ type Category =
     | 'bright'
     | 'cbright'
     | 'pbright'
-    | 'bright'
     | 'grass'
     | 'junk'
     | 'poetry'
@@ -190,26 +189,11 @@ export function randomizeHiddenAndAllCapturedCards(
     // Cards the searcher can't see: the deck plus the opponent's hand.
     const hidden = shuffle([...state.deck, ...state.hands[opp], ...state.captured[opp], ...state.captured[fromPlayer]]);
 
-    // Swap each captured card for a same-category card from the hidden pool when
-    // one exists, putting the captured card back into the pool in its place.
-    const counts: Record<Category, number> = {
-        'animal': 0,
-        'bdb': 0,
-        'blue': 0,
-        'bright': 0,
-        'cbright': 0,
-        'pbright': 0,
-        'grass': 0,
-        'junk': 0,
-        'poetry': 0,
-        'sake': 0,
-        'wbright': 0,
-        'wjunk': 0,
-        'wribbon': 0,
-    }
-
+    // Per-category demand for the captures we're blurring.
+    const counts = new Map<Category, number>();
     for (const card of state.captured[fromPlayer]) {
-        counts[category[card.id]]++;
+        const cat = category[card.id];
+        counts.set(cat, (counts.get(cat) ?? 0) + 1);
     }
 
     const restHidden: Card[] = [];
@@ -219,8 +203,8 @@ export function randomizeHiddenAndAllCapturedCards(
     // matching the original category distribution; everything else stays hidden.
     for (const card of hidden) {
         const cat = category[card.id];
-        if (counts[cat] > 0) {
-            counts[cat]--;
+        if ((counts.get(cat) ?? 0) > 0) {
+            counts.set(cat, counts.get(cat)! - 1);
             newOwnCaptured.push(card);
         } else {
             restHidden.push(card);
@@ -233,6 +217,67 @@ export function randomizeHiddenAndAllCapturedCards(
     const newCaptured: [Card[], Card[]] = [state.captured[0], state.captured[1]];
     newHands[opp] = restHidden.splice(0, oppHandSize);
     newCaptured[opp] = restHidden.splice(0, oppCapSize);
+    newCaptured[fromPlayer] = newOwnCaptured;
+    const newDeck = restHidden.splice(0, state.deck.length);
+    if (restHidden.length != 0) throw "Not all cards redistributed"
+    return {
+        ...state,
+        hands: newHands,
+        captured: newCaptured,
+        deck: newDeck,
+    };
+}
+
+// Re-deal the deck & the opponent's hand, and blur both captures.
+export function randomizeHiddenAndBothCapturedCards(
+    state: GameState,
+    fromPlayer: number,
+): GameState {
+    const opp = 1 - fromPlayer;
+
+    const hidden = shuffle([
+        ...state.deck,
+        ...state.hands[opp],
+        ...state.captured[opp],
+        ...state.captured[fromPlayer],
+    ]);
+
+    // Per-category demand for each capture pile.
+    const ownCounts = new Map<Category, number>();
+    const oppCounts = new Map<Category, number>();
+    for (const card of state.captured[fromPlayer]) {
+        const cat = category[card.id];
+        ownCounts.set(cat, (ownCounts.get(cat) ?? 0) + 1);
+    }
+    for (const card of state.captured[opp]) {
+        const cat = category[card.id];
+        oppCounts.set(cat, (oppCounts.get(cat) ?? 0) + 1);
+    }
+
+    const restHidden: Card[] = [];
+    const newOwnCaptured: Card[] = [];
+    const newOppCaptured: Card[] = [];
+
+    // Fill each pile with same-category cards from the shuffled pool, own first;
+    // everything left over stays hidden (to become the opp's hand and the deck).
+    for (const card of hidden) {
+        const cat = category[card.id];
+        if ((ownCounts.get(cat) ?? 0) > 0) {
+            ownCounts.set(cat, ownCounts.get(cat)! - 1);
+            newOwnCaptured.push(card);
+        } else if ((oppCounts.get(cat) ?? 0) > 0) {
+            oppCounts.set(cat, oppCounts.get(cat)! - 1);
+            newOppCaptured.push(card);
+        } else {
+            restHidden.push(card);
+        }
+    }
+
+    const oppHandSize = state.hands[opp].length;
+    const newHands: [Card[], Card[]] = [state.hands[0], state.hands[1]];
+    const newCaptured: [Card[], Card[]] = [state.captured[0], state.captured[1]];
+    newHands[opp] = restHidden.splice(0, oppHandSize);
+    newCaptured[opp] = newOppCaptured;
     newCaptured[fromPlayer] = newOwnCaptured;
     const newDeck = restHidden.splice(0, state.deck.length);
     if (restHidden.length != 0) throw "Not all cards redistributed"
