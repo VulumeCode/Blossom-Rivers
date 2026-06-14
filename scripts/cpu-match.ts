@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 
 import type { GameState } from "../src/types";
 import { gameReducer, makeInitialState } from "../src/game";
-import { type CPUPlayer, playerToMove, evaluateRolloutCut, evaluateRolloutInv, evaluateRolloutDiv, randomizeHiddenAndCapturedCards, evaluateRolloutSigmoidS, evaluateRolloutSigmoidSW, randomizeHiddenAndAllCapturedCards } from "../src/cpu/cpu";
+import { type CPUPlayer, playerToMove, evaluateRolloutCut, evaluateRolloutInv, evaluateRolloutDiv, randomizeRedealOppCaptures, evaluateRolloutSigmoidS, evaluateRolloutSigmoidSW, randomizeRedealOppBlurOwnCaptures } from "../src/cpu/cpu";
 import { RandomPlayer } from "../src/cpu/random";
 import { RandomLegalPlayer } from "../src/cpu/random_legal";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
@@ -34,12 +34,12 @@ export const BUILDERS: Record<string, Builder> = {
     randomsb: () => new RandomPlayer({ stop_bias: true }),
     randomL: () => new RandomLegalPlayer(),
     simple: () => new SimpleMCTSPlayer(),
-    simplerc: () => new SimpleMCTSPlayer({ randomize: randomizeHiddenAndCapturedCards }),
+    simplerc: () => new SimpleMCTSPlayer({ randomize: randomizeRedealOppCaptures }),
     simplejb: () => new SimpleMCTSPlayer({ junk_bias: true }),
     simplesb: () => new SimpleMCTSPlayer({ stop_bias: true }),
-    simplercsb: () => new SimpleMCTSPlayer({ stop_bias: true, randomize: randomizeHiddenAndCapturedCards }),
-    simpleracsb: () => new SimpleMCTSPlayer({ stop_bias: true, randomize: randomizeHiddenAndAllCapturedCards }),
-    simplerac: () => new SimpleMCTSPlayer({ randomize: randomizeHiddenAndAllCapturedCards }),
+    simplercsb: () => new SimpleMCTSPlayer({ stop_bias: true, randomize: randomizeRedealOppCaptures }),
+    simpleracsb: () => new SimpleMCTSPlayer({ stop_bias: true, randomize: randomizeRedealOppBlurOwnCaptures }),
+    simplerac: () => new SimpleMCTSPlayer({ randomize: randomizeRedealOppBlurOwnCaptures }),
     simplec: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutCut }),
     simplei: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutInv }),
     simpled: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutDiv }),

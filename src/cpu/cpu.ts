@@ -36,7 +36,7 @@ export const DEFAULT_BUDGET: CPUBudget = {
 export const DEFAULT_OPTIONS = {
     stop_bias: false,
     junk_bias: false,
-    randomize: randomizeHiddenCards,
+    randomize: randomizeHidden,
     budget: DEFAULT_BUDGET,
     evaluateRollout: evaluateRolloutSigmoid
 };
@@ -55,7 +55,7 @@ export function playerToMove(state: GameState): number {
 
 
 // Re-deal the deck & the opponent's hand.
-export function randomizeHiddenCards(
+export function randomizeHidden(
     state: GameState,
     fromPlayer: number,
 ): GameState {
@@ -76,7 +76,7 @@ export function randomizeHiddenCards(
 
 
 // Re-deal the deck and the opponent's hand & captures.
-export function randomizeHiddenAndCapturedCards(
+export function randomizeRedealOppCaptures(
     state: GameState,
     fromPlayer: number,
 ): GameState {
@@ -180,7 +180,7 @@ const category: Record<CardId, Category> = {
 
 
 // Re-deal the deck, the opponent's hand & captures, and blur own captures.
-export function randomizeHiddenAndAllCapturedCards(
+export function randomizeRedealOppBlurOwnCaptures(
     state: GameState,
     fromPlayer: number,
 ): GameState {
@@ -229,7 +229,7 @@ export function randomizeHiddenAndAllCapturedCards(
 }
 
 // Re-deal the deck & the opponent's hand, and blur both captures.
-export function randomizeHiddenAndBothCapturedCards(
+export function randomizeBlurBothCaptures(
     state: GameState,
     fromPlayer: number,
 ): GameState {
