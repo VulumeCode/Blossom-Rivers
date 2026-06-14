@@ -150,24 +150,37 @@ class RatingStore {
 
 // --- Pairing ----------------------------------------------------------------
 
-// Pick A at random, then the opponent maximising predictDraw vs A.
+// Weighted (roulette-wheel) pick. Falls back to a uniform pick if the weights
+// collapse to ~0.
+function weightedPick(items: string[], weights: number[]): string {
+    let total = 0;
+    for (const w of weights) total += w;
+    let target = Math.random() * total;
+    for (let i = 0; i < items.length; i++) {
+        target -= weights[i];
+        if (target <= 0) return items[i];
+    }
+    return items[Math.floor(Math.random() * items.length)];
+}
+
+// Pick A weighted inversely by games played (so under-played bots get matched
+// sooner), then sample the opponent B with probability proportional to
+// predictDraw vs A — closely-matched bots (the most informative games) are
+// favoured, but every opponent keeps a non-zero chance, so the pairing explores.
 function selectPair(store: RatingStore, names: string[]): [string, string] {
-    const a = names[Math.floor(Math.random() * names.length)];
+    const a = weightedPick(
+        names,
+        names.map((n) => 1 / (store.get(n).games + 1)),
+    );
     const ra = store.get(a);
     const teamA = [{ mu: ra.mu, sigma: ra.sigma }];
 
-    let bestB = "";
-    let bestDraw = -Infinity;
-    for (const b of names) {
-        if (b === a) continue;
+    const candidates = names.filter((b) => b !== a);
+    const weights = candidates.map((b) => {
         const rb = store.get(b);
-        const draw = predictDraw([teamA, [{ mu: rb.mu, sigma: rb.sigma }]]);
-        if (draw > bestDraw) {
-            bestDraw = draw;
-            bestB = b;
-        }
-    }
-    return [a, bestB];
+        return predictDraw([teamA, [{ mu: rb.mu, sigma: rb.sigma }]]);
+    });
+    return [a, weightedPick(candidates, weights)];
 }
 
 // --- Output -----------------------------------------------------------------
