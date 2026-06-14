@@ -9,7 +9,8 @@
     "preview": "vite preview --host",
     "test": "vitest",
     "setup": "node scripts/download-cards.mjs",
-    "cpu-match": "vite-node scripts/cpu-match.ts"
+    "cpu-match": "vite-node scripts/cpu-match.ts",
+    "cpu-rank": "vite-node scripts/cpu-rank.ts"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.5",
@@ -23,6 +24,7 @@
     "vitest": "^2.1.4"
   },
   "dependencies": {
+    "openskill": "^5.0.1",
     "preact": "^10.29.1",
     "react-flip-toolkit": "^7.2.4"
   }
