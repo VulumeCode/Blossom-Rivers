@@ -562,5 +562,6 @@ export function evaluateRolloutInv(state: GameState, forPlayer: number): number 
     const mult = state.drawMultiplier;
     const totalStd = ROUND_SIGMA * Math.sqrt(mult * mult + roundsLeft - 1);
     const OPTIMISM_SIGMAS = 1; // how favourable a future swing we're willing to bank on
-    return diff + OPTIMISM_SIGMAS * totalStd > 0 ? 1 / diff : -1;
+    const optDiff = diff + OPTIMISM_SIGMAS * totalStd;
+    return optDiff > 0 ? 1 / optDiff : -1;
 }
