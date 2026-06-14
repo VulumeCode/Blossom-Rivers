@@ -34,7 +34,7 @@ export const DEFAULT_BUDGET: CPUBudget = {
 
 
 export const DEFAULT_OPTIONS = {
-    stop_bias: false,
+    stop_bias: true,
     junk_bias: false,
     randomize: randomizeHidden,
     budget: DEFAULT_BUDGET,

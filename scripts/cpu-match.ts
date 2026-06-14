@@ -30,26 +30,26 @@ import { MOISMCTSObsPlayer } from "../src/cpu/mo_ismcts_obs";
 type Builder = () => CPUPlayer;
 
 export const BUILDERS: Record<string, Builder> = {
-    random: () => new RandomPlayer(),
-    randomsb: () => new RandomPlayer({ stop_bias: true }),
+    random: () => new RandomPlayer({ stop_bias: false }),
+    randomsb: () => new RandomPlayer(),
     randomL: () => new RandomLegalPlayer(),
-    simple: () => new SimpleMCTSPlayer(),
-    simplerc: () => new SimpleMCTSPlayer({ stop_bias: true, randomize: randomizeRedealOppCaptures }),
-    simpleblur: () => new SimpleMCTSPlayer({ stop_bias: true, randomize: randomizeBlurBothCaptures }),
+    simple: () => new SimpleMCTSPlayer({ stop_bias: false }),
+    simplesb: () => new SimpleMCTSPlayer(),
+    simpleblur: () => new SimpleMCTSPlayer({ randomize: randomizeBlurBothCaptures }),
     simplejb: () => new SimpleMCTSPlayer({ junk_bias: true }),
-    simplesb: () => new SimpleMCTSPlayer({ stop_bias: true }),
-    simplercsb: () => new SimpleMCTSPlayer({ stop_bias: true, randomize: randomizeRedealOppCaptures }),
-    simpleracsb: () => new SimpleMCTSPlayer({ stop_bias: true, randomize: randomizeRedealOppBlurOwnCaptures }),
-    simplerac: () => new SimpleMCTSPlayer({ randomize: randomizeRedealOppBlurOwnCaptures }),
+    simplerc: () => new SimpleMCTSPlayer({ stop_bias: false, randomize: randomizeRedealOppCaptures }),
+    simplercsb: () => new SimpleMCTSPlayer({ randomize: randomizeRedealOppCaptures }),
+    simplerac: () => new SimpleMCTSPlayer({ stop_bias: false, randomize: randomizeRedealOppBlurOwnCaptures }),
+    simpleracsb: () => new SimpleMCTSPlayer({ randomize: randomizeRedealOppBlurOwnCaptures }),
     simplec: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutCut }),
-    simplei: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutInv }),
-    simpled: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutDiv }),
-    simplesbd: () => new SimpleMCTSPlayer({ stop_bias: true, evaluateRollout: evaluateRolloutDiv }),
-    simplesbi: () => new SimpleMCTSPlayer({ stop_bias: true, evaluateRollout: evaluateRolloutInv }),
-    simplesbs: () => new SimpleMCTSPlayer({ stop_bias: true, evaluateRollout: evaluateRolloutSigmoidS }),
-    simplesbsw: () => new SimpleMCTSPlayer({ stop_bias: true, evaluateRollout: evaluateRolloutSigmoidSW }),
+    simpled: () => new SimpleMCTSPlayer({ stop_bias: false, evaluateRollout: evaluateRolloutDiv }),
+    simplesbd: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutDiv }),
+    simplei: () => new SimpleMCTSPlayer({ stop_bias: false, evaluateRollout: evaluateRolloutInv }),
+    simplesbi: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutInv }),
+    simplesbs: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutSigmoidS }),
+    simplesbsw: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutSigmoidSW }),
     simplebd: () => new SimpleMCTSPlayer({
-        stop_bias: true, budget: {
+        budget: {
             DEALING: 200,
             CAPTURING: 4000,
             FORCED_CAPTURE: 2000,
@@ -58,8 +58,8 @@ export const BUILDERS: Record<string, Builder> = {
     }),
     sois: () => new ISMCTSPlayer(),
     mois: () => new MOISMCTSPlayer(),
-    soisobs: () => new ISMCTSObsPlayer(),
-    soisobssb: () => new ISMCTSObsPlayer({ stop_bias: true }),
+    soisobs: () => new ISMCTSObsPlayer({ stop_bias: false }),
+    soisobssb: () => new ISMCTSObsPlayer(),
     moisobs: () => new MOISMCTSObsPlayer(),
 };
 
