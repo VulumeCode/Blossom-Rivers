@@ -14,15 +14,16 @@ import {
 } from "./game";
 import {
     type CPUPlayer,
+    evaluateRolloutInv,
     randomizeBlurBothCaptures,
     randomizeRedealOppBlurOwnCaptures,
+    randomizeRedealOppCaptures,
 } from "../src/cpu/cpu";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
 
 // CPU players:
 const cpu: CPUPlayer = new SimpleMCTSPlayer({
-    stop_bias: true,
-    randomize: randomizeBlurBothCaptures,
+    randomize: randomizeRedealOppCaptures,
     budget: {
         DEALING: 4000,
         CAPTURING: 8000,
