@@ -1,0 +1,15 @@
+Bot ranking — 4574 games played, 13 bots
+
+   1. simplesb     ord=  27.89  mu= 32.51  sigma= 1.54  W-L-T=  586-382-0  (968)
+   2. simpleblur   ord=  26.34  mu= 30.91  sigma= 1.52  W-L-T=  591-509-0  (1100)
+   3. simplesbsw   ord=  25.94  mu= 30.77  sigma= 1.61  W-L-T=  395-302-0  (697)
+   4. simplesbs    ord=  25.58  mu= 30.45  sigma= 1.62  W-L-T=  301-236-0  (537)
+   5. simpleblursw ord=  23.58  mu= 29.38  sigma= 1.93  W-L-T=  257-209-0  (466)
+   6. simpleracsb  ord=  23.41  mu= 27.98  sigma= 1.52  W-L-T=  594-558-0  (1152)
+   7. simpleracsbsw ord=  23.02  mu= 28.78  sigma= 1.92  W-L-T=  233-253-0  (486)
+   8. simplec      ord=  22.97  mu= 27.83  sigma= 1.62  W-L-T=  299-294-0  (593)
+   9. simplercsb   ord=  22.11  mu= 26.73  sigma= 1.54  W-L-T=  500-506-1  (1007)
+  10. simplesbd    ord=  20.92  mu= 25.70  sigma= 1.59  W-L-T=  302-326-1  (629)
+  11. simplercsbsw ord=  19.99  mu= 25.82  sigma= 1.94  W-L-T=  217-249-0  (466)
+  12. simplesbi    ord=  16.56  mu= 23.34  sigma= 2.26  W-L-T=  138-184-1  (323)
+  13. randomsb     ord=   5.59  mu= 11.02  sigma= 1.81  W-L-T=  280-441-3  (724)
