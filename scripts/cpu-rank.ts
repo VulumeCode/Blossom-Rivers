@@ -19,11 +19,37 @@
 
 import { Worker } from "node:worker_threads";
 import { createRequire } from "node:module";
+import { appendFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { ordinal, predictDraw, rate, rating } from "openskill";
 import { BUILDERS } from "./builders";
+
+const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
+const LOG_PATH = path.resolve(SCRIPT_DIR, "cpu-rank.log");
+
+// Append a timestamped stack trace to the log file (and stderr). Used by the
+// uncaught-exception / worker-death handlers so failures are never swallowed.
+function logErr(where: string, err: unknown): void {
+    const detail = err instanceof Error ? (err.stack ?? err.message) : String(err);
+    const line = `[${new Date().toISOString()}] [main] ${where}\n${detail}\n\n`;
+    try {
+        appendFileSync(LOG_PATH, line);
+    } catch {
+        // Logging must never itself crash the process.
+    }
+    process.stderr.write(line);
+}
+
+process.on("uncaughtException", (err) => {
+    logErr("uncaughtException", err);
+    process.exit(1);
+});
+process.on("unhandledRejection", (err) => {
+    logErr("unhandledRejection", err);
+    process.exit(1);
+});
 
 // node:sqlite is too new for vite-node's builtin list, so importing it as an ES
 // module makes vite try to resolve it as a package. Pull it in via a runtime
@@ -225,8 +251,7 @@ async function main(): Promise<void> {
     const store = new RatingStore(args.db);
     store.seed(names);
 
-    const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    const workerPath = path.resolve(__dirname, "cpu-match-worker.mjs");
+    const workerPath = path.resolve(SCRIPT_DIR, "cpu-match-worker.mjs");
 
     const workers = await Promise.all(
         Array.from({ length: args.threads }, () =>
@@ -246,49 +271,95 @@ async function main(): Promise<void> {
         ),
     );
 
-    const pending = new Map<number, (r: GameResult) => void>();
+    let running = true;
+
+    interface Pending {
+        resolve: (r: GameResult) => void;
+        reject: (e: unknown) => void;
+        worker: Worker;
+    }
+    const pending = new Map<number, Pending>();
+    const aliveWorkers = new Set<Worker>(workers);
+
+    // Reject every game still in flight on `w` — called when a worker dies so
+    // the awaiting pump unblocks (and logs) instead of hanging forever.
+    const failWorkerPending = (w: Worker, err: unknown) => {
+        for (const [id, p] of pending) {
+            if (p.worker === w) {
+                pending.delete(id);
+                p.reject(err);
+            }
+        }
+    };
+
     for (const w of workers) {
-        w.on("message", (msg: { type: string; id: number; result: GameResult }) => {
+        w.on("message", (msg: { type: string; id: number; result: GameResult; stack?: string; message?: string }) => {
             if (msg.type === "result") {
-                const cb = pending.get(msg.id);
-                if (cb) {
+                const p = pending.get(msg.id);
+                if (p) {
                     pending.delete(msg.id);
-                    cb(msg.result);
+                    p.resolve(msg.result);
                 }
+            } else if (msg.type === "error") {
+                const p = pending.get(msg.id);
+                const err = new Error(msg.message ?? "worker game error");
+                if (msg.stack) err.stack = msg.stack;
+                logErr("worker reported game error", err);
+                if (p) {
+                    pending.delete(msg.id);
+                    p.reject(err);
+                }
+            }
+        });
+        w.on("error", (err) => {
+            logErr("worker 'error' event", err);
+            failWorkerPending(w, err);
+        });
+        w.on("exit", (code) => {
+            aliveWorkers.delete(w);
+            if (running && code !== 0) {
+                const err = new Error(`worker exited unexpectedly with code ${code}`);
+                logErr("worker 'exit' event", err);
+                failWorkerPending(w, err);
             }
         });
     }
 
-    let running = true;
     let total = store.leaderboard(names).reduce((s, r) => s + r.games, 0) / 2;
     let nextId = 0;
 
-    // Play a single game on `w` and resolve with its result.
+    // Play a single game on `w`; rejects if the worker dies mid-game.
     const playOne = (w: Worker, p0: string, p1: string, g: number) =>
-        new Promise<GameResult>((resolve) => {
+        new Promise<GameResult>((resolve, reject) => {
             const id = nextId++;
-            pending.set(id, resolve);
+            pending.set(id, { resolve, reject, worker: w });
             w.postMessage({ type: "game", id, g, args: { p0, p1, swap: true } });
         });
 
     // Keep a worker busy: pick a pairing, play `matches` games, record the win
-    // counts as scores, reprint, repeat.
+    // counts as scores, reprint, repeat. A failed game is logged and its pairing
+    // abandoned; if the worker itself died, the loop exits cleanly.
     const pump = async (w: Worker): Promise<void> => {
-        while (running) {
+        while (running && aliveWorkers.has(w)) {
             const [a, b] = selectPair(store, names);
             let winsA = 0, winsB = 0, ties = 0;
-            for (let m = 0; m < args.matches && running; m++) {
-                // Randomise seat and opening turn so neither bot gets a fixed edge.
-                const aIsP0 = Math.random() < 0.5;
-                const p0 = aIsP0 ? a : b;
-                const p1 = aIsP0 ? b : a;
-                const g = Math.random() < 0.5 ? 1 : 0; // worker: p0Starts = swap && g%2===1
-                const r = await playOne(w, p0, p1, g);
-                const sA = aIsP0 ? r.s0 : r.s1;
-                const sB = aIsP0 ? r.s1 : r.s0;
-                if (sA > sB) winsA++;
-                else if (sB > sA) winsB++;
-                else ties++;
+            try {
+                for (let m = 0; m < args.matches && running; m++) {
+                    // Randomise seat & opening turn so neither bot gets a fixed edge.
+                    const aIsP0 = Math.random() < 0.5;
+                    const p0 = aIsP0 ? a : b;
+                    const p1 = aIsP0 ? b : a;
+                    const g = Math.random() < 0.5 ? 1 : 0; // worker: p0Starts = swap && g%2===1
+                    const r = await playOne(w, p0, p1, g);
+                    const sA = aIsP0 ? r.s0 : r.s1;
+                    const sB = aIsP0 ? r.s1 : r.s0;
+                    if (sA > sB) winsA++;
+                    else if (sB > sA) winsB++;
+                    else ties++;
+                }
+            } catch (err) {
+                logErr(`pairing ${a} vs ${b}`, err);
+                continue; // abandon this pairing; loop re-checks running & alive
             }
             if (winsA + winsB + ties === 0) break; // stopped before any game ran
             store.record(a, b, winsA, winsB, ties);
@@ -314,10 +385,10 @@ async function main(): Promise<void> {
     process.on("SIGTERM", shutdown);
 
     printLeaderboard(store, names, total);
-    for (const w of workers) pump(w).catch((err) => console.error(err));
+    for (const w of workers) pump(w).catch((err) => logErr("pump loop", err));
 }
 
 main().catch((err) => {
-    console.error(err);
+    logErr("main", err);
     process.exit(1);
 });
