@@ -14,6 +14,7 @@ import {
 } from "./game";
 import {
     type CPUPlayer,
+    randomizeBlurBothCaptures,
     randomizeRedealOppBlurOwnCaptures,
 } from "../src/cpu/cpu";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
@@ -21,9 +22,9 @@ import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
 // CPU players:
 const cpu: CPUPlayer = new SimpleMCTSPlayer({
     stop_bias: true,
-    randomize: randomizeRedealOppBlurOwnCaptures,
+    randomize: randomizeBlurBothCaptures,
     budget: {
-        DEALING: 8000,
+        DEALING: 4000,
         CAPTURING: 8000,
         FORCED_CAPTURE: 4000,
         YAKU_CHOICE: 4000,

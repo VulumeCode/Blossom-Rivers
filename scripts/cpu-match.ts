@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 
 import type { GameState } from "../src/types";
 import { gameReducer, makeInitialState } from "../src/game";
-import { type CPUPlayer, playerToMove, evaluateRolloutCut, evaluateRolloutInv, evaluateRolloutDiv, randomizeRedealOppCaptures, evaluateRolloutSigmoidS, evaluateRolloutSigmoidSW, randomizeRedealOppBlurOwnCaptures } from "../src/cpu/cpu";
+import { type CPUPlayer, playerToMove, evaluateRolloutCut, evaluateRolloutInv, evaluateRolloutDiv, randomizeRedealOppCaptures, evaluateRolloutSigmoidS, evaluateRolloutSigmoidSW, randomizeRedealOppBlurOwnCaptures, randomizeBlurBothCaptures, randomizeHidden } from "../src/cpu/cpu";
 import { RandomPlayer } from "../src/cpu/random";
 import { RandomLegalPlayer } from "../src/cpu/random_legal";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
@@ -34,7 +34,8 @@ export const BUILDERS: Record<string, Builder> = {
     randomsb: () => new RandomPlayer({ stop_bias: true }),
     randomL: () => new RandomLegalPlayer(),
     simple: () => new SimpleMCTSPlayer(),
-    simplerc: () => new SimpleMCTSPlayer({ randomize: randomizeRedealOppCaptures }),
+    simplerc: () => new SimpleMCTSPlayer({ stop_bias: true, randomize: randomizeRedealOppCaptures }),
+    simpleblur: () => new SimpleMCTSPlayer({ stop_bias: true, randomize: randomizeBlurBothCaptures }),
     simplejb: () => new SimpleMCTSPlayer({ junk_bias: true }),
     simplesb: () => new SimpleMCTSPlayer({ stop_bias: true }),
     simplercsb: () => new SimpleMCTSPlayer({ stop_bias: true, randomize: randomizeRedealOppCaptures }),
