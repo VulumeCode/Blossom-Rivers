@@ -75,7 +75,7 @@ export function randomizeHidden(
 }
 
 
-// Re-deal the deck and the opponent's hand & captures.
+// Re-deal the deck and the opponent's hand & captures. simplercsb
 export function randomizeRedealOppCaptures(
     state: GameState,
     fromPlayer: number,
@@ -179,7 +179,7 @@ const category: Record<CardId, Category> = {
 }
 
 
-// Re-deal the deck, the opponent's hand & captures, and blur own captures.
+// Re-deal the deck, the opponent's hand & captures, and blur own captures. simpleracsb
 export function randomizeRedealOppBlurOwnCaptures(
     state: GameState,
     fromPlayer: number,
@@ -228,7 +228,7 @@ export function randomizeRedealOppBlurOwnCaptures(
     };
 }
 
-// Re-deal the deck & the opponent's hand, and blur both captures.
+// Re-deal the deck & the opponent's hand, and blur both captures. simpleblur
 export function randomizeBlurBothCaptures(
     state: GameState,
     fromPlayer: number,

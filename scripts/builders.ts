@@ -26,35 +26,36 @@ import { MOISMCTSObsPlayer } from "../src/cpu/mo_ismcts_obs";
 export type Builder = () => CPUPlayer;
 
 export const BUILDERS: Record<string, Builder> = {
-    random: () => new RandomPlayer({ stop_bias: false }),
     randomsb: () => new RandomPlayer(),
-    randomL: () => new RandomLegalPlayer(),
-    simple: () => new SimpleMCTSPlayer({ stop_bias: false }),
     simplesb: () => new SimpleMCTSPlayer(),
     simpleblur: () => new SimpleMCTSPlayer({ randomize: randomizeBlurBothCaptures }),
-    simplejb: () => new SimpleMCTSPlayer({ junk_bias: true }),
-    simplerc: () => new SimpleMCTSPlayer({ stop_bias: false, randomize: randomizeRedealOppCaptures }),
+    // simplejb: () => new SimpleMCTSPlayer({ junk_bias: true }),
     simplercsb: () => new SimpleMCTSPlayer({ randomize: randomizeRedealOppCaptures }),
-    simplerac: () => new SimpleMCTSPlayer({ stop_bias: false, randomize: randomizeRedealOppBlurOwnCaptures }),
     simpleracsb: () => new SimpleMCTSPlayer({ randomize: randomizeRedealOppBlurOwnCaptures }),
-    simplec: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutCut }),
-    simpled: () => new SimpleMCTSPlayer({ stop_bias: false, evaluateRollout: evaluateRolloutDiv }),
-    simplesbd: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutDiv }),
-    simplei: () => new SimpleMCTSPlayer({ stop_bias: false, evaluateRollout: evaluateRolloutInv }),
-    simplesbi: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutInv }),
-    simplesbs: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutSigmoidS }),
-    simplesbsw: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutSigmoidSW }),
-    simplebd: () => new SimpleMCTSPlayer({
-        budget: {
-            DEALING: 200,
-            CAPTURING: 4000,
-            FORCED_CAPTURE: 2000,
-            YAKU_CHOICE: 20000,
-        }
-    }),
-    sois: () => new ISMCTSPlayer(),
-    mois: () => new MOISMCTSPlayer(),
-    soisobs: () => new ISMCTSObsPlayer({ stop_bias: false }),
-    soisobssb: () => new ISMCTSObsPlayer(),
-    moisobs: () => new MOISMCTSObsPlayer(),
+
+    // // random: () => new RandomPlayer({ stop_bias: false }),
+    // // randomL: () => new RandomLegalPlayer(),
+    // // simple: () => new SimpleMCTSPlayer({ stop_bias: false }),
+    // // simplerc: () => new SimpleMCTSPlayer({ stop_bias: false, randomize: randomizeRedealOppCaptures }),
+    // // simplerac: () => new SimpleMCTSPlayer({ stop_bias: false, randomize: randomizeRedealOppBlurOwnCaptures }),
+    // simplec: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutCut }),
+    // // simpled: () => new SimpleMCTSPlayer({ stop_bias: false, evaluateRollout: evaluateRolloutDiv }),
+    // simplesbd: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutDiv }),
+    // // simplei: () => new SimpleMCTSPlayer({ stop_bias: false, evaluateRollout: evaluateRolloutInv }),
+    // simplesbi: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutInv }),
+    // simplesbs: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutSigmoidS }),
+    // simplesbsw: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutSigmoidSW }),
+    // simplebd: () => new SimpleMCTSPlayer({
+    //     budget: {
+    //         DEALING: 200,
+    //         CAPTURING: 4000,
+    //         FORCED_CAPTURE: 2000,
+    //         YAKU_CHOICE: 20000,
+    //     }
+    // }),
+    // sois: () => new ISMCTSPlayer(),
+    // mois: () => new MOISMCTSPlayer(),
+    // soisobs: () => new ISMCTSObsPlayer({ stop_bias: false }),
+    // soisobssb: () => new ISMCTSObsPlayer(),
+    // moisobs: () => new MOISMCTSObsPlayer(),
 };

@@ -35,20 +35,23 @@ const DEFAULT = rating(); // { mu: 25, sigma: 8.333... }
 
 interface Args {
     threads: number;
+    matches: number;
     db: string;
 }
 
 function parseArgs(): Args {
     const argv = process.argv.slice(2);
-    const args: Args = { threads: 7, db: "scripts/cpu-rank.db" };
+    const args: Args = { threads: 7, matches: 5, db: "scripts/cpu-rank.db" };
     for (let i = 0; i < argv.length; i++) {
         const a = argv[i];
         if (a === "--threads" || a === "-j") args.threads = parseInt(argv[++i], 10);
+        else if (a === "--matches" || a === "-n") args.matches = parseInt(argv[++i], 10);
         else if (a === "--db") args.db = argv[++i];
         else if (a === "--help" || a === "-h") {
             process.stdout.write(
                 `Usage: vite-node scripts/cpu-rank.ts -- [opts]\n` +
-                `  --threads N   Worker threads / concurrent matches (default: 7)\n` +
+                `  --threads N   Worker threads / concurrent pairings (default: 7)\n` +
+                `  --matches N   Games per pairing (default: 4)\n` +
                 `  --db PATH     SQLite file (default: scripts/cpu-rank.db)\n`,
             );
             process.exit(0);
@@ -96,7 +99,7 @@ class RatingStore {
             `SELECT name, mu, sigma, games, wins, losses, ties FROM ratings WHERE name = ?`,
         );
         this.upsert = this.db.prepare(
-            `UPDATE ratings SET mu = ?, sigma = ?, games = games + 1,
+            `UPDATE ratings SET mu = ?, sigma = ?, games = games + ?,
                  wins = wins + ?, losses = losses + ?, ties = ties + ?,
                  updated_at = ? WHERE name = ?`,
         );
@@ -114,27 +117,26 @@ class RatingStore {
         return this.selOne.get(name) as unknown as Row;
     }
 
-    // Apply one match outcome. `rank` is 1 for the winner, 2 for the loser,
-    // equal for a tie (OpenSkill: lower rank = better).
+    // Apply the outcome of a pairing of `winsA + winsB + ties` games. Ratings
+    // are updated from the win counts as scores (higher = better; OpenSkill
+    // ignores the actual points scored in the games). W-L-T tallies accumulate.
     record(
         a: string,
         b: string,
-        rankA: number,
-        rankB: number,
+        winsA: number,
+        winsB: number,
+        ties: number,
     ): void {
         const ra = this.get(a);
         const rb = this.get(b);
         const [[na], [nb]] = rate(
             [[{ mu: ra.mu, sigma: ra.sigma }], [{ mu: rb.mu, sigma: rb.sigma }]],
-            { rank: [rankA, rankB] },
+            { score: [winsA, winsB] },
         );
         const now = Date.now();
-        const wlt = (r: number) => [r === 1 ? 1 : 0, r === 2 ? 1 : 0, r !== 1 && r !== 2 ? 1 : 0] as const;
-        const tie = rankA === rankB;
-        const [wa, la] = tie ? [0, 0] : wlt(rankA);
-        const [wb, lb] = tie ? [0, 0] : wlt(rankB);
-        this.upsert.run(na.mu, na.sigma, wa, la, tie ? 1 : 0, now, a);
-        this.upsert.run(nb.mu, nb.sigma, wb, lb, tie ? 1 : 0, now, b);
+        const total = winsA + winsB + ties;
+        this.upsert.run(na.mu, na.sigma, total, winsA, winsB, ties, now, a);
+        this.upsert.run(nb.mu, nb.sigma, total, winsB, winsA, ties, now, b);
     }
 
     leaderboard(names: string[]): Row[] {
@@ -197,7 +199,7 @@ function printLeaderboard(store: RatingStore, names: string[], total: number): v
         return `  ${rank}. ${name} ord=${ord}  mu=${mu}  sigma=${sig}  W-L-T=${wlt}  (${r.games})`;
     });
     console.clear();
-    console.log(`Bot ranking — ${total} matches played, ${names.length} bots\n`);
+    console.log(`Bot ranking — ${total} games played, ${names.length} bots\n`);
     console.log(lines.join("\n"));
     console.log("\n(Ctrl+C to stop; progress is saved continuously.)");
 }
@@ -261,28 +263,38 @@ async function main(): Promise<void> {
     let total = store.leaderboard(names).reduce((s, r) => s + r.games, 0) / 2;
     let nextId = 0;
 
-    // Keep a worker busy: pick a pairing, play, record, reprint, repeat.
-    const pump = (w: Worker): void => {
-        if (!running) return;
-        const [a, b] = selectPair(store, names);
-        // Randomise seat and opening turn so neither bot gets a fixed edge.
-        const aIsP0 = Math.random() < 0.5;
-        const p0 = aIsP0 ? a : b;
-        const p1 = aIsP0 ? b : a;
-        const g = Math.random() < 0.5 ? 1 : 0; // worker: p0Starts = swap && g%2===1
-
-        const id = nextId++;
-        pending.set(id, (r) => {
-            const sA = aIsP0 ? r.s0 : r.s1;
-            const sB = aIsP0 ? r.s1 : r.s0;
-            const rankA = sA > sB ? 1 : sA < sB ? 2 : 1;
-            const rankB = sB > sA ? 1 : sB < sA ? 2 : 1;
-            store.record(a, b, rankA, rankB);
-            total++;
-            printLeaderboard(store, names, total);
-            pump(w);
+    // Play a single game on `w` and resolve with its result.
+    const playOne = (w: Worker, p0: string, p1: string, g: number) =>
+        new Promise<GameResult>((resolve) => {
+            const id = nextId++;
+            pending.set(id, resolve);
+            w.postMessage({ type: "game", id, g, args: { p0, p1, swap: true } });
         });
-        w.postMessage({ type: "game", id, g, args: { p0, p1, swap: true } });
+
+    // Keep a worker busy: pick a pairing, play `matches` games, record the win
+    // counts as scores, reprint, repeat.
+    const pump = async (w: Worker): Promise<void> => {
+        while (running) {
+            const [a, b] = selectPair(store, names);
+            let winsA = 0, winsB = 0, ties = 0;
+            for (let m = 0; m < args.matches && running; m++) {
+                // Randomise seat and opening turn so neither bot gets a fixed edge.
+                const aIsP0 = Math.random() < 0.5;
+                const p0 = aIsP0 ? a : b;
+                const p1 = aIsP0 ? b : a;
+                const g = Math.random() < 0.5 ? 1 : 0; // worker: p0Starts = swap && g%2===1
+                const r = await playOne(w, p0, p1, g);
+                const sA = aIsP0 ? r.s0 : r.s1;
+                const sB = aIsP0 ? r.s1 : r.s0;
+                if (sA > sB) winsA++;
+                else if (sB > sA) winsB++;
+                else ties++;
+            }
+            if (winsA + winsB + ties === 0) break; // stopped before any game ran
+            store.record(a, b, winsA, winsB, ties);
+            total += winsA + winsB + ties;
+            printLeaderboard(store, names, total);
+        }
     };
 
     const shutdown = async () => {
@@ -302,7 +314,7 @@ async function main(): Promise<void> {
     process.on("SIGTERM", shutdown);
 
     printLeaderboard(store, names, total);
-    for (const w of workers) pump(w);
+    for (const w of workers) pump(w).catch((err) => console.error(err));
 }
 
 main().catch((err) => {
