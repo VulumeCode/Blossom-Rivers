@@ -36,6 +36,7 @@ export const DEFAULT_BUDGET: CPUBudget = {
 export const DEFAULT_OPTIONS = {
     stop_bias: true,
     junk_bias: false,
+    select_action: "best" as "best" | "weighed" | "uni",
     randomize: randomizeHidden,
     budget: DEFAULT_BUDGET,
     evaluateRollout: evaluateRolloutSigmoid

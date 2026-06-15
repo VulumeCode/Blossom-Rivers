@@ -76,19 +76,46 @@ export class SimpleMCTSPlayer implements CPUPlayer {
             setSimMode(false);
         }
 
-        let bestIdx = 0,
-            bestRate = -Infinity;
-        for (let i = 0; i < actions.length; i++) {
-            if (visits[i] > 0) {
-                const rate = wins[i] / visits[i];
-                if (rate > bestRate) {
-                    bestRate = rate;
-                    bestIdx = i;
-                }
-            }
+
+
+        // Per-action mean reward; unvisited actions get -Infinity so they're
+        // never picked as best and never count as positive.
+        const rates = actions.map((_, i) =>
+            visits[i] > 0 ? wins[i] / visits[i] : -Infinity,
+        );
+        let bestIdx = 0;
+        for (let i = 1; i < actions.length; i++) {
+            if (rates[i] > rates[bestIdx]) bestIdx = i;
         }
-        console.log("SimpleMCTS bestRate", state.phase, bestRate);
-        return actions[bestIdx];
+        // Candidates for the stochastic modes: actions with a positive rate.
+        const positive = rates
+            .map((_, i) => i)
+            .filter((i) => rates[i] > 0);
+
+        let idx: number;
+        switch (this.options.select_action) {
+            case "weighed": {
+                // Roulette-wheel pick weighted by rate; fall back to best.
+                if (positive.length === 0) { idx = bestIdx; break; }
+                const total = positive.reduce((s, i) => s + rates[i], 0);
+                let target = Math.random() * total;
+                idx = positive[positive.length - 1];
+                for (const i of positive) {
+                    target -= rates[i];
+                    if (target <= 0) { idx = i; break; }
+                }
+                break;
+            }
+            case "uni":
+                // Uniform pick among positive-rate actions; fall back to best.
+                idx = positive.length === 0
+                    ? bestIdx
+                    : positive[Math.floor(Math.random() * positive.length)];
+                break;
+            case "best":
+                idx = bestIdx;
+        }
+        return actions[idx];
     }
 
     chooseAction(state: GameState): GameAction {

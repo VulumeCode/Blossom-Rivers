@@ -13,3 +13,17 @@ Bot ranking — 4574 games played, 13 bots
   11. simplercsbsw ord=  19.99  mu= 25.82  sigma= 1.94  W-L-T=  217-249-0  (466)
   12. simplesbi    ord=  16.56  mu= 23.34  sigma= 2.26  W-L-T=  138-184-1  (323)
   13. randomsb     ord=   5.59  mu= 11.02  sigma= 1.81  W-L-T=  280-441-3  (724)
+
+
+
+
+Bot ranking — 1424 games played, 8 bots
+
+   1. simplercsb   ord=  27.45  mu= 32.28  sigma= 1.61  W-L-T=  223-149-0  (372)
+   2. simplesb     ord=  24.97  mu= 29.85  sigma= 1.63  W-L-T=  216-125-0  (341)
+   3. simpleblur   ord=  24.80  mu= 29.67  sigma= 1.63  W-L-T=  203-141-0  (344)
+   4. simpleracsb  ord=  23.70  mu= 28.54  sigma= 1.61  W-L-T=  208-166-0  (374)
+   5. simple_weighed ord=  19.53  mu= 24.43  sigma= 1.63  W-L-T=  173-199-0  (372)
+   6. simple_ranked ord=  16.12  mu= 20.97  sigma= 1.62  W-L-T=  173-212-0  (385)
+   7. simple_uni   ord=  14.97  mu= 19.90  sigma= 1.64  W-L-T=  147-212-2  (361)
+   8. randomsb     ord=  10.86  mu= 16.12  sigma= 1.75  W-L-T=   79-218-2  (299)

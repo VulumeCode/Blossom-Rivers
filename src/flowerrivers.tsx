@@ -23,7 +23,7 @@ import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
 
 // CPU players:
 const cpu: CPUPlayer = new SimpleMCTSPlayer({
-    randomize: randomizeRedealOppCaptures,
+    select_action: "uni",
     budget: {
         DEALING: 4000,
         CAPTURING: 8000,
