@@ -335,7 +335,7 @@ river-lane[data-clickable] {
     cursor: pointer;
 }
 
-river-lane[data-hover-highlight] {
+river-lane[data-should-highlight] {
     outline-color: var(--color-capture);
 }
 

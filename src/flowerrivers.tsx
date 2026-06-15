@@ -143,7 +143,7 @@ interface RiverViewProps {
     onClick?: () => void;
     onDiscard?: () => void;
     highlightType?: RiverHighlightType;
-    hoverHighlight?: boolean | null;
+    shouldHighlight?: boolean | null;
     showDiscard?: boolean;
     onMouseEnter?: () => void;
     onMouseLeave?: () => void;
@@ -155,7 +155,7 @@ function RiverView({
     onClick,
     onDiscard,
     highlightType, // TODO better name
-    hoverHighlight,
+    shouldHighlight,
     showDiscard,
     onMouseEnter,
     onMouseLeave,
@@ -166,7 +166,7 @@ function RiverView({
         <river-lane
             id={`river-${index}`}
             data-highlight={highlightType || undefined}
-            data-hover-highlight={hoverHighlight || undefined}
+            data-should-highlight={shouldHighlight || undefined}
             data-has-special={hasSpecial || undefined}
             data-clickable={(!!onClick && !!highlightType) || undefined}
             onClick={(!!highlightType && onClick) || undefined}
@@ -392,14 +392,7 @@ function YakuList({ captured }: YakuListProps) {
 export function FlowerRivers() {
     const [state, dispatch] = useReducer(gameReducer, makeInitialState());
     const [ping, setPing] = useState(123); // Changes on animation ended.
-    const [hoveredRiver, setHoveredRiver] = useState<number | null>(null);
-    const [hoveredHandCard, setHoveredHandCard] = useState<Card | null>(null);
     const [revealedCpuCard, setRevealedCpuCard] = useState<Card | null>(null);
-
-    const resetHover = () => {
-        setHoveredRiver(null);
-        setHoveredHandCard(null);
-    };
 
     const {
         phase,
@@ -541,7 +534,6 @@ export function FlowerRivers() {
 
         if (phase === "FORCED_CAPTURE") {
             if (ri === lightningRiver) {
-                resetHover();
                 dispatch({
                     type: "CAPTURE_RIVER",
                     riverIdx: ri,
@@ -556,7 +548,6 @@ export function FlowerRivers() {
             phase === "CAPTURING" &&
             canCaptureRiver(selectedHandCard, rivers[ri])
         ) {
-            resetHover();
             dispatch({
                 type: "CAPTURE_RIVER",
                 riverIdx: ri,
@@ -568,7 +559,6 @@ export function FlowerRivers() {
     const handleDiscard = (ri: number) => {
         if (phase !== "CAPTURING" || !selectedHandCard || !isHumanCapturer)
             return;
-        resetHover();
         dispatch({
             type: "DISCARD_TO_RIVER",
             riverIdx: ri,
@@ -724,24 +714,16 @@ export function FlowerRivers() {
         return phase === "CAPTURING" && isHumanCapturer;
     };
 
-    // Hover cross-highlighting
+    // For cross-highlighting
     const isCapturingPhase =
         (phase === "CAPTURING" || phase === "FORCED_CAPTURE") &&
         isHumanCapturer;
 
-    // Which hand card IDs to highlight (when hovering a river, or any-match when idle)
+    // Which hand card IDs to highlight
     const highlightedHandIds: Set<string> = (() => {
         const ids = new Set<string>();
         if (!isCapturingPhase) return ids;
-        if (hoveredRiver !== null) {
-            const river = rivers[hoveredRiver];
-            if (river.length === 0) return ids;
-            for (const card of hands[0]) {
-                if (canCaptureRiver(card, river)) ids.add(card.id);
-            }
-            return ids;
-        }
-        // No river hovered — highlight cards that match any river
+        // Highlight cards that match any river
         for (const card of hands[0]) {
             for (let ri = 0; ri < 3; ri++) {
                 if (
@@ -760,25 +742,14 @@ export function FlowerRivers() {
     const highlightedRiverSet: Set<number> = (() => {
         const set = new Set<number>();
         if (!isCapturingPhase) return set;
-        if (hoveredHandCard) {
-            for (let ri = 0; ri < 3; ri++) {
-                if (
-                    rivers[ri].length > 0 &&
-                    canCaptureRiver(hoveredHandCard, rivers[ri])
-                )
-                    set.add(ri);
-            }
-            return set;
-        } else {
-            for (let ri = 0; ri < 3; ri++) {
-                if (
-                    rivers[ri].length > 0 &&
-                    hands[0].some((c) => canCaptureRiver(c, rivers[ri]))
-                )
-                    set.add(ri);
-            }
-            return set;
+        for (let ri = 0; ri < 3; ri++) {
+            if (
+                rivers[ri].length > 0 &&
+                hands[0].some((c) => canCaptureRiver(c, rivers[ri]))
+            )
+                set.add(ri);
         }
+        return set;
     })();
 
     const canHumanAct =
@@ -1012,7 +983,7 @@ export function FlowerRivers() {
                                 cards={river}
                                 index={ri}
                                 highlightType={getRiverHighlight(ri)}
-                                hoverHighlight={!!highlightedRiverSet?.has(ri)}
+                                shouldHighlight={!!highlightedRiverSet?.has(ri)}
                                 onClick={
                                     canHumanAct
                                         ? () => handleRiverClick(ri)
@@ -1020,16 +991,6 @@ export function FlowerRivers() {
                                 }
                                 onDiscard={() => handleDiscard(ri)}
                                 showDiscard={showDiscardButton(ri)}
-                                onMouseEnter={
-                                    isCapturingPhase
-                                        ? () => setHoveredRiver(ri)
-                                        : undefined
-                                }
-                                onMouseLeave={
-                                    isCapturingPhase
-                                        ? () => setHoveredRiver(null)
-                                        : undefined
-                                }
                             />
                         ))}
                     </div>
@@ -1055,16 +1016,6 @@ export function FlowerRivers() {
                             )
                         }
                         highlightedIds={highlightedHandIds}
-                        onCardHover={
-                            isCapturingPhase
-                                ? (card) => setHoveredHandCard(card)
-                                : undefined
-                        }
-                        onCardLeave={
-                            isCapturingPhase
-                                ? () => setHoveredHandCard(null)
-                                : undefined
-                        }
                     />
                     {koikoiCounts[0] > 0 && (
                         <koikoi-indicator>
