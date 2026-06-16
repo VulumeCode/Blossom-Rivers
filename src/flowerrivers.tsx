@@ -415,6 +415,10 @@ export function FlowerRivers() {
         if (message) console.log("message:", message);
     }, [message]);
 
+    useEffect(() => {
+        if (isHumanDealer && drawnCard) hoveredMonth.value = drawnCard.month;
+    }, [drawnCard]);
+
     // --- CPU EFFECTS ---
     // Auto-draw: whenever it's the dealing phase and no card is drawn yet, draw automatically
     useEffect(() => {
