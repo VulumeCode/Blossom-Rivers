@@ -1,5 +1,6 @@
 import { useEffect, useReducer, useState } from "preact/hooks";
 import type { ComponentChildren } from "preact";
+import { signal } from "@preact/signals";
 import type { Card, GameState, RiverHighlightType } from "./types";
 import { cardImageById, images } from "./cardImages";
 import { isLightning, isRainMan } from "./cards";
@@ -20,6 +21,8 @@ import {
     randomizeRedealOppCaptures,
 } from "../src/cpu/cpu";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
+
+const hoveredMonth = signal<number | null>(null);
 
 // CPU players:
 const cpu: CPUPlayer = new SimpleMCTSPlayer({
@@ -88,8 +91,6 @@ interface CardViewProps {
     selected?: boolean;
     disabled?: boolean;
     highlighted?: boolean;
-    onMouseEnter?: () => void;
-    onMouseLeave?: () => void;
     flipped?: boolean;
 }
 
@@ -100,12 +101,12 @@ function CardView({
     selected,
     disabled,
     highlighted,
-    onMouseEnter,
-    onMouseLeave,
     flipped = true,
 }: CardViewProps) {
     const Svg = faceDown ? images.card_back : cardImageById[card.id];
     const clickable = !!(onClick && !disabled);
+
+    const glow = hoveredMonth.value === card.month && !faceDown;
 
     const view = (
         <card-view
@@ -114,9 +115,14 @@ function CardView({
             data-clickable={clickable || undefined}
             data-selected={selected || undefined}
             data-highlighted={highlighted || undefined}
+            data-glow={glow || undefined}
             onClick={clickable ? onClick : undefined}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
+            onMouseEnter={() => {
+                if (!faceDown) hoveredMonth.value = card.month;
+            }}
+            onMouseLeave={() => {
+                if (!faceDown) hoveredMonth.value = null;
+            }}
         >
             <Svg />
         </card-view>
@@ -145,8 +151,6 @@ interface RiverViewProps {
     highlightType?: RiverHighlightType;
     shouldHighlight?: boolean | null;
     showDiscard?: boolean;
-    onMouseEnter?: () => void;
-    onMouseLeave?: () => void;
 }
 
 function RiverView({
@@ -157,8 +161,6 @@ function RiverView({
     highlightType, // TODO better name
     shouldHighlight,
     showDiscard,
-    onMouseEnter,
-    onMouseLeave,
 }: RiverViewProps) {
     const hasSpecial = cards.some(isRainMan) || cards.some(isLightning);
 
@@ -170,8 +172,6 @@ function RiverView({
             data-has-special={hasSpecial || undefined}
             data-clickable={(!!onClick && !!highlightType) || undefined}
             onClick={(!!highlightType && onClick) || undefined}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
         >
             <card-squish key="capture">
                 {(highlightType === "capture" ||
@@ -243,8 +243,6 @@ interface HandViewProps {
     onSelect?: (card: Card) => void;
     disabled?: boolean;
     highlightedIds?: Set<string>;
-    onCardHover?: (card: Card) => void;
-    onCardLeave?: () => void;
 }
 
 function HandView({
@@ -255,8 +253,6 @@ function HandView({
     onSelect,
     disabled,
     highlightedIds,
-    onCardHover,
-    onCardLeave,
 }: HandViewProps) {
     return (
         <hand-view id={id}>
@@ -274,12 +270,6 @@ function HandView({
                                 ? () => onSelect(card)
                                 : undefined
                         }
-                        onMouseEnter={
-                            !faceDown && onCardHover
-                                ? () => onCardHover(card)
-                                : undefined
-                        }
-                        onMouseLeave={onCardLeave}
                         disabled={disabled}
                     />
                 );

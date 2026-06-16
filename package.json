@@ -24,6 +24,7 @@
     "vitest": "^2.1.4"
   },
   "dependencies": {
+    "@preact/signals": "^2.9.2",
     "openskill": "^5.0.1",
     "preact": "^10.29.1",
     "react-flip-toolkit": "^7.2.4"

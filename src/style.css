@@ -282,6 +282,38 @@ card-view[data-highlighted] svg {
     outline-color: var(--color-capture);
 }
 
+/* 
+card-view[data-glow] {
+
+    path {
+        transition:
+            stroke-color 0.2s,
+            fill 0.2s,
+            filter 0.2s;
+    }
+
+    .hf-dark-brown {
+        paint-order: stroke fill;
+        stroke-width: 2vmin;
+        stroke: var(--card-purple);
+        //filter: drop-shadow(0 0 5vmin var(--card-purple));
+    }
+
+    .hf-dark-red {
+        fill: var(--card-purple);
+    }
+
+
+    .hf-paper {
+        fill: var(--card-amber);
+    }
+} */
+
+card-view[data-glow] svg {
+    outline-color: var(--color-pink);
+}
+
+
 /* --- RIVER --- */
 
 river-lane {
