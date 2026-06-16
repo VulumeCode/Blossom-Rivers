@@ -25,7 +25,7 @@ import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
 const cpu: CPUPlayer = new SimpleMCTSPlayer({
     select_action: "uni",
     budget: {
-        DEALING: 4000,
+        DEALING: 3000,
         CAPTURING: 8000,
         FORCED_CAPTURE: 4000,
         YAKU_CHOICE: 4000,
@@ -438,7 +438,7 @@ export function FlowerRivers() {
         if (phase !== "DEALING" || drawnCard) return;
         console.log("DEALING");
         dispatch({ type: "DRAW_CARD" });
-    }, [phase, ping]);
+    }, [phase, drawnCard]);
 
     // CPU dealing: drop drawn cards
     useEffect(() => {
