@@ -65,12 +65,8 @@ function actionKey(a: GameAction): string {
             return "KOI";
         case "SELECT_HAND_CARD":
             return `SEL:${a.card.id}`;
-        case "START_GAME":
-            return "START";
-        case "NEXT_ROUND":
-            return "NEXT";
-        case "CLEAR_MESSAGE":
-            return "CLR";
+        default:
+            throw "Not for CPU"
     }
 }
 

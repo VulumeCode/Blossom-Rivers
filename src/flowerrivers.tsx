@@ -673,7 +673,7 @@ export function FlowerRivers() {
                 <div id="game-over-winner">{winner}</div>
                 <button
                     id="play-again-button"
-                    onClick={() => dispatch({ type: "START_GAME" })}
+                    onClick={() => dispatch({ type: "GO_TO_MENU" })}
                 >
                     Play Again
                 </button>

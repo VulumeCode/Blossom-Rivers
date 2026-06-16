@@ -205,6 +205,7 @@ export interface GameState {
 }
 
 export type GameAction =
+  | { type: 'GO_TO_MENU' }
   | { type: 'START_GAME' }
   | { type: 'DRAW_CARD' }
   | { type: 'DROP_IN_RIVER'; riverIdx: number }
