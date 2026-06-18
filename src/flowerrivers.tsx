@@ -1,7 +1,12 @@
 import { useEffect, useReducer, useState } from "preact/hooks";
 import type { ComponentChildren } from "preact";
 import { signal } from "@preact/signals";
-import type { Card, GameState, RiverHighlightType } from "./types";
+import type {
+    Card,
+    GameState,
+    RiverHighlightType,
+    RoundScoreInfo,
+} from "./types";
 import { cardImageById, images } from "./cardImages";
 import { isLightning, isRainMan } from "./cards";
 import { computeYaku } from "./yaku";
@@ -362,6 +367,37 @@ function CapturedView({ id, cards }: CapturedViewProps) {
     );
 }
 
+// --- SCORE BREAKDOWN ---
+function ScoreBreakdown({
+    info,
+    perspective,
+}: {
+    info: RoundScoreInfo;
+    perspective: number;
+}) {
+    const oppKoikoi = info.oppKoikoi ?? 0;
+    const koikoiMult = Math.pow(2, oppKoikoi);
+    const hasMult = info.sevenBonus || oppKoikoi > 0 || info.drawMultiplier > 1;
+    return (
+        <>
+            {info.yakuList.map((y) => (
+                <div key={y.name} data-row="yaku">
+                    {y.name} — {y.points} pts
+                </div>
+            ))}
+            <div data-row="score-total">
+                {info.basePoints} pts
+                {info.sevenBonus && " × 2 (7+ bonus)"}
+                {oppKoikoi > 0 &&
+                    ` × ${koikoiMult} (${perspective === info.winner ? "opponent" : "your"} koi-koi ×${oppKoikoi})`}
+                {info.drawMultiplier > 1 &&
+                    ` × ${info.drawMultiplier} (draw bonus)`}
+                {hasMult && ` = ${info.finalPoints} pts`}
+            </div>
+        </>
+    );
+}
+
 // --- YAKU DISPLAY ---
 interface YakuListProps {
     captured: Card[];
@@ -598,31 +634,14 @@ export function FlowerRivers() {
                         Draw! Points doubled next round.
                     </div>
                 ) : (
-                    <div id="round-over-winner-info">
-                        <div id="round-over-winner-text">
-                            {info && playerName(info.winner)} won the round!
+                    info && (
+                        <div id="round-over-winner-info">
+                            <div id="round-over-winner-text">
+                                {playerName(info.winner)} won the round!
+                            </div>
+                            <ScoreBreakdown info={info} perspective={0} />
                         </div>
-                        {info &&
-                            info.yakuList.map((y) => (
-                                <div key={y.name} data-row="yaku">
-                                    {y.name}: {y.points} pts
-                                </div>
-                            ))}
-                        <div id="round-over-multiplier">
-                            Base: {info && info.basePoints}
-                            {info && info.sevenBonus && " × 2 (7+ bonus)"}
-                            {info &&
-                                info.oppKoikoi !== undefined &&
-                                info.oppKoikoi > 0 &&
-                                ` × ${Math.pow(2, info.oppKoikoi)} (opponent koi-koi)`}
-                            {info &&
-                                info.drawMultiplier > 1 &&
-                                ` × ${info.drawMultiplier} (draw bonus)`}
-                        </div>
-                        <div id="round-over-final-points">
-                            = {info && info.finalPoints} points
-                        </div>
-                    </div>
+                    )
                 )}
                 <div id="round-over-scores">
                     Score — You: {scores[0]} | CPU: {scores[1]}
@@ -654,21 +673,16 @@ export function FlowerRivers() {
                 {info && info.winner !== -1 && (
                     <div id="game-over-round-info">
                         <div id="game-over-round-text">
-                            {playerName(info.winner)} won the final round with{" "}
-                            {info.finalPoints} pts
+                            {playerName(info.winner)} won the final round!
                         </div>
-                        {info.yakuList.map((y) => (
-                            <div key={y.name} data-row="yaku">
-                                {y.name}: {y.points}
-                            </div>
-                        ))}
+                        <ScoreBreakdown info={info} perspective={0} />
                     </div>
                 )}
                 {info && info.winner === -1 && (
                     <div id="game-over-draw-info">Final round was a draw.</div>
                 )}
                 <div id="game-over-scores">
-                    You: {finalS0} — CPU: {finalS1}
+                    Score — You: {scores[0]} | CPU: {scores[1]}
                 </div>
                 <div id="game-over-winner">{winner}</div>
                 <button
@@ -843,30 +857,21 @@ export function FlowerRivers() {
                 {/* Yaku Choice Dialog */}
                 {phase === "YAKU_CHOICE" &&
                     (() => {
-                        const info = gameReducer(state, { type: "CALL_STOP" }).roundScoreInfo!;
-                        const koikoiMult = Math.pow(2, info.oppKoikoi ?? 0);
-                        const hasMult =
-                            info.sevenBonus || (info.oppKoikoi ?? 0) > 0 || info.drawMultiplier > 1;
+                        const info = gameReducer(state, {
+                            type: "CALL_STOP",
+                        }).roundScoreInfo!;
                         return (
                             <div id="yaku-dialog-overlay">
                                 <div id="yaku-dialog">
                                     <div id="yaku-dialog-title">
-                                        {yakuPlayer === 0 ? "Yaku!" : "CPU Yaku!"}
+                                        {yakuPlayer === 0
+                                            ? "Yaku!"
+                                            : "CPU Yaku!"}
                                     </div>
-                                    {info.yakuList.map((y) => (
-                                        <div key={y.name} data-row="yaku">
-                                            {y.name} — {y.points} pts
-                                        </div>
-                                    ))}
-                                    <div id="yaku-dialog-total">
-                                        Total so far: {info.basePoints} pts
-                                        {info.sevenBonus && " × 2 (7+ bonus)"}
-                                        {(info.oppKoikoi ?? 0) > 0 &&
-                                            ` × ${koikoiMult} (${yakuPlayer === 0 ? "opponent" : "your"} koi-koi ×${info.oppKoikoi})`}
-                                        {info.drawMultiplier > 1 &&
-                                            ` × ${info.drawMultiplier} (draw bonus)`}
-                                        {hasMult && ` = ${info.finalPoints} pts`}
-                                    </div>
+                                    <ScoreBreakdown
+                                        info={info}
+                                        perspective={0}
+                                    />
                                     <div id="yaku-dialog-buttons">
                                         {yakuPlayer === 0 ? (
                                             <>
