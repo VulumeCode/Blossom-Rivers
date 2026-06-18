@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [svgr(), preact()
     ,
     VitePWA({
+    registerType: 'autoUpdate',
     manifest: {
       "name": "花川 - Blossom Rivers",
       "short_name": "花川",
