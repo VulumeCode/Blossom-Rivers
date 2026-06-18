@@ -843,41 +843,32 @@ export function FlowerRivers() {
                 {/* Yaku Choice Dialog */}
                 {phase === "YAKU_CHOICE" &&
                     (() => {
-                        const winner = yakuPlayer;
-                        const loser = 1 - winner;
-                        const baseTotal = computeYaku(captured[winner]).total;
-                        const sevenBonus = baseTotal >= 7;
-                        const oppKoikoi = koikoiCounts[loser];
-                        const koikoiMult = Math.pow(2, oppKoikoi);
-                        const drawBonus = drawMultiplier > 1;
-                        let pts = baseTotal;
-                        if (sevenBonus) pts *= 2;
-                        pts *= koikoiMult;
-                        pts *= drawMultiplier;
+                        const info = gameReducer(state, { type: "CALL_STOP" }).roundScoreInfo!;
+                        const koikoiMult = Math.pow(2, info.oppKoikoi ?? 0);
                         const hasMult =
-                            sevenBonus || oppKoikoi > 0 || drawBonus;
+                            info.sevenBonus || (info.oppKoikoi ?? 0) > 0 || info.drawMultiplier > 1;
                         return (
                             <div id="yaku-dialog-overlay">
                                 <div id="yaku-dialog">
                                     <div id="yaku-dialog-title">
-                                        {winner === 0 ? "Yaku!" : "CPU Yaku!"}
+                                        {yakuPlayer === 0 ? "Yaku!" : "CPU Yaku!"}
                                     </div>
-                                    {newYaku.map((y) => (
+                                    {info.yakuList.map((y) => (
                                         <div key={y.name} data-row="yaku">
                                             {y.name} — {y.points} pts
                                         </div>
                                     ))}
                                     <div id="yaku-dialog-total">
-                                        Total so far: {baseTotal} pts
-                                        {sevenBonus && " × 2 (7+ bonus)"}
-                                        {oppKoikoi > 0 &&
-                                            ` × ${koikoiMult} (${winner === 0 ? "opponent" : "your"} koi-koi ×${oppKoikoi})`}
-                                        {drawBonus &&
-                                            ` × ${drawMultiplier} (draw bonus)`}
-                                        {hasMult && ` = ${pts} pts`}
+                                        Total so far: {info.basePoints} pts
+                                        {info.sevenBonus && " × 2 (7+ bonus)"}
+                                        {(info.oppKoikoi ?? 0) > 0 &&
+                                            ` × ${koikoiMult} (${yakuPlayer === 0 ? "opponent" : "your"} koi-koi ×${info.oppKoikoi})`}
+                                        {info.drawMultiplier > 1 &&
+                                            ` × ${info.drawMultiplier} (draw bonus)`}
+                                        {hasMult && ` = ${info.finalPoints} pts`}
                                     </div>
                                     <div id="yaku-dialog-buttons">
-                                        {winner === 0 ? (
+                                        {yakuPlayer === 0 ? (
                                             <>
                                                 <button
                                                     id="stop-button"
