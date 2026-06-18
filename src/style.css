@@ -46,7 +46,7 @@
     --color-junk: var(--card-teal);
     --color-disabled: var(--card-bark);
 
-    --gradient-river: linear-gradient(160deg,
+    --gradient-river: linear-gradient(in oklch 160deg,
             var(--color-river-from),
             var(--color-river-from),
             var(--color-river-to),
@@ -76,44 +76,46 @@
 
 path {
     &.hf-paper {
-        fill: var(--card-paper);
+        color: var(--card-paper);
     }
 
     &.hf-green {
-        fill: var(--card-green);
+        color: var(--card-green);
     }
 
     &.hf-gold {
-        fill: var(--card-amber);
+        color: var(--card-amber);
     }
 
     &.hf-brown {
-        fill: var(--card-bark);
+        color: var(--card-bark);
     }
 
     &.hf-blue {
-        fill: var(--card-purple);
+        color: var(--card-purple);
     }
 
     &.hf-teal {
-        fill: var(--card-teal);
+        color: var(--card-teal);
     }
 
     &.hf-red {
-        fill: var(--card-red);
+        color: var(--card-red);
     }
 
     &.hf-pink {
-        fill: var(--card-pink);
+        color: var(--card-pink);
     }
 
     &.hf-dark-brown {
-        fill: var(--card-frame-outer);
+        color: var(--card-frame-outer);
     }
 
     &.hf-dark-red {
-        fill: var(--card-frame-inner);
+        color: var(--card-frame-inner);
     }
+
+    fill: currentColor;
 }
 
 @font-face {
@@ -280,37 +282,26 @@ card-view[data-selected] svg {
 
 card-view[data-highlighted] svg {
     outline-color: var(--color-capture);
-}
-
-/* 
-card-view[data-glow] {
 
     path {
-        transition:
-            stroke-color 0.2s,
-            fill 0.2s,
-            filter 0.2s;
-    }
+        fill: color-mix(in xyz, currentColor 90%, var(--color-capture));
 
-    .hf-dark-brown {
-        paint-order: stroke fill;
-        stroke-width: 2vmin;
-        stroke: var(--card-purple);
-        //filter: drop-shadow(0 0 5vmin var(--card-purple));
+        path.hf-paper {
+            fill: color-mix(in xyz, currentColor, var(--color-capture));
+        }
     }
-
-    .hf-dark-red {
-        fill: var(--card-purple);
-    }
-
-
-    .hf-paper {
-        fill: var(--card-amber);
-    }
-} */
+}
 
 card-view[data-glow] svg {
     outline-color: var(--color-pink);
+
+    path {
+        fill: color-mix(in xyz, currentColor 90%, var(--color-pink));
+
+        path.hf-paper {
+            fill: color-mix(in xyz, currentColor, var(--color-pink));
+        }
+    }
 }
 
 
