@@ -385,15 +385,23 @@ function ScoreBreakdown({
                     {y.name} — {y.points} pts
                 </div>
             ))}
-            <div data-row="score-total">
-                {info.basePoints} pts
-                {info.sevenBonus && " × 2 (7+ bonus)"}
-                {oppKoikoi > 0 &&
-                    ` × ${koikoiMult} (${perspective === info.winner ? "opponent" : "your"} koi-koi ×${oppKoikoi})`}
-                {info.drawMultiplier > 1 &&
-                    ` × ${info.drawMultiplier} (draw bonus)`}
-                {hasMult && ` = ${info.finalPoints} pts`}
-            </div>
+            {info.sevenBonus && (
+                <div key="seven" data-row="mult">
+                    7+ bonus — × 2
+                </div>
+            )}
+            {oppKoikoi > 0 && (
+                <div key="oppkoikoi" data-row="mult">
+                    {perspective === info.winner ? "CPU" : "Your"} koi-koi ×
+                    {oppKoikoi} — × {koikoiMult}
+                </div>
+            )}
+            {info.drawMultiplier > 1 && (
+                <div key="draw" data-row="mult">
+                    Draw bonus — × {info.drawMultiplier}
+                </div>
+            )}
+            <div data-row="score-total"> = {info.finalPoints} pts</div>
         </>
     );
 }
@@ -776,7 +784,7 @@ export function FlowerRivers() {
     } else if (phase === "DEALING" && isHumanDealer && drawnCard) {
         statusText = (
             <>
-                Drop🍃 {drawnCard.name} in a river. ({dealStep + 1}/3)
+                Drop🍃{drawnCard.name} in a river. ({dealStep + 1}/3)
             </>
         );
     } else if (phase === "CAPTURING" && isHumanCapturer && !selectedHandCard) {
@@ -784,7 +792,7 @@ export function FlowerRivers() {
     } else if (phase === "CAPTURING" && isHumanCapturer && selectedHandCard) {
         statusText = (
             <>
-                Click a river to capture<span class="reverse">🫳</span> or
+                Click a river to capture<span class="reverse">🫳</span>or
                 discard🍃.
             </>
         );
@@ -796,7 +804,7 @@ export function FlowerRivers() {
         statusText = (
             <>
                 Lightning! Select a card to capture
-                <span class="reverse">🫳</span> River {lightningRiver! + 1}.
+                <span class="reverse">🫳</span>River {lightningRiver! + 1}.
             </>
         );
     } else if (
@@ -807,7 +815,7 @@ export function FlowerRivers() {
         statusText = (
             <>
                 Click River {lightningRiver! + 1} to capture
-                <span class="reverse">🫳</span> it.
+                <span class="reverse">🫳</span>it.
             </>
         );
     } else if (phase === "DEALING" && !isHumanDealer) {

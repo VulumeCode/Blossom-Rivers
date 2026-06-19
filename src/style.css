@@ -383,9 +383,11 @@ river-spacer {
     flex-shrink: 0;
 }
 
+/* hand */
 .reverse {
     display: inline-block;
     transform: scaleX(-1);
+    width: 1.6em;
 }
 
 river-icon {
@@ -583,20 +585,11 @@ yaku-list {
     font-size: 3vmin;
 }
 
-#round-over-winner-info [data-row="yaku"] {
-
-    color: var(--color-purple);
-}
-
-#round-over-multiplier {
-
+[data-row="score-total"] {
     color: var(--color-pink);
-}
-
-#round-over-final-points {
-    font-size: 3vmin;
+    margin: 2vmin 0 0 0;
+    font-size: 4vmin;
     font-weight: bold;
-    color: var(--color-pink);
 }
 
 #round-over-scores {
@@ -625,11 +618,8 @@ yaku-list {
     text-align: center;
 }
 
-#game-over-round-text {}
-
-#game-over-round-info [data-row="yaku"] {
-
-    color: var(--color-purple);
+#game-over-round-text {
+    font-size: 3vmin;
 }
 
 #game-over-draw-info {}
@@ -895,14 +885,6 @@ deck-label {
     font-weight: bold;
     color: var(--color-pink);
     margin-bottom: 2vmin;
-}
-
-#yaku-dialog [data-row="yaku"] {}
-
-#yaku-dialog-total {
-    margin: 2vmin 0 1vmin;
-
-    color: var(--color-pink);
 }
 
 #yaku-dialog-buttons {
