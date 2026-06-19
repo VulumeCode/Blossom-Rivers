@@ -262,18 +262,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
                         yakuPlayer: who,
                         newYaku: yaku.yakuList.filter((y) => !y.isJunk),
                         previousPoints: newPrev,
-                        message:
-                            who === 0
-                                ? `Yaku! ${yaku.yakuList
-                                    .filter((y) => !y.isJunk)
-                                    .map((y) => y.name)
-                                    .join(
-                                        ", ",
-                                    )} (${currentNonJunk} pts). Stop or Koi-Koi?`
-                                : `CPU has ${currentNonJunk} pts: ${yaku.yakuList
-                                    .filter((y) => !y.isJunk)
-                                    .map((y) => y.name)
-                                    .join(", ")}`,
+                        message: "Yaku! Stop or Koi-Koi?",
                     };
                 }
 

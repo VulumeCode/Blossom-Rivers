@@ -410,7 +410,7 @@ function ScoreBreakdown({
 interface YakuListProps {
     captured: Card[];
 }
-
+// TODO remove or imrpove
 function YakuList({ captured }: YakuListProps) {
     const { yakuList, total } = computeYaku(captured);
     if (yakuList.length === 0) return null;
@@ -942,15 +942,9 @@ export function FlowerRivers() {
                         disabled
                         selectedCard={revealedCpuCard}
                     />
-                    {koikoiCounts[1] > 0 && (
-                        <koikoi-indicator>
-                            Koi-Koi ×{koikoiCounts[1]}
-                        </koikoi-indicator>
-                    )}
                 </div>
                 <div id="cpu-capture-row">
                     <CapturedView id="cpu-captured" cards={captured[1]} />
-                    <YakuList captured={captured[1]} />
                 </div>
 
                 {/* Deck + Rivers area */}
@@ -1015,15 +1009,9 @@ export function FlowerRivers() {
                         }
                         highlightedIds={highlightedHandIds}
                     />
-                    {koikoiCounts[0] > 0 && (
-                        <koikoi-indicator>
-                            Koi-Koi ×{koikoiCounts[0]}
-                        </koikoi-indicator>
-                    )}
                 </div>
                 <div id="human-capture-row">
                     <CapturedView id="human-captured" cards={captured[0]} />
-                    <YakuList captured={captured[0]} />
                 </div>
             </div>
         </Flipper>
