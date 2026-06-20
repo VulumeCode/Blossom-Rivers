@@ -109,7 +109,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         switch (action.type) {
 
             case "GO_TO_MENU": {
-                return makeInitialState();
+                return { ...state, phase: "MENU" };
             }
 
             case "START_GAME": {
