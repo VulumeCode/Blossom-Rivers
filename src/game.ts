@@ -113,9 +113,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             }
 
             case "START_GAME": {
-                const s = makeInitialState();
                 return startRound({
-                    ...s,
+                    ...state,
                     scores: [0, 0],
                     round: 1,
                     drawMultiplier: 1,
