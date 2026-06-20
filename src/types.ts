@@ -205,7 +205,10 @@ export interface GameState {
   message: string;
   roundScoreInfo: RoundScoreInfo | null;
   cpuStrength: CpuStrength;
+  totalRounds: TotalRounds;
 }
+
+export type TotalRounds = 1 | 3 | 6 | 12;
 
 export type GameAction =
   | { type: 'GO_TO_MENU' }
@@ -219,4 +222,5 @@ export type GameAction =
   | { type: 'CALL_KOIKOI' }
   | { type: 'NEXT_ROUND' }
   | { type: 'CLEAR_MESSAGE' }
-  | { type: 'SET_CPU_STRENGTH'; strength: CpuStrength };
+  | { type: 'SET_CPU_STRENGTH'; strength: CpuStrength }
+  | { type: 'SET_TOTAL_ROUNDS'; totalRounds: TotalRounds };

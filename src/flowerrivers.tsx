@@ -7,6 +7,7 @@ import type {
     GameState,
     RiverHighlightType,
     RoundScoreInfo,
+    TotalRounds,
 } from "./types";
 import { cardImageById, images } from "./cardImages";
 import { isLightning, isRainMan } from "./cards";
@@ -17,7 +18,6 @@ import {
     gameReducer,
     makeInitialState,
     playerName,
-    TOTAL_ROUNDS,
 } from "./game";
 import { type CPUPlayer } from "../src/cpu/cpu";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
@@ -465,6 +465,7 @@ export function FlowerRivers() {
         message,
         roundScoreInfo,
         cpuStrength,
+        totalRounds,
     } = state;
 
     const isHumanDealer = dealerIdx === 0;
@@ -648,6 +649,23 @@ export function FlowerRivers() {
                             }
                         >
                             {cpuNames[k as CpuStrength]}
+                        </button>
+                    ))}
+                </div>
+                <div>Rounds</div>
+                <div id="total-rounds">
+                    {([1, 3, 6, 12] as TotalRounds[]).map((n) => (
+                        <button
+                            key={n}
+                            data-selected={n === totalRounds || undefined}
+                            onClick={() =>
+                                dispatch({
+                                    type: "SET_TOTAL_ROUNDS",
+                                    totalRounds: n,
+                                })
+                            }
+                        >
+                            {n}
                         </button>
                     ))}
                 </div>
@@ -945,7 +963,7 @@ export function FlowerRivers() {
                 <div id="top-bar">
                     <top-title>花川 - Blossom Rivers</top-title>
                     <span>
-                        Round {round}/{TOTAL_ROUNDS} — Turn {turn}
+                        Round {round}/{totalRounds} — Turn {turn}
                     </span>
                     <span>
                         You: <b>{scores[0]}</b> | CPU: <b>{scores[1]}</b>

@@ -7,8 +7,6 @@ import type {
 import { CARDS, isLightning, isRainMan, isWillow } from "./cards";
 import { computeYaku, nonJunkPoints } from "./yaku";
 
-export const TOTAL_ROUNDS = 3;
-
 export function shuffle(arr: Card[]): Card[] {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {
@@ -72,6 +70,7 @@ export function makeInitialState(): GameState {
         message: "",
         roundScoreInfo: null,
         cpuStrength: "normal",
+        totalRounds: 3,
     };
 }
 
@@ -325,7 +324,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
                     finalPoints: pts,
                 };
 
-                if (state.round >= TOTAL_ROUNDS) {
+                if (state.round >= state.totalRounds) {
                     return {
                         ...state,
                         phase: "GAME_OVER",
@@ -377,6 +376,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             case "SET_CPU_STRENGTH": {
                 return { ...state, cpuStrength: action.strength };
             }
+
+            case "SET_TOTAL_ROUNDS": {
+                return { ...state, totalRounds: action.totalRounds };
+            }
         }
     }
     const result = go();
@@ -399,7 +402,7 @@ function advanceTurn(state: GameState): GameState {
             finalPoints: 0,
             drawMultiplier,
         };
-        if (state.round >= TOTAL_ROUNDS) {
+        if (state.round >= state.totalRounds) {
             return {
                 ...state,
                 phase: "GAME_OVER",

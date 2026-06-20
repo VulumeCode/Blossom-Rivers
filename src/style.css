@@ -568,21 +568,24 @@ yaku-list {
     cursor: pointer;
 }
 
-#cpu-strength>button {
-    padding: 1vmin 2vmin;
-    font-size: 2vmin;
-    background: var(--color-purple);
-    color: var(--color-dark);
-    border: none;
-    border-radius: 1vmin;
-    cursor: pointer;
+#cpu-strength,
+#total-rounds {
+    &>button {
+        padding: 1vmin 2vmin;
+        font-size: 2vmin;
+        background: var(--color-purple);
+        color: var(--color-dark);
+        border: none;
+        border-radius: 1vmin;
+        cursor: pointer;
 
-    &+& {
-        margin-left: 1vmin;
-    }
+        &+& {
+            margin-left: 1vmin;
+        }
 
-    &[data-selected] {
-        outline: 0.3vmin solid var(--color-pink);
+        &[data-selected] {
+            outline: 0.3vmin solid var(--color-pink);
+        }
     }
 }
 
@@ -592,8 +595,6 @@ yaku-list {
     font-weight: bold;
     color: var(--color-pink);
 }
-
-#round-over-draw-info {}
 
 #round-over-winner-info {
     text-align: center;
@@ -639,8 +640,6 @@ yaku-list {
 #game-over-round-text {
     font-size: 3vmin;
 }
-
-#game-over-draw-info {}
 
 #game-over-scores {
     font-size: 3vmin;

@@ -3,7 +3,6 @@ import {
     canCaptureRiver,
     gameReducer,
     shuffle,
-    TOTAL_ROUNDS,
 } from "../game";
 
 // Player 1 is the CPU. The interface is phase-agnostic — implementations
@@ -476,7 +475,7 @@ export function evaluateRolloutSigmoid(state: GameState, forPlayer: number): num
     if (state.phase === "GAME_OVER") {
         return diff === 0 ? -1 : diff / (1 + Math.abs(diff));
     }
-    const roundsLeft = TOTAL_ROUNDS - state.round;
+    const roundsLeft = state.totalRounds - state.round;
     const mult = state.drawMultiplier;
     const totalStd = ROUND_SIGMA * Math.sqrt(mult * mult + roundsLeft - 1);
     const z = diff / totalStd;
@@ -491,7 +490,7 @@ export function evaluateRolloutSigmoidS(state: GameState, forPlayer: number): nu
     if (state.phase === "GAME_OVER") {
         return diff === 0 ? -1 : diff / (1 + Math.abs(diff));
     }
-    const roundsLeft = TOTAL_ROUNDS - state.round;
+    const roundsLeft = state.totalRounds - state.round;
     const mult = state.drawMultiplier;
     const totalStd = ROUND_SIGMA * Math.sqrt(mult * mult + roundsLeft - 1);
     const z = diff / totalStd;
@@ -509,7 +508,7 @@ export function evaluateRolloutSigmoidSW(state: GameState, forPlayer: number): n
     if (state.phase === "GAME_OVER") {
         return diff === 0 ? -1 : diff / (1 + Math.abs(diff));
     }
-    const roundsLeft = TOTAL_ROUNDS - state.round;
+    const roundsLeft = state.totalRounds - state.round;
     const mult = state.drawMultiplier;
     const totalStd = ROUND_SIGMA * Math.sqrt(mult * mult + roundsLeft - 1);
     const z = diff / totalStd;
@@ -524,7 +523,7 @@ export function evaluateRolloutCut(state: GameState, forPlayer: number): number 
     if (state.phase === "GAME_OVER") {
         return diff > 0 ? 1 : -1;
     }
-    const roundsLeft = TOTAL_ROUNDS - state.round;
+    const roundsLeft = state.totalRounds - state.round;
     const mult = state.drawMultiplier;
     const totalStd = ROUND_SIGMA * Math.sqrt(mult * mult + roundsLeft - 1);
     const OPTIMISM_SIGMAS = 1; // how favourable a future swing we're willing to bank on
@@ -539,7 +538,7 @@ export function evaluateRolloutDiv(state: GameState, forPlayer: number): number 
     if (state.phase === "GAME_OVER") {
         return diff / 70;
     }
-    const roundsLeft = TOTAL_ROUNDS - state.round;
+    const roundsLeft = state.totalRounds - state.round;
     if (diff > 0) {
         return diff / 70;
     }
@@ -559,7 +558,7 @@ export function evaluateRolloutInv(state: GameState, forPlayer: number): number 
     if (state.phase === "GAME_OVER") {
         return diff > 0 ? 1 / diff : -1;
     }
-    const roundsLeft = TOTAL_ROUNDS - state.round;
+    const roundsLeft = state.totalRounds - state.round;
     const mult = state.drawMultiplier;
     const totalStd = ROUND_SIGMA * Math.sqrt(mult * mult + roundsLeft - 1);
     const OPTIMISM_SIGMAS = 1; // how favourable a future swing we're willing to bank on
