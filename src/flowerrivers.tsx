@@ -438,6 +438,105 @@ function YakuList({ captured }: YakuListProps) {
     );
 }
 
+const showHelp = signal<boolean>(true);
+
+function HelpModal() {
+    return (
+        <div id="help-overlay" onClick={() => (showHelp.value = false)}>
+            <div id="help-modal" onClick={(e) => e.stopPropagation()}>
+                <label>
+                    <input type="radio" name="tabs" checked />
+                    Rules
+                </label>
+                <section>
+                    <ul>
+                        <li>
+                            <u>Setup:</u> Deal each player 6 cards and put the
+                            deck on the side,
+                            <br />
+                            leaving space for 3 rivers of cards.
+                        </li>
+                        <li>
+                            <u>Play:</u> Each turn,
+                            <ul>
+                                <li>
+                                    Player A draws 3 cards from the deck 1 by 1,
+                                    <br />
+                                    and chooses which river to drop🍃it in.
+                                    <br />
+                                    They choose each river only once.
+                                </li>
+                                <li>
+                                    Player B can then either discard🍃a card in
+                                    any river,
+                                    <br />
+                                    or capture
+                                    <span class="reverse">🫳</span> a whole
+                                    river by matching any card in that river.
+                                    <ul>
+                                        <li>
+                                            If they now have a new yaku or
+                                            improved an existing one,
+                                            <br />
+                                            they can call <b>STOP</b> and score
+                                            points.
+                                        </li>
+                                        <li>
+                                            If instead they call <b>KOI-KOI</b>{" "}
+                                            or have no yaku,
+                                            <br />
+                                            the round continues as players
+                                            switch roles each turn.
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <u>Scores are doubled</u> over 7 points,
+                            <br />
+                            if the opponent had called koi-koi,
+                            <br />
+                            and for each previous round which was a draw.
+                        </li>
+                        <li>
+                            <u>Lightning is a wild card,</u> it can capture any
+                            river.
+                            <br />
+                            It's mandatory to capture
+                            <span class="reverse">🫳</span> if it's dealt to a
+                            river.
+                        </li>
+                        <li>
+                            <u>The Rain man protects</u> from capture with
+                            anything but a Willow.
+                        </li>
+                        <li>There are no hand-yaku.</li>
+                        <li>A junk yaku alone can't stop a round.</li>
+                    </ul>
+                </section>
+
+                <label>
+                    <input type="radio" name="tabs" />
+                    Yaku
+                </label>
+                <section>
+                    <p>Tab 2 content</p>
+                </section>
+
+                <label>
+                    <input type="radio" name="tabs" />
+                    Cards
+                </label>
+                <section>
+                    <p>Tab 3 content</p>
+                </section>
+                <button onClick={() => (showHelp.value = false)}>Close</button>
+            </div>
+        </div>
+    );
+}
+
 // --- MAIN COMPONENT ---
 export function FlowerRivers() {
     const [state, dispatch] = useReducer(gameReducer, makeInitialState());
@@ -617,6 +716,7 @@ export function FlowerRivers() {
     if (phase === "MENU") {
         return (
             <div id="menu-screen">
+                {showHelp.value && <HelpModal />}
                 <div id="menu-title">
                     <span data-side="left">Blossom</span>
                     <span data-side="left" data-kanji>
@@ -669,6 +769,12 @@ export function FlowerRivers() {
                         </button>
                     ))}
                 </div>
+                <button
+                    id="help-button"
+                    onClick={() => (showHelp.value = true)}
+                >
+                    ?
+                </button>
             </div>
         );
     }
@@ -904,6 +1010,7 @@ export function FlowerRivers() {
             }}
         >
             <div id="game-board">
+                {showHelp.value && <HelpModal />}
                 {/* Yaku Choice Dialog */}
                 {phase === "YAKU_CHOICE" &&
                     (() => {
@@ -973,9 +1080,13 @@ export function FlowerRivers() {
                             </draw-multiplier>
                         )}
                     </span>
+                    <button
+                        id="help-button"
+                        onClick={() => (showHelp.value = true)}
+                    >
+                        ?
+                    </button>
                 </div>
-
-                {/* CPU Area */}
                 <div id="cpu-hand-row">
                     <HandView
                         id="cpu-hand"
@@ -1059,4 +1170,3 @@ export function FlowerRivers() {
         </Flipper>
     );
 }
-

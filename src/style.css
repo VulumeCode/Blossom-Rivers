@@ -30,8 +30,10 @@
     --color-card-shadow: rgba(0, 0, 0, 0.4);
     --color-overlay: rgba(0, 0, 0, 0.6);
 
+
     --color-pink: var(--card-pink);
     --color-text: var(--card-paper);
+    --color-dimmed: rgb(from var(--card-paper) r g b / 0.66);
     --color-red: var(--card-red);
     --color-purple: var(--card-purple);
     --color-drop: var(--card-pink);
@@ -562,7 +564,7 @@ yaku-list {
     padding: 2vmin 4vmin;
     font-size: 3vmin;
     background: var(--color-purple);
-    color: var(--color-dark);
+    color: var(--color-pink);
     border: none;
     border-radius: 1vmin;
     cursor: pointer;
@@ -574,7 +576,7 @@ yaku-list {
         padding: 1vmin 2vmin;
         font-size: 2vmin;
         background: var(--color-purple);
-        color: var(--color-dark);
+        color: var(--color-pink);
         border: none;
         border-radius: 1vmin;
         cursor: pointer;
@@ -944,4 +946,119 @@ deck-label {
 
     font-style: italic;
     color: var(--color-pink);
+}
+
+#help-button {
+    width: 4vmin;
+    height: 4vmin;
+    border-radius: 50%;
+    font-size: 2vmin;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#help-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-overlay);
+    z-index: 9001;
+
+}
+
+#help-modal {
+    background: var(--color-dark);
+    border-radius: 1vmin;
+    padding: 3vmin 4vmin;
+    max-width: 80vw;
+    text-align: left;
+    color: var(--color-dimmed);
+
+    u,
+    b,
+    label {
+        color: var(--color-text);
+    }
+}
+
+#help-modal ul,
+#help-modal ol {
+    padding-left: 1.6vmin;
+}
+
+#help-modal h2 {
+    text-align: center;
+    color: var(--color-pink);
+    margin-bottom: 2vmin;
+}
+
+#help-modal p {
+    margin-bottom: 1.5vmin;
+    line-height: 1.4;
+}
+
+#help-modal button {
+    display: block;
+    margin: 1vmin auto 0;
+    padding: 1vmin 2vmin;
+    font-size: 2vmin;
+    background: var(--color-purple);
+    color: var(--color-pink);
+    border: none;
+    border-radius: 1vmin;
+    cursor: pointer;
+}
+
+
+/* tab-switching routine */
+#help-modal {
+    display: flex;
+    flex-wrap: wrap;
+
+
+    label {
+        order: -1;
+        position: relative;
+
+        input {
+            width: 0;
+            height: 0;
+            position: absolute;
+            opacity: 0;
+        }
+    }
+
+    label:has(input:checked)+section {
+        display: block;
+    }
+
+    section {
+        width: 100%;
+        display: none;
+    }
+
+    /* styling */
+    label {
+        padding: 1vmin;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    label:hover,
+    label:has(input:checked) {
+        text-decoration: underline;
+    }
+
+    label:focus-within {
+        z-index: 1;
+    }
+
+    section {
+        padding: 1vmin;
+    }
 }
