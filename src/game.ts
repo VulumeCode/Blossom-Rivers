@@ -71,6 +71,7 @@ export function makeInitialState(): GameState {
         yakuPlayer: -1,
         message: "",
         roundScoreInfo: null,
+        cpuStrength: "normal",
     };
 }
 
@@ -371,6 +372,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
             case "CLEAR_MESSAGE": {
                 return { ...state, message: "" };
+            }
+
+            case "SET_CPU_STRENGTH": {
+                return { ...state, cpuStrength: action.strength };
             }
         }
     }

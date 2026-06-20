@@ -3,6 +3,7 @@ import type { ComponentChildren } from "preact";
 import { signal } from "@preact/signals";
 import type {
     Card,
+    CpuStrength,
     GameState,
     RiverHighlightType,
     RoundScoreInfo,
@@ -18,27 +19,46 @@ import {
     playerName,
     TOTAL_ROUNDS,
 } from "./game";
-import {
-    type CPUPlayer,
-    evaluateRolloutInv,
-    randomizeBlurBothCaptures,
-    randomizeRedealOppBlurOwnCaptures,
-    randomizeRedealOppCaptures,
-} from "../src/cpu/cpu";
+import { type CPUPlayer } from "../src/cpu/cpu";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
 
 const hoveredMonth = signal<number | null>(null);
 
 // CPU players:
-const cpu: CPUPlayer = new SimpleMCTSPlayer({
-    select_action: "uni",
-    budget: {
-        DEALING: 3000,
-        CAPTURING: 8000,
-        FORCED_CAPTURE: 4000,
-        YAKU_CHOICE: 4000,
-    },
-});
+const cpu: Record<CpuStrength, CPUPlayer> = {
+    junk: new SimpleMCTSPlayer({
+        select_action: "uni",
+        budget: {
+            DEALING: 3000,
+            CAPTURING: 8000,
+            FORCED_CAPTURE: 4000,
+            YAKU_CHOICE: 4000,
+        },
+    }),
+    normal: new SimpleMCTSPlayer({
+        select_action: "weighed",
+        budget: {
+            DEALING: 3000,
+            CAPTURING: 8000,
+            FORCED_CAPTURE: 4000,
+            YAKU_CHOICE: 4000,
+        },
+    }),
+    bright: new SimpleMCTSPlayer({
+        select_action: "best",
+        budget: {
+            DEALING: 3000,
+            CAPTURING: 8000,
+            FORCED_CAPTURE: 4000,
+            YAKU_CHOICE: 4000,
+        },
+    }),
+};
+const cpuNames: Record<CpuStrength, string> = {
+    junk: "Junk",
+    normal: "Normal",
+    bright: "Bright",
+};
 
 // --- CPU ADAPTERS ---
 // The CPU returns a generic GameAction; these helpers narrow it down for each
@@ -49,13 +69,13 @@ type cpuAction =
     | { type: "capture"; card: Card; riverIdx: number }
     | { type: "discard"; card: Card; riverIdx: number };
 
-function cpuChooseRiver(state: GameState): number {
+function cpuChooseRiver(cpu: CPUPlayer, state: GameState): number {
     const action = cpu.chooseAction(state);
     if (action.type === "DROP_IN_RIVER") return action.riverIdx;
     throw "Illegal choice";
 }
 
-function cpuChooseCaptureAction(state: GameState): cpuAction {
+function cpuChooseCaptureAction(cpu: CPUPlayer, state: GameState): cpuAction {
     const action = cpu.chooseAction(state);
     if (action.type === "CAPTURE_RIVER" && action.handCard) {
         return {
@@ -74,14 +94,14 @@ function cpuChooseCaptureAction(state: GameState): cpuAction {
     throw "Illegal choice";
 }
 
-function cpuChooseForcedCaptureCard(state: GameState): Card {
+function cpuChooseForcedCaptureCard(cpu: CPUPlayer, state: GameState): Card {
     const action = cpu.chooseAction(state);
     if (action.type === "CAPTURE_RIVER" && action.handCard)
         return action.handCard;
     throw "Illegal choice";
 }
 
-function cpuDecideKoikoi(state: GameState): boolean {
+function cpuDecideKoikoi(cpu: CPUPlayer, state: GameState): boolean {
     const action = cpu.chooseAction(state);
     if (action.type === "CALL_KOIKOI") return true;
     if (action.type === "CALL_STOP") return false;
@@ -444,6 +464,7 @@ export function FlowerRivers() {
         yakuPlayer,
         message,
         roundScoreInfo,
+        cpuStrength,
     } = state;
 
     const isHumanDealer = dealerIdx === 0;
@@ -469,7 +490,7 @@ export function FlowerRivers() {
     useEffect(() => {
         if (phase !== "DEALING" || isHumanDealer || !drawnCard) return;
 
-        const ri = cpuChooseRiver(state);
+        const ri = cpuChooseRiver(cpu[cpuStrength], state);
         const timer = setTimeout(() => {
             dispatch({ type: "DROP_IN_RIVER", riverIdx: ri });
         }, 0);
@@ -481,7 +502,7 @@ export function FlowerRivers() {
     useEffect(() => {
         if (phase !== "CAPTURING" || isHumanCapturer) return;
         console.log("CAPTURING");
-        const action = cpuChooseCaptureAction(state);
+        const action = cpuChooseCaptureAction(cpu[cpuStrength], state);
         setRevealedCpuCard(action.card);
         hoveredMonth.value = action.card.month;
 
@@ -507,7 +528,7 @@ export function FlowerRivers() {
     useEffect(() => {
         if (phase !== "FORCED_CAPTURE" || isHumanCapturer) return;
 
-        const card = cpuChooseForcedCaptureCard(state);
+        const card = cpuChooseForcedCaptureCard(cpu[cpuStrength], state);
         setRevealedCpuCard(card);
         hoveredMonth.value = card.month;
 
@@ -526,7 +547,7 @@ export function FlowerRivers() {
         if (phase !== "YAKU_CHOICE" || yakuPlayer !== 1) return;
 
         const timer = setTimeout(() => {
-            const koikoi = cpuDecideKoikoi(state);
+            const koikoi = cpuDecideKoikoi(cpu[cpuStrength], state);
             dispatch({ type: koikoi ? "CALL_KOIKOI" : "CALL_STOP" });
         }, 2000);
 
@@ -613,6 +634,23 @@ export function FlowerRivers() {
                 >
                     Start Game
                 </button>
+                <div>CPU Strength</div>
+                <div id="cpu-strength">
+                    {Object.keys(cpu).map((k) => (
+                        <button
+                            key={k}
+                            data-selected={k === cpuStrength || undefined}
+                            onClick={() =>
+                                dispatch({
+                                    type: "SET_CPU_STRENGTH",
+                                    strength: k as CpuStrength,
+                                })
+                            }
+                        >
+                            {cpuNames[k as CpuStrength]}
+                        </button>
+                    ))}
+                </div>
             </div>
         );
     }

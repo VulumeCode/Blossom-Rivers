@@ -179,6 +179,8 @@ export interface RoundScoreInfo {
   finalPoints: number;
 }
 
+export type CpuStrength = "junk" | "normal" | "bright";
+
 export interface GameState {
   phase: GamePhase;
   deck: Card[];
@@ -202,6 +204,7 @@ export interface GameState {
   yakuPlayer: number;
   message: string;
   roundScoreInfo: RoundScoreInfo | null;
+  cpuStrength: CpuStrength;
 }
 
 export type GameAction =
@@ -215,4 +218,5 @@ export type GameAction =
   | { type: 'CALL_STOP' }
   | { type: 'CALL_KOIKOI' }
   | { type: 'NEXT_ROUND' }
-  | { type: 'CLEAR_MESSAGE' };
+  | { type: 'CLEAR_MESSAGE' }
+  | { type: 'SET_CPU_STRENGTH'; strength: CpuStrength };

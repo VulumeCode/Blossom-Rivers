@@ -568,6 +568,24 @@ yaku-list {
     cursor: pointer;
 }
 
+#cpu-strength>button {
+    padding: 1vmin 2vmin;
+    font-size: 2vmin;
+    background: var(--color-purple);
+    color: var(--color-dark);
+    border: none;
+    border-radius: 1vmin;
+    cursor: pointer;
+
+    &+& {
+        margin-left: 1vmin;
+    }
+
+    &[data-selected] {
+        outline: 0.3vmin solid var(--color-pink);
+    }
+}
+
 /* --- ROUND OVER --- */
 #round-over-title {
     font-size: 4vmin;
