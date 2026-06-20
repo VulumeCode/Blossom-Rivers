@@ -489,6 +489,7 @@ export function FlowerRivers() {
         console.log("CAPTURING");
         const action = cpuChooseCaptureAction(state);
         setRevealedCpuCard(action.card);
+        hoveredMonth.value = action.card.month;
 
         const timer = setTimeout(() => {
             setRevealedCpuCard(null);
@@ -506,11 +507,6 @@ export function FlowerRivers() {
                 });
             }
         }, 700);
-
-        return () => {
-            clearTimeout(timer);
-            setRevealedCpuCard(null);
-        };
     }, [ping]);
 
     // CPU forced capture
@@ -519,6 +515,7 @@ export function FlowerRivers() {
 
         const card = cpuChooseForcedCaptureCard(state);
         setRevealedCpuCard(card);
+        hoveredMonth.value = card.month;
 
         const timer = setTimeout(() => {
             setRevealedCpuCard(null);
@@ -528,11 +525,6 @@ export function FlowerRivers() {
                 handCard: card,
             });
         }, 700);
-
-        return () => {
-            clearTimeout(timer);
-            setRevealedCpuCard(null);
-        };
     }, [ping]);
 
     // CPU yaku choice (koikoi or stop)
