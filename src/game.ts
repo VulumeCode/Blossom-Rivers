@@ -61,7 +61,7 @@ export function makeInitialState(): GameState {
         riversUsedThisTurn: [false, false, false],
         lightningRiver: null,
         selectedHandCard: null,
-        koikoiCounts: [0, 0],
+        koikoi: [false, false],
         scores: [0, 0],
         round: 1,
         turn: 1,
@@ -88,7 +88,7 @@ function startRound(state: GameState): GameState {
         riversUsedThisTurn: [false, false, false],
         lightningRiver: null,
         selectedHandCard: null,
-        koikoiCounts: [0, 0],
+        koikoi: [false, false],
         previousPoints: [0, 0],
         newYaku: [],
         yakuPlayer: -1,
@@ -309,8 +309,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
                 const yaku = computeYaku(state.captured[winner]);
                 let pts = yaku.total;
                 if (pts >= 7) pts *= 2;
-                const oppKoikoi = state.koikoiCounts[loser];
-                pts *= Math.pow(2, oppKoikoi);
+                if (state.koikoi[loser]) pts *= 2;
                 pts *= state.drawMultiplier;
 
                 const newScores = [...state.scores] as [number, number];
@@ -321,7 +320,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
                     yakuList: yaku.yakuList,
                     basePoints: yaku.total,
                     sevenBonus: yaku.total >= 7,
-                    oppKoikoi,
+                    oppKoikoi: state.koikoi[loser],
                     drawMultiplier: state.drawMultiplier,
                     finalPoints: pts,
                 };
@@ -354,12 +353,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
                 const who = state.yakuPlayer;
                 if (state.hands[who].length == 0)
                     throw "Can't call koikoi with an empty hand.";
-                const newKoikoi = [...state.koikoiCounts] as [number, number];
-                newKoikoi[who] += 1;
+                const newKoikoi = [...state.koikoi] as [boolean, boolean];
+                newKoikoi[who] = true;
 
                 return advanceTurn({
                     ...state,
-                    koikoiCounts: newKoikoi,
+                    koikoi: newKoikoi,
                     message: `${playerName(who)} called Koi-Koi!`,
                 });
             }

@@ -174,7 +174,7 @@ export interface RoundScoreInfo {
   yakuList: YakuEntry[];
   basePoints: number;
   sevenBonus?: boolean;
-  oppKoikoi?: number;
+  oppKoikoi?: boolean;
   drawMultiplier: number;
   finalPoints: number;
 }
@@ -192,7 +192,7 @@ export interface GameState {
   riversUsedThisTurn: [boolean, boolean, boolean];
   lightningRiver: number | null;
   selectedHandCard: Card | null;
-  koikoiCounts: [number, number];
+  koikoi: [boolean, boolean];
   scores: [number, number];
   round: number;
   turn: number;

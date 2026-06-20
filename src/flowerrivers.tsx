@@ -375,9 +375,6 @@ function ScoreBreakdown({
     info: RoundScoreInfo;
     perspective: number;
 }) {
-    const oppKoikoi = info.oppKoikoi ?? 0;
-    const koikoiMult = Math.pow(2, oppKoikoi);
-    const hasMult = info.sevenBonus || oppKoikoi > 0 || info.drawMultiplier > 1;
     return (
         <>
             {info.yakuList.map((y) => (
@@ -390,10 +387,9 @@ function ScoreBreakdown({
                     7+ bonus — × 2
                 </div>
             )}
-            {oppKoikoi > 0 && (
+            {info.oppKoikoi && (
                 <div key="oppkoikoi" data-row="mult">
-                    {perspective === info.winner ? "CPU" : "Your"} koi-koi ×
-                    {oppKoikoi} — × {koikoiMult}
+                    {perspective === info.winner ? "CPU" : "Your"} koi-koi — × 2
                 </div>
             )}
             {info.drawMultiplier > 1 && (
@@ -441,12 +437,10 @@ export function FlowerRivers() {
         riversUsedThisTurn,
         lightningRiver,
         selectedHandCard,
-        koikoiCounts,
         scores,
         round,
         turn,
         drawMultiplier,
-        newYaku,
         yakuPlayer,
         message,
         roundScoreInfo,
