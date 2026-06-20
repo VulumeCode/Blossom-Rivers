@@ -10,7 +10,7 @@ import type {
     TotalRounds,
 } from "./types";
 import { cardImageById, images } from "./cardImages";
-import { isLightning, isRainMan } from "./cards";
+import { CARDS, isLightning, isRainMan } from "./cards";
 import { computeYaku } from "./yaku";
 import { Flipped, Flipper } from "react-flip-toolkit";
 import {
@@ -23,6 +23,83 @@ import { type CPUPlayer } from "../src/cpu/cpu";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
 
 const hoveredMonth = signal<number | null>(null);
+
+const YAKU_OVERVIEW = [
+    {
+        name: "Five Brights",
+        points: "15",
+        cards: [
+            "1-bright",
+            "3-bright",
+            "8-bright",
+            "11-bright-rainman",
+            "12-bright",
+        ],
+    },
+    {
+        name: "Four Brights",
+        points: "8",
+        cards: ["1-bright", "3-bright", "8-bright", "12-bright"],
+    },
+    {
+        name: "Rainy Four Brights",
+        points: "7",
+        cards: ["11-bright-rainman", "1-bright", "3-bright", "12-bright"],
+    },
+    {
+        name: "Three Brights",
+        points: "6",
+        cards: ["1-bright", "3-bright", "8-bright"],
+    },
+    {
+        name: "Poetry Ribbons",
+        points: "5",
+        cards: ["1-ribbon", "2-ribbon", "3-ribbon"],
+    },
+    {
+        name: "Blue Ribbons",
+        points: "5",
+        cards: ["6-ribbon", "9-ribbon", "10-ribbon"],
+    },
+    {
+        name: "Grass Ribbons",
+        points: "5",
+        cards: ["4-ribbon", "5-ribbon", "7-ribbon"],
+    },
+    {
+        name: "Boar-Deer-Butterfly",
+        points: "5",
+        cards: ["7-animal", "10-animal", "6-animal"],
+    },
+    { name: "Flower Viewing", points: "5", cards: ["3-bright", "9-animal"] },
+    { name: "Moon Viewing", points: "5", cards: ["8-bright", "9-animal"] },
+    {
+        name: "5+ Animals",
+        points: "1+",
+        cards: ["2-animal", "9-animal", "5-animal", "6-animal", "7-animal"],
+    },
+    {
+        name: "5+ Ribbons",
+        points: "1+",
+        cards: ["1-ribbon", "3-ribbon", "7-ribbon", "9-ribbon", "11-ribbon"],
+    },
+    {
+        name: "10+ Junk",
+        points: "1+",
+        cards: [
+            "1-junk-1",
+            "1-junk-2",
+            "2-junk-1",
+            "2-junk-2",
+            "3-junk-1",
+            "3-junk-2",
+            "4-junk-1",
+            "4-junk-2",
+            "5-junk-1",
+            "5-junk-2",
+        ],
+    },
+];
 
 // CPU players:
 const cpu: Record<CpuStrength, CPUPlayer> = {
@@ -521,7 +598,34 @@ function HelpModal() {
                     Yaku
                 </label>
                 <section>
-                    <p>Tab 2 content</p>
+                    <div id="yaku-overview">
+                        {YAKU_OVERVIEW.map((y) => (
+                            <div key={y.name} class="yaku-overview-row">
+                                <div class="yaku-overview-info">
+                                    <span class="yaku-overview-name">
+                                        {y.name}
+                                    </span>
+                                    <span class="yaku-overview-points">
+                                        {y.points}
+                                    </span>
+                                </div>
+                                <div class="yaku-overview-cards">
+                                    {y.cards.map((id) => {
+                                        const card = CARDS.find(
+                                            (c) => c.id === id,
+                                        )!;
+                                        return (
+                                            <CardView
+                                                key={id}
+                                                card={card}
+                                                flipped={false}
+                                            />
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </section>
 
                 <label>
@@ -529,7 +633,21 @@ function HelpModal() {
                     Cards
                 </label>
                 <section>
-                    <p>Tab 3 content</p>
+                    <div id="card-overview">
+                        {Array.from({ length: 12 }, (_, i) => (
+                            <div key={i} class="card-overview-column">
+                                {CARDS.filter((c) => c.month === i + 1).map(
+                                    (c) => (
+                                        <CardView
+                                            key={c.id}
+                                            card={c}
+                                            flipped={false}
+                                        />
+                                    ),
+                                )}
+                            </div>
+                        ))}
+                    </div>
                 </section>
                 <button onClick={() => (showHelp.value = false)}>Close</button>
             </div>

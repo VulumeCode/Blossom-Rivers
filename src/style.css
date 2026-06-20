@@ -975,9 +975,16 @@ deck-label {
     background: var(--color-dark);
     border-radius: 1vmin;
     padding: 3vmin 4vmin;
-    max-width: 80vw;
+    width: 80vw;
+    height: 80vh;
     text-align: left;
     color: var(--color-dimmed);
+
+    --card-w: var(--card-w-river);
+    --card-h: var(--card-h-river);
+
+    justify-content: center;
+    align-content: space-between;
 
     u,
     b,
@@ -1004,7 +1011,6 @@ deck-label {
 
 #help-modal button {
     display: block;
-    margin: 1vmin auto 0;
     padding: 1vmin 2vmin;
     font-size: 2vmin;
     background: var(--color-purple);
@@ -1046,7 +1052,6 @@ deck-label {
     label {
         padding: 1vmin;
         cursor: pointer;
-        transition: 0.2s;
     }
 
     label:hover,
@@ -1061,4 +1066,40 @@ deck-label {
     section {
         padding: 1vmin;
     }
+}
+
+#card-overview {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 0.5vmin;
+}
+
+.card-overview-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5vmin;
+}
+
+#yaku-overview {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5vmin;
+}
+
+.yaku-overview-row {}
+
+.yaku-overview-cards {
+    display: flex;
+    gap: 0.3vmin;
+    flex-shrink: 0;
+}
+
+.yaku-overview-info {}
+
+.yaku-overview-name {
+    font-weight: bold;
+}
+
+.yaku-overview-points {
+    color: var(--color-pink);
 }
