@@ -522,7 +522,7 @@ function HelpModal() {
         <div id="help-overlay" onClick={() => (showHelp.value = false)}>
             <div id="help-modal" onClick={(e) => e.stopPropagation()}>
                 <label>
-                    <input type="radio" name="tabs" checked />
+                    <input type="radio" name="tabs" />
                     Rules
                 </label>
                 <section>
@@ -636,23 +636,13 @@ function HelpModal() {
                 </section>
 
                 <label>
-                    <input type="radio" name="tabs" />
+                    <input type="radio" name="tabs" checked />
                     Cards
                 </label>
                 <section>
                     <div id="card-overview">
-                        {Array.from({ length: 12 }, (_, i) => (
-                            <div key={i} class="card-overview-column">
-                                {CARDS.filter((c) => c.month === i + 1).map(
-                                    (c) => (
-                                        <CardView
-                                            key={c.id}
-                                            card={c}
-                                            flipped={false}
-                                        />
-                                    ),
-                                )}
-                            </div>
+                        {CARDS.map((c) => (
+                            <CardView key={c.id} card={c} flipped={false} />
                         ))}
                     </div>
                 </section>
