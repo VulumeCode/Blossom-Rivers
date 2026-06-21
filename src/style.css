@@ -1096,14 +1096,32 @@ deck-label {
     display: flex;
     flex-direction: column;
     gap: 1.5vmin;
+    flex-wrap: wrap;
+    max-height: 60vmin;
+
 }
 
-.yaku-overview-row {}
+
+.yaku-overview-row card-squish {
+    flex: 1 1 auto;
+    max-width: var(--card-w);
+}
+
+.yaku-overview-row {
+    >*+* {
+        margin-top: 1vmin;
+    }
+}
 
 .yaku-overview-cards {
     display: flex;
     gap: 0.3vmin;
     flex-shrink: 0;
+    max-width: calc(4.0*var(--card-w));
+
+    .space {
+        width: var(--card-w);
+    }
 }
 
 .yaku-overview-info {}

@@ -71,8 +71,11 @@ const YAKU_OVERVIEW = [
         points: "5",
         cards: ["7-animal", "10-animal", "6-animal"],
     },
-    { name: "Flower Viewing", points: "5", cards: ["3-bright", "9-animal"] },
-    { name: "Moon Viewing", points: "5", cards: ["8-bright", "9-animal"] },
+    {
+        name: "Flower & Moon Viewing",
+        points: "5",
+        cards: ["3-bright", "9-animal", null, "8-bright", "9-animal"],
+    },
     {
         name: "5+ Animals",
         points: "1+",
@@ -88,15 +91,15 @@ const YAKU_OVERVIEW = [
         points: "1+",
         cards: [
             "1-junk-1",
-            "1-junk-2",
             "2-junk-1",
-            "2-junk-2",
             "3-junk-1",
-            "3-junk-2",
             "4-junk-1",
-            "4-junk-2",
-            "5-junk-1",
-            "5-junk-2",
+            "6-junk-1",
+            "8-junk-1",
+            "10-junk-1",
+            "12-junk-2",
+            "11-junk-lightning",
+            "9-animal",
         ],
     },
 ];
@@ -601,7 +604,7 @@ function HelpModal() {
                 </section>
 
                 <label>
-                    <input type="radio" name="tabs" />
+                    <input type="radio" name="tabs" checked />
                     Yaku
                 </label>
                 <section>
@@ -611,7 +614,7 @@ function HelpModal() {
                                 <div class="yaku-overview-info">
                                     <span class="yaku-overview-name">
                                         {y.name}
-                                    </span>
+                                    </span>{" "}
                                     <span class="yaku-overview-points">
                                         {y.points}
                                     </span>
@@ -620,13 +623,16 @@ function HelpModal() {
                                     {y.cards.map((id) => {
                                         const card = CARDS.find(
                                             (c) => c.id === id,
-                                        )!;
-                                        return (
-                                            <CardView
-                                                key={id}
-                                                card={card}
-                                                flipped={false}
-                                            />
+                                        );
+                                        return card ? (
+                                            <card-squish key={id}>
+                                                <CardView
+                                                    card={card}
+                                                    flipped={false}
+                                                />
+                                            </card-squish>
+                                        ) : (
+                                            <span class="space"> </span>
                                         );
                                     })}
                                 </div>
@@ -636,7 +642,7 @@ function HelpModal() {
                 </section>
 
                 <label>
-                    <input type="radio" name="tabs" checked />
+                    <input type="radio" name="tabs" />
                     Cards
                 </label>
                 <section>
