@@ -44,6 +44,10 @@ export default defineConfig({
   })
 
   ],
+  build: {
+    target: ['chrome120', 'firefox117', 'safari17.2', 'edge120'],
+    chunkSizeWarningLimit: 2000,
+  },
   server: {
     allowedHosts: ["tuf-vincent"]
   }
