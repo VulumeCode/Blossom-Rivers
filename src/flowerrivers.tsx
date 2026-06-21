@@ -529,78 +529,82 @@ function HelpModal() {
                     Rules
                 </label>
                 <section>
-                    <ul>
-                        <li>
-                            <u>Setup:</u> Deal each player 6 cards
-                            <br />
-                            and put the deck on the side,
-                            <br />
-                            leaving space for 3 rivers of cards.
-                        </li>
-                        <li>
-                            <u>Play:</u> Each turn,
-                            <ul>
-                                <li>
-                                    Player A draws 3 cards from the deck 1 by 1,
-                                    <br />
-                                    and chooses which river to drop🍃it in.
-                                    <br />
-                                    They choose each river only once.
-                                </li>
-                                <li>
-                                    Player B can then either
-                                    <br />
-                                    discard🍃a card in any river,
-                                    <br />
-                                    or capture
-                                    <span class="reverse">🫳</span> a whole
-                                    river
-                                    <br />
-                                    by matching any card in that river.
-                                    <ul>
-                                        <li>
-                                            If they now have a new yaku
-                                            <br />
-                                            or improved an existing one,
-                                            <br />
-                                            they can call <b>STOP</b> and score
-                                            points.
-                                        </li>
-                                        <li>
-                                            If instead they call <b>KOI-KOI</b>{" "}
-                                            or have no yaku,
-                                            <br />
-                                            the round continues
-                                            <br />
-                                            as players switch roles each turn.
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-                        <li>
-                            <u>Scores are doubled</u> over 7 points,
-                            <br />
-                            if the opponent had called koi-koi,
-                            <br />
-                            and for each previous round which was a draw.
-                        </li>
-                        <li>
-                            <u>Lightning is a wild card,</u> it can capture any
-                            river.
-                            <br />
-                            It's mandatory to capture
-                            <span class="reverse">🫳</span> if it's dealt to a
-                            river.
-                        </li>
-                        <li>
-                            <u>The Rain man protects</u> from capture
-                            <br />
-                            with anything but a Willow.
-                        </li>
-                        <li>There are no hand-yaku.</li>
-                        <li>A junk yaku alone can't stop a round.</li>
-                    </ul>
+                    <div id="rules-overview">
+                        <ul>
+                            <li>
+                                <u>Setup:</u> Deal each player 6 cards
+                                <br />
+                                and put the deck on the side,
+                                <br />
+                                leaving space for 3 rivers of cards.
+                            </li>
+                            <li>
+                                <u>Play:</u> Each turn,
+                                <ul>
+                                    <li>
+                                        Player A draws 3 cards from the deck 1
+                                        by 1,
+                                        <br />
+                                        and chooses which river to drop🍃it in.
+                                        <br />
+                                        They choose each river only once.
+                                    </li>
+                                    <li>
+                                        Player B can then either
+                                        <br />
+                                        discard🍃a card in any river,
+                                        <br />
+                                        or capture
+                                        <span class="reverse">🫳</span> a whole
+                                        river
+                                        <br />
+                                        by matching any card in that river.
+                                        <ul>
+                                            <li>
+                                                If they now have a new yaku
+                                                <br />
+                                                or improved an existing one,
+                                                <br />
+                                                they can call <b>STOP</b> and
+                                                score points.
+                                            </li>
+                                            <li>
+                                                If instead they call{" "}
+                                                <b>KOI-KOI</b> or have no yaku,
+                                                <br />
+                                                the round continues
+                                                <br />
+                                                as players switch roles each
+                                                turn.
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <u>Scores are doubled</u> over 7 points,
+                                <br />
+                                if the opponent had called koi-koi,
+                                <br />
+                                and for each previous round which was a draw.
+                            </li>
+                            <li>
+                                <u>Lightning is a wild card,</u> it can capture
+                                any river.
+                                <br />
+                                It's mandatory to capture
+                                <span class="reverse">🫳</span> if it's dealt to
+                                a river.
+                            </li>
+                            <li>
+                                <u>The Rain man protects</u> from capture
+                                <br />
+                                with anything but a Willow.
+                            </li>
+                            <li>There are no hand-yaku.</li>
+                            <li>A junk yaku alone can't stop a round.</li>
+                        </ul>
+                    </div>
                 </section>
 
                 <label>
@@ -635,6 +639,7 @@ function HelpModal() {
                                             <span class="space"> </span>
                                         );
                                     })}
+                                    <span class="space"> </span>
                                 </div>
                             </div>
                         ))}

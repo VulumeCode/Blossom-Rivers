@@ -1025,14 +1025,10 @@ deck-label {
 /* tab-switching routine */
 #help-modal {
     container-type: size;
-
-    @media (max-aspect-ratio: 62/90) {
-        font-size: 150%;
-    }
+    font-size: 2vh;
 
     display: flex;
     flex-wrap: wrap;
-
 
     label {
         order: -1;
@@ -1075,6 +1071,11 @@ deck-label {
     }
 }
 
+#rules-overview {
+    max-height: 65vh;
+    overflow-y: auto;
+}
+
 #card-overview {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
@@ -1093,12 +1094,23 @@ deck-label {
 
 
 #yaku-overview {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    grid-template-rows: repeat(4, 1fr);
+    grid-auto-flow: column;
     gap: 1.5vmin;
-    flex-wrap: wrap;
     max-height: 60vmin;
 
+
+    @container (width < 620px) {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(6, 1fr);
+        grid-auto-flow: row;
+
+        max-height: 65vh;
+        font-size: 80%;
+        overflow-y: auto;
+    }
 }
 
 
