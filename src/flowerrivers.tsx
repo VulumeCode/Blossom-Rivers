@@ -528,8 +528,9 @@ function HelpModal() {
                 <section>
                     <ul>
                         <li>
-                            <u>Setup:</u> Deal each player 6 cards and put the
-                            deck on the side,
+                            <u>Setup:</u> Deal each player 6 cards
+                            <br />
+                            and put the deck on the side,
                             <br />
                             leaving space for 3 rivers of cards.
                         </li>
@@ -544,16 +545,20 @@ function HelpModal() {
                                     They choose each river only once.
                                 </li>
                                 <li>
-                                    Player B can then either discard🍃a card in
-                                    any river,
+                                    Player B can then either
+                                    <br />
+                                    discard🍃a card in any river,
                                     <br />
                                     or capture
                                     <span class="reverse">🫳</span> a whole
-                                    river by matching any card in that river.
+                                    river
+                                    <br />
+                                    by matching any card in that river.
                                     <ul>
                                         <li>
-                                            If they now have a new yaku or
-                                            improved an existing one,
+                                            If they now have a new yaku
+                                            <br />
+                                            or improved an existing one,
                                             <br />
                                             they can call <b>STOP</b> and score
                                             points.
@@ -562,8 +567,9 @@ function HelpModal() {
                                             If instead they call <b>KOI-KOI</b>{" "}
                                             or have no yaku,
                                             <br />
-                                            the round continues as players
-                                            switch roles each turn.
+                                            the round continues
+                                            <br />
+                                            as players switch roles each turn.
                                         </li>
                                     </ul>
                                 </li>
@@ -585,8 +591,9 @@ function HelpModal() {
                             river.
                         </li>
                         <li>
-                            <u>The Rain man protects</u> from capture with
-                            anything but a Willow.
+                            <u>The Rain man protects</u> from capture
+                            <br />
+                            with anything but a Willow.
                         </li>
                         <li>There are no hand-yaku.</li>
                         <li>A junk yaku alone can't stop a round.</li>

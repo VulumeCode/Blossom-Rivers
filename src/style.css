@@ -980,6 +980,7 @@ deck-label {
     text-align: left;
     color: var(--color-dimmed);
 
+
     --card-w: var(--card-w-river);
     --card-h: var(--card-h-river);
 
@@ -1023,6 +1024,11 @@ deck-label {
 
 /* tab-switching routine */
 #help-modal {
+
+    @media (max-aspect-ratio: 62/90) {
+        font-size: 150%;
+    }
+
     display: flex;
     flex-wrap: wrap;
 
