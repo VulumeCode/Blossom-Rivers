@@ -631,7 +631,7 @@ export function FlowerRivers() {
                     </span>
                     <span data-side="right">Rivers</span>
                 </div>
-                <div>A hanafuda game</div>
+                <div id="tagline">A hanafuda game</div>
 
                 <button
                     id="start-button"
