@@ -518,14 +518,14 @@ function YakuList({ captured }: YakuListProps) {
     );
 }
 
-const showHelp = signal<boolean>(true);
+const showHelp = signal<boolean>(false);
 
 function HelpModal() {
     return (
         <div id="help-overlay" onClick={() => (showHelp.value = false)}>
             <div id="help-modal" onClick={(e) => e.stopPropagation()}>
                 <label>
-                    <input type="radio" name="tabs" />
+                    <input type="radio" name="tabs" checked />
                     Rules
                 </label>
                 <section>
@@ -608,7 +608,7 @@ function HelpModal() {
                 </section>
 
                 <label>
-                    <input type="radio" name="tabs" checked />
+                    <input type="radio" name="tabs" />
                     Yaku
                 </label>
                 <section>
@@ -660,6 +660,33 @@ function HelpModal() {
                 <button onClick={() => (showHelp.value = false)}>Close</button>
             </div>
         </div>
+    );
+}
+
+function SystemMenu() {
+    return (
+        <>
+            {" "}
+            {showHelp.value && <HelpModal />}
+            <div id="system-buttons">
+                <button
+                    id="help-button"
+                    onClick={() => (showHelp.value = true)}
+                >
+                    ?
+                </button>
+                <button
+                    id="fullscreen-button"
+                    onClick={() => {
+                        document.fullscreenElement
+                            ? document.exitFullscreen()
+                            : document.body.requestFullscreen();
+                    }}
+                >
+                    ⛶
+                </button>
+            </div>
+        </>
     );
 }
 
@@ -842,7 +869,7 @@ export function FlowerRivers() {
     if (phase === "MENU") {
         return (
             <div id="menu-screen">
-                {showHelp.value && <HelpModal />}
+                <SystemMenu />
                 <div id="menu-title">
                     <span data-side="left">Blossom</span>
                     <span data-side="left" data-kanji>
@@ -897,12 +924,6 @@ export function FlowerRivers() {
                         </button>
                     ))}
                 </div>
-                <button
-                    id="help-button"
-                    onClick={() => (showHelp.value = true)}
-                >
-                    ?
-                </button>
             </div>
         );
     }
@@ -1138,7 +1159,7 @@ export function FlowerRivers() {
             }}
         >
             <div id="game-board">
-                {showHelp.value && <HelpModal />}
+                <SystemMenu />
                 {/* Yaku Choice Dialog */}
                 {phase === "YAKU_CHOICE" &&
                     (() => {
@@ -1208,12 +1229,6 @@ export function FlowerRivers() {
                             </draw-multiplier>
                         )}
                     </span>
-                    <button
-                        id="help-button"
-                        onClick={() => (showHelp.value = true)}
-                    >
-                        ?
-                    </button>
                 </div>
                 <div id="cpu-hand-row">
                     <HandView

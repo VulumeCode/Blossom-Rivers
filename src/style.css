@@ -948,13 +948,30 @@ deck-label {
     color: var(--color-pink);
 }
 
-#help-button {
-    width: 4vmin;
-    height: 4vmin;
-    border-radius: 50%;
-    font-size: 2vmin;
-    font-weight: bold;
-    cursor: pointer;
+#system-buttons {
+    position: absolute;
+    left: 2vmin;
+    top: 2vmin;
+
+    display: grid;
+    gap: 1vmin;
+
+    #game-board & {
+        top: 6vmin;
+    }
+
+    >button {
+        width: 4vmin;
+        height: 4vmin;
+        border-radius: 50%;
+        font-size: 2vmin;
+        font-weight: bold;
+        cursor: pointer;
+
+        background: var(--card-amber);
+        border-color: var(--card-frame-inner);
+        color: var(--card-frame-outer);
+    }
 }
 
 #help-overlay {
