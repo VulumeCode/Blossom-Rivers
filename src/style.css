@@ -191,6 +191,18 @@ body,
     touch-action: none;
 }
 
+body {
+    background: url(./img/sumida-gawa_hana-zakari.jpg);
+    background-size: cover;
+    background-position: center;
+}
+
+#root {
+    margin: auto;
+    max-width: 133dvh;
+    position: relative;
+}
+
 
 button[data-role="card-button"] icon,
 river-icon icon {
