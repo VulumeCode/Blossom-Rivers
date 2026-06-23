@@ -214,6 +214,48 @@ body {
     justify-content: center;
     background: var(--color-overlay);
     z-index: 9001;
+    transition: background 0.3s;
+
+    &[data-peeking] {
+        background: transparent;
+        pointer-events: none;
+        align-items: end;
+    }
+}
+
+.dialog {
+    background: var(--color-dark);
+    border-radius: 1vmin;
+    padding: 4vmin 4vmin;
+    text-align: center;
+    color: var(--color-text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2vmin;
+    pointer-events: auto;
+    transition: transform 0.3s;
+
+    .overlay[data-peeking] & {
+        padding: 2vmin 2vmin 3vmin;
+
+        transform: translateY(2vmin);
+        box-shadow: 0 0.5vmin 2vmin var(--color-card-shadow);
+
+        >*:not(.peek-button) {
+            display: none;
+        }
+    }
+}
+
+.peek-button {
+    background: transparent;
+    border: none;
+    color: var(--color-dimmed);
+    cursor: pointer;
+    font-size: 1.8vmin;
+    padding: 0.5vmin 1vmin;
+    align-self: center;
 }
 
 button[data-role="card-button"] icon,
@@ -620,20 +662,6 @@ yaku-list {
 
 /* --- ROUND OVER / GAME OVER OVERLAYS --- */
 
-
-#round-over-dialog,
-#game-over-dialog {
-    background: var(--color-dark);
-    border-radius: 1vmin;
-    padding: 2vmin 4vmin;
-    text-align: center;
-    color: var(--color-text);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2vmin;
-}
-
 #round-over-title {
     font-size: 4vmin;
     font-weight: bold;
@@ -921,14 +949,6 @@ deck-label {
 
 /* --- YAKU DIALOG --- */
 
-#yaku-dialog {
-    background: var(--color-dark);
-    border-radius: 1vmin;
-    padding: 2vmin 4vmin;
-    text-align: center;
-    max-width: 33vmin;
-}
-
 #yaku-dialog-title {
     font-size: 3vmin;
     font-weight: bold;
@@ -954,7 +974,8 @@ deck-label {
     cursor: pointer;
 }
 
-#koikoi-button {
+#koikoi-button,
+.peek-button {
     padding: 1vmin 2vmin;
 
     font-weight: bold;

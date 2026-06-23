@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useState } from "preact/hooks";
 import type { ComponentChildren } from "preact";
-import { signal } from "@preact/signals";
+import { signal, useSignal } from "@preact/signals";
 import type {
     Card,
     CpuStrength,
@@ -257,6 +257,24 @@ function CardButton({ variant, onClick, children }: CardButtonProps) {
         >
             {children}
         </button>
+    );
+}
+
+// --- DIALOG OVERLAY ---
+function DialogOverlay({ children }: { children: ComponentChildren }) {
+    const peeking = useSignal(false);
+    return (
+        <div class="overlay" data-peeking={peeking.value || undefined}>
+            <div class="dialog">
+                <button
+                    class="peek-button"
+                    onClick={() => (peeking.value = !peeking.value)}
+                >
+                    {peeking.value ? "⛌ Show table" : "☰ Show table"}
+                </button>
+                {children}
+            </div>
+        </div>
     );
 }
 
@@ -844,158 +862,133 @@ export function FlowerRivers() {
                             type: "CALL_STOP",
                         }).roundScoreInfo!;
                         return (
-                            <div class="overlay">
-                                <div id="yaku-dialog">
-                                    <div id="yaku-dialog-title">
-                                        {yakuPlayer === 0
-                                            ? "Yaku!"
-                                            : "CPU Yaku!"}
-                                    </div>
-                                    <ScoreBreakdown
-                                        info={info}
-                                        perspective={0}
-                                    />
-                                    <div id="yaku-dialog-buttons">
-                                        {yakuPlayer === 0 ? (
-                                            <>
-                                                <button
-                                                    id="stop-button"
-                                                    onClick={() =>
-                                                        dispatch({
-                                                            type: "CALL_STOP",
-                                                        })
-                                                    }
-                                                >
-                                                    Stop
-                                                </button>
-                                                <button
-                                                    id="koikoi-button"
-                                                    disabled={
-                                                        hands[0].length == 0
-                                                    }
-                                                    onClick={() =>
-                                                        dispatch({
-                                                            type: "CALL_KOIKOI",
-                                                        })
-                                                    }
-                                                >
-                                                    Koi-Koi!
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <div id="cpu-deciding">
-                                                CPU is deciding...
-                                            </div>
-                                        )}
-                                    </div>
+                            <DialogOverlay>
+                                <div id="yaku-dialog-title">
+                                    {yakuPlayer === 0 ? "Yaku!" : "CPU Yaku!"}
                                 </div>
-                            </div>
+                                <ScoreBreakdown info={info} perspective={0} />
+                                <div id="yaku-dialog-buttons">
+                                    {yakuPlayer === 0 ? (
+                                        <>
+                                            <button
+                                                id="stop-button"
+                                                onClick={() =>
+                                                    dispatch({
+                                                        type: "CALL_STOP",
+                                                    })
+                                                }
+                                            >
+                                                Stop
+                                            </button>
+                                            <button
+                                                id="koikoi-button"
+                                                disabled={hands[0].length == 0}
+                                                onClick={() =>
+                                                    dispatch({
+                                                        type: "CALL_KOIKOI",
+                                                    })
+                                                }
+                                            >
+                                                Koi-Koi!
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <div id="cpu-deciding">
+                                            CPU is deciding...
+                                        </div>
+                                    )}
+                                </div>
+                            </DialogOverlay>
                         );
                     })()}
-                {
-                    /* Round Over Dialog */
-                    phase === "ROUND_OVER" &&
-                        (() => {
-                            const info = roundScoreInfo;
-                            return (
-                                <div class="overlay">
-                                    <div id="round-over-dialog">
-                                        <div id="round-over-title">
-                                            Round {round} Complete
-                                        </div>
-                                        {info && info.winner === -1 ? (
-                                            <div id="round-over-draw-info">
-                                                Draw! Points doubled next round.
-                                            </div>
-                                        ) : (
-                                            info && (
-                                                <div id="round-over-winner-info">
-                                                    <div id="round-over-winner-text">
-                                                        {playerName(
-                                                            info.winner,
-                                                        )}{" "}
-                                                        won the round!
-                                                    </div>
-                                                    <ScoreBreakdown
-                                                        info={info}
-                                                        perspective={0}
-                                                    />
-                                                </div>
-                                            )
-                                        )}
-                                        <div id="round-over-scores">
-                                            Score — You: {scores[0]} | CPU:{" "}
-                                            {scores[1]}
-                                        </div>
-                                        <button
-                                            id="next-round-button"
-                                            onClick={() =>
-                                                dispatch({ type: "NEXT_ROUND" })
-                                            }
-                                        >
-                                            Next Round
-                                        </button>
-                                    </div>
+                {/* Round Over Dialog */}
+                {phase === "ROUND_OVER" &&
+                    (() => {
+                        const info = roundScoreInfo;
+                        return (
+                            <DialogOverlay>
+                                <div id="round-over-title">
+                                    Round {round} Complete
                                 </div>
-                            );
-                        })()
-                }
-                {
-                    /* Game Over Dialog */
-                    phase === "GAME_OVER" &&
-                        (() => {
-                            const info = roundScoreInfo;
-                            const finalS0 = scores[0];
-                            const finalS1 = scores[1];
-                            const winner =
-                                finalS0 > finalS1
-                                    ? "You win!"
-                                    : finalS0 < finalS1
-                                      ? "CPU wins!"
-                                      : "Tie game!";
-                            return (
-                                <div class="overlay">
-                                    <div id="game-over-dialog">
-                                        <div id="game-over-title">
-                                            Game Over
-                                        </div>
-                                        {info && info.winner !== -1 && (
-                                            <div id="game-over-round-info">
-                                                <div id="game-over-round-text">
-                                                    {playerName(info.winner)}{" "}
-                                                    won the final round!
-                                                </div>
-                                                <ScoreBreakdown
-                                                    info={info}
-                                                    perspective={0}
-                                                />
-                                            </div>
-                                        )}
-                                        {info && info.winner === -1 && (
-                                            <div id="game-over-draw-info">
-                                                Final round was a draw.
-                                            </div>
-                                        )}
-                                        <div id="game-over-scores">
-                                            Score — You: {scores[0]} | CPU:{" "}
-                                            {scores[1]}
-                                        </div>
-                                        <div id="game-over-winner">
-                                            {winner}
-                                        </div>
-                                        <button
-                                            id="play-again-button"
-                                            onClick={() =>
-                                                dispatch({ type: "GO_TO_MENU" })
-                                            }
-                                        >
-                                            Play Again
-                                        </button>
+                                {info && info.winner === -1 ? (
+                                    <div id="round-over-draw-info">
+                                        Draw! Points doubled next round.
                                     </div>
+                                ) : (
+                                    info && (
+                                        <div id="round-over-winner-info">
+                                            <div id="round-over-winner-text">
+                                                {playerName(info.winner)} won
+                                                the round!
+                                            </div>
+                                            <ScoreBreakdown
+                                                info={info}
+                                                perspective={0}
+                                            />
+                                        </div>
+                                    )
+                                )}
+                                <div id="round-over-scores">
+                                    Score — You: {scores[0]} | CPU: {scores[1]}
                                 </div>
-                            );
-                        })()
-                }
+                                <button
+                                    id="next-round-button"
+                                    onClick={() =>
+                                        dispatch({ type: "NEXT_ROUND" })
+                                    }
+                                >
+                                    Next Round
+                                </button>
+                            </DialogOverlay>
+                        );
+                    })()}
+                {/* Game Over Dialog */}
+                {phase === "GAME_OVER" &&
+                    (() => {
+                        const info = roundScoreInfo;
+                        const finalS0 = scores[0];
+                        const finalS1 = scores[1];
+                        const winner =
+                            finalS0 > finalS1
+                                ? "You win!"
+                                : finalS0 < finalS1
+                                  ? "CPU wins!"
+                                  : "Tie game!";
+                        return (
+                            <DialogOverlay>
+                                <div id="game-over-title">Game Over</div>
+                                {info && info.winner !== -1 && (
+                                    <div id="game-over-round-info">
+                                        <div id="game-over-round-text">
+                                            {playerName(info.winner)} won the
+                                            final round!
+                                        </div>
+                                        <ScoreBreakdown
+                                            info={info}
+                                            perspective={0}
+                                        />
+                                    </div>
+                                )}
+                                {info && info.winner === -1 && (
+                                    <div id="game-over-draw-info">
+                                        Final round was a draw.
+                                    </div>
+                                )}
+                                <div id="game-over-scores">
+                                    Score — You: {scores[0]} | CPU: {scores[1]}
+                                </div>
+                                <div id="game-over-winner">{winner}</div>
+                                <button
+                                    id="play-again-button"
+                                    onClick={() =>
+                                        dispatch({ type: "GO_TO_MENU" })
+                                    }
+                                >
+                                    Play Again
+                                </button>
+                            </DialogOverlay>
+                        );
+                    })()}
                 {/* Top Bar */}
                 <div id="top-bar">
                     <top-title>花川 - Blossom Rivers</top-title>
