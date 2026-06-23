@@ -677,78 +677,6 @@ export function FlowerRivers() {
         );
     }
 
-    // Round over screen
-    if (phase === "ROUND_OVER") {
-        const info = roundScoreInfo;
-        return (
-            <div id="round-over-screen">
-                <div id="round-over-title">Round {round} Complete</div>
-                {info && info.winner === -1 ? (
-                    <div id="round-over-draw-info">
-                        Draw! Points doubled next round.
-                    </div>
-                ) : (
-                    info && (
-                        <div id="round-over-winner-info">
-                            <div id="round-over-winner-text">
-                                {playerName(info.winner)} won the round!
-                            </div>
-                            <ScoreBreakdown info={info} perspective={0} />
-                        </div>
-                    )
-                )}
-                <div id="round-over-scores">
-                    Score — You: {scores[0]} | CPU: {scores[1]}
-                </div>
-                <button
-                    id="next-round-button"
-                    onClick={() => dispatch({ type: "NEXT_ROUND" })}
-                >
-                    Next Round
-                </button>
-            </div>
-        );
-    }
-
-    // Game over screen
-    if (phase === "GAME_OVER") {
-        const info = roundScoreInfo;
-        const finalS0 = scores[0];
-        const finalS1 = scores[1];
-        const winner =
-            finalS0 > finalS1
-                ? "You win!"
-                : finalS0 < finalS1
-                  ? "CPU wins!"
-                  : "Tie game!";
-        return (
-            <div id="game-over-screen">
-                <div id="game-over-title">Game Over</div>
-                {info && info.winner !== -1 && (
-                    <div id="game-over-round-info">
-                        <div id="game-over-round-text">
-                            {playerName(info.winner)} won the final round!
-                        </div>
-                        <ScoreBreakdown info={info} perspective={0} />
-                    </div>
-                )}
-                {info && info.winner === -1 && (
-                    <div id="game-over-draw-info">Final round was a draw.</div>
-                )}
-                <div id="game-over-scores">
-                    Score — You: {scores[0]} | CPU: {scores[1]}
-                </div>
-                <div id="game-over-winner">{winner}</div>
-                <button
-                    id="play-again-button"
-                    onClick={() => dispatch({ type: "GO_TO_MENU" })}
-                >
-                    Play Again
-                </button>
-            </div>
-        );
-    }
-
     // --- MAIN GAME BOARD ---
     // Determine river highlights
     const getRiverHighlight = (ri: number): RiverHighlightType => {
@@ -916,7 +844,7 @@ export function FlowerRivers() {
                             type: "CALL_STOP",
                         }).roundScoreInfo!;
                         return (
-                            <div id="yaku-dialog-overlay">
+                            <div class="overlay">
                                 <div id="yaku-dialog">
                                     <div id="yaku-dialog-title">
                                         {yakuPlayer === 0
@@ -964,6 +892,110 @@ export function FlowerRivers() {
                             </div>
                         );
                     })()}
+                {
+                    /* Round Over Dialog */
+                    phase === "ROUND_OVER" &&
+                        (() => {
+                            const info = roundScoreInfo;
+                            return (
+                                <div class="overlay">
+                                    <div id="round-over-dialog">
+                                        <div id="round-over-title">
+                                            Round {round} Complete
+                                        </div>
+                                        {info && info.winner === -1 ? (
+                                            <div id="round-over-draw-info">
+                                                Draw! Points doubled next round.
+                                            </div>
+                                        ) : (
+                                            info && (
+                                                <div id="round-over-winner-info">
+                                                    <div id="round-over-winner-text">
+                                                        {playerName(
+                                                            info.winner,
+                                                        )}{" "}
+                                                        won the round!
+                                                    </div>
+                                                    <ScoreBreakdown
+                                                        info={info}
+                                                        perspective={0}
+                                                    />
+                                                </div>
+                                            )
+                                        )}
+                                        <div id="round-over-scores">
+                                            Score — You: {scores[0]} | CPU:{" "}
+                                            {scores[1]}
+                                        </div>
+                                        <button
+                                            id="next-round-button"
+                                            onClick={() =>
+                                                dispatch({ type: "NEXT_ROUND" })
+                                            }
+                                        >
+                                            Next Round
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })()
+                }
+                {
+                    /* Game Over Dialog */
+                    phase === "GAME_OVER" &&
+                        (() => {
+                            const info = roundScoreInfo;
+                            const finalS0 = scores[0];
+                            const finalS1 = scores[1];
+                            const winner =
+                                finalS0 > finalS1
+                                    ? "You win!"
+                                    : finalS0 < finalS1
+                                      ? "CPU wins!"
+                                      : "Tie game!";
+                            return (
+                                <div class="overlay">
+                                    <div id="game-over-dialog">
+                                        <div id="game-over-title">
+                                            Game Over
+                                        </div>
+                                        {info && info.winner !== -1 && (
+                                            <div id="game-over-round-info">
+                                                <div id="game-over-round-text">
+                                                    {playerName(info.winner)}{" "}
+                                                    won the final round!
+                                                </div>
+                                                <ScoreBreakdown
+                                                    info={info}
+                                                    perspective={0}
+                                                />
+                                            </div>
+                                        )}
+                                        {info && info.winner === -1 && (
+                                            <div id="game-over-draw-info">
+                                                Final round was a draw.
+                                            </div>
+                                        )}
+                                        <div id="game-over-scores">
+                                            Score — You: {scores[0]} | CPU:{" "}
+                                            {scores[1]}
+                                        </div>
+                                        <div id="game-over-winner">
+                                            {winner}
+                                        </div>
+                                        <button
+                                            id="play-again-button"
+                                            onClick={() =>
+                                                dispatch({ type: "GO_TO_MENU" })
+                                            }
+                                        >
+                                            Play Again
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })()
+                }
                 {/* Top Bar */}
                 <div id="top-bar">
                     <top-title>花川 - Blossom Rivers</top-title>

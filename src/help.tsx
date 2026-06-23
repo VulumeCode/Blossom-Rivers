@@ -84,7 +84,7 @@ const showHelp = signal<boolean>(false);
 
 function HelpModal() {
     return (
-        <div id="help-overlay" onClick={() => (showHelp.value = false)}>
+        <div class="overlay" onClick={() => (showHelp.value = false)}>
             <div id="help-modal" onClick={(e) => e.stopPropagation()}>
                 <label>
                     <input type="radio" name="tabs" checked />

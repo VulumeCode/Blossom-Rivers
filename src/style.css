@@ -203,6 +203,18 @@ body {
     position: relative;
 }
 
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-overlay);
+    z-index: 9001;
+}
 
 button[data-role="card-button"] icon,
 river-icon icon {
@@ -521,10 +533,8 @@ yaku-list {
 }
 
 
-/* --- FULLSCREEN SCREENS (menu / round over / game over) --- */
-#menu-screen,
-#round-over-screen,
-#game-over-screen {
+/* --- FULLSCREEN SCREENS (menu) --- */
+#menu-screen {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -608,7 +618,22 @@ yaku-list {
     }
 }
 
-/* --- ROUND OVER --- */
+/* --- ROUND OVER / GAME OVER OVERLAYS --- */
+
+
+#round-over-dialog,
+#game-over-dialog {
+    background: var(--color-dark);
+    border-radius: 1vmin;
+    padding: 2vmin 4vmin;
+    text-align: center;
+    color: var(--color-text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2vmin;
+}
+
 #round-over-title {
     font-size: 4vmin;
     font-weight: bold;
@@ -895,18 +920,6 @@ deck-label {
 }
 
 /* --- YAKU DIALOG --- */
-#yaku-dialog-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--color-overlay);
-    z-index: 9001;
-}
 
 #yaku-dialog {
     background: var(--color-dark);
@@ -991,19 +1004,6 @@ deck-label {
     }
 }
 
-#help-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--color-overlay);
-    z-index: 9001;
-
-}
 
 #help-modal {
     background: var(--color-dark);
@@ -1169,8 +1169,6 @@ deck-label {
         width: var(--card-w);
     }
 }
-
-.yaku-overview-info {}
 
 .yaku-overview-name {
     font-weight: bold;
