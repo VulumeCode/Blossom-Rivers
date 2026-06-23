@@ -12,7 +12,7 @@ import type {
 import { cardImageById, images } from "./cardImages";
 import { isLightning, isRainMan } from "./cards";
 import { computeYaku } from "./yaku";
-import { Flipped, Flipper } from "react-flip-toolkit";
+import { disableFlip, enableFlip, Flipped, Flipper } from "react-flip-toolkit";
 import {
     canCaptureRiver,
     gameReducer,
@@ -933,9 +933,13 @@ export function FlowerRivers() {
                                 </div>
                                 <button
                                     id="next-round-button"
-                                    onClick={() =>
-                                        dispatch({ type: "NEXT_ROUND" })
-                                    }
+                                    onClick={() => {
+                                        disableFlip();
+                                        dispatch({ type: "NEXT_ROUND" });
+                                        requestAnimationFrame(() =>
+                                            enableFlip(),
+                                        );
+                                    }}
                                 >
                                     Next Round
                                 </button>
