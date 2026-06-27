@@ -227,8 +227,8 @@ body {
 
 .dialog {
     background: var(--color-dark);
-    border-radius: 1vmin;
-    padding: 4vmin 4vmin;
+    border-radius: 1vh;
+    padding: 4vh 4vh;
     text-align: center;
     color: var(--color-text);
     display: flex;
@@ -238,10 +238,10 @@ body {
     transition: transform 0.3s;
 
     .overlay[data-peeking] & {
-        padding: 2vmin 2vmin 3vmin;
+        padding: 2vh 2vh 3vh;
 
-        transform: translateY(2vmin);
-        box-shadow: 0 0.5vmin 2vmin var(--color-card-shadow);
+        transform: translateY(2vh);
+        box-shadow: 0 0.5vh 2vh var(--color-card-shadow);
 
         >*:not(.peek-button) {
             display: none !important;
@@ -666,6 +666,7 @@ yaku-list {
     font-size: 4vh;
     font-weight: bold;
     color: var(--color-pink);
+    margin-top: 2vh;
 }
 
 #round-over-winner-info {
@@ -696,6 +697,7 @@ yaku-list {
     border: none;
     border-radius: 1vh;
     cursor: pointer;
+    margin-top: 2vh;
 }
 
 /* --- GAME OVER --- */
@@ -703,6 +705,7 @@ yaku-list {
     font-size: 4vh;
     font-weight: bold;
     color: var(--color-pink);
+    margin-top: 2vh;
 }
 
 #game-over-round-info {
@@ -733,6 +736,7 @@ yaku-list {
     border: none;
     border-radius: 1vh;
     cursor: pointer;
+    margin-top: 2vh;
 }
 
 /* --- GAME BOARD --- */
@@ -955,6 +959,7 @@ deck-label {
     font-weight: bold;
     color: var(--color-pink);
     margin-bottom: 2vh;
+    margin-top: 2vh;
 }
 
 #yaku-dialog-buttons {
@@ -1010,7 +1015,7 @@ deck-label {
     gap: 1vh;
 
     #game-board & {
-        top: 6vh;
+        top: 6vmin;
     }
 
     >button {
