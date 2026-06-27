@@ -1029,6 +1029,12 @@ deck-label {
     display: grid;
     gap: 1vh;
 
+    @media (max-aspect-ratio: 62/90) {
+        left: 1.5vh;
+        top: 1.5vh;
+        gap: 0.75vh;
+    }
+
     >button {
         display: flex;
         align-items: center;
@@ -1045,6 +1051,13 @@ deck-label {
         background: var(--card-amber);
         border-color: var(--card-frame-inner);
         color: var(--card-frame-outer);
+
+
+        @media (max-aspect-ratio: 62/90) {
+            width: 3vh;
+            height: 3vh;
+            font-size: 1.5vh;
+        }
     }
 }
 
