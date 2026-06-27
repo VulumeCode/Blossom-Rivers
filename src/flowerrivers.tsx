@@ -21,7 +21,7 @@ import {
 } from "./game";
 import { type CPUPlayer } from "../src/cpu/cpu";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
-import { SystemMenu } from "../src/help";
+import { SystemMenu, restartGame } from "../src/help";
 
 const hoveredMonth = signal<number | null>(null);
 
@@ -460,6 +460,7 @@ function YakuList({ captured }: YakuListProps) {
 // --- MAIN COMPONENT ---
 export function FlowerRivers() {
     const [state, dispatch] = useReducer(gameReducer, makeInitialState());
+    restartGame.value = () => dispatch({ type: "GO_TO_MENU" });
     const [ping, setPing] = useState(123); // Changes on animation ended.
     const [revealedCpuCard, setRevealedCpuCard] = useState<Card | null>(null);
 

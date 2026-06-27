@@ -1087,6 +1087,7 @@ deck-label {
 #help-modal button {
     display: block;
     padding: 1vh 2vh;
+    margin: 0 0.5vh;
     font-size: 2vh;
     background: var(--color-purple);
     color: var(--color-pink);

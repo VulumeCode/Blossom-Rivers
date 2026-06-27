@@ -81,6 +81,7 @@ const YAKU_OVERVIEW = [
     },
 ];
 const showHelp = signal<boolean>(false);
+export const restartGame = signal<(() => void) | null>(null);
 
 function HelpModal() {
     return (
@@ -286,7 +287,25 @@ function HelpModal() {
                         </a>
                     </p>
                 </section>
-                <button onClick={() => (showHelp.value = false)}>Close</button>
+                <button onClick={() => (showHelp.value = false)}>
+                    Close help
+                </button>
+                {restartGame.value && (
+                    <button
+                        onClick={() => {
+                            if (
+                                confirm(
+                                    "Restart the game? Current progress will be lost.",
+                                )
+                            ) {
+                                restartGame.value!();
+                                showHelp.value = false;
+                            }
+                        }}
+                    >
+                        Restart game
+                    </button>
+                )}
             </div>
         </div>
     );
