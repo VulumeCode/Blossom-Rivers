@@ -855,7 +855,6 @@ export function FlowerRivers() {
             }}
         >
             <div id="game-board">
-                <SystemMenu />
                 {/* Yaku Choice Dialog */}
                 {phase === "YAKU_CHOICE" &&
                     (() => {
@@ -1010,6 +1009,8 @@ export function FlowerRivers() {
                     </span>
                 </div>
                 <div id="cpu-hand-row">
+                    <SystemMenu />
+
                     <HandView
                         id="cpu-hand"
                         cards={hands[1]}

@@ -761,6 +761,8 @@ yaku-list {
 
 
     @media (max-aspect-ratio: 62/90) {
+        font-size: 3vmin;
+
         grid-template-columns: 1fr;
         grid-template-rows:
             4vmin 1fr 1.5fr min-content 4vmin 1.5fr 1fr;
@@ -954,6 +956,13 @@ deck-label {
     padding: 1vmin 2vmin;
 }
 
+#status-bar,
+#top-bar {
+    @media (max-aspect-ratio: 62/90) {
+        height: 5vmin;
+    }
+}
+
 /* --- YAKU DIALOG --- */
 
 #yaku-dialog-title {
@@ -1007,6 +1016,10 @@ deck-label {
     color: var(--color-pink);
 }
 
+#cpu-hand-row {
+    position: relative;
+}
+
 #system-buttons {
     position: absolute;
     z-index: 10000;
@@ -1015,10 +1028,6 @@ deck-label {
 
     display: grid;
     gap: 1vh;
-
-    #game-board & {
-        top: 6vmin;
-    }
 
     >button {
         display: flex;
