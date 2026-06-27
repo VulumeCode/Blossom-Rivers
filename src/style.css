@@ -1139,6 +1139,9 @@ deck-label {
 #rules-overview {
     max-height: 65vh;
     overflow-y: auto;
+    max-width: max-content;
+    margin: auto;
+    padding: 0 2vmin;
 }
 
 #card-overview {
