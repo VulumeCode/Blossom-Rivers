@@ -1,10 +1,13 @@
 # 花川 - Blossom Rivers
 
-A hanafuda game
+A hanafuda drafting game
 
-[Play online](https://vulumecode.github.io/Blossom-Rivers/)
+[Play online (PWA)](https://vulumecode.github.io/Blossom-Rivers/)
+
+[Play on Itch.io](https://vulume.itch.io/blossom-rivers)
 
 
+## How to play
 
  - Setup: Each player is dealt 6 cards and the deck is put on the side, leaving space for 3 'rivers' of cards on the field.
 
@@ -32,3 +35,17 @@ A hanafuda game
 
 
 Each turn the rivers grow longer, and captures get bigger and bigger. Tactic lies not only in which river to take, but also where to drop the flowers. There are only a few tough decisions per round, but they're impactful and the rounds are very quick so over the course of a game it adds up quickly. 
+
+## Credits
+
+Cards: A modified version of [Hanafuda cards by Louie Mantia](https://commons.wikimedia.org/wiki/Category:SVG_Hanafuda_with_green_plants).
+
+Background art: Sumidagawa Hanazakari by Andō Hiroshige
+
+Public domain textures
+
+## Licences
+
+Code: [GPLv3](https://www.tldrlegal.com/license/gnu-general-public-license-v3-gpl-3)
+
+Assets: [Creative Commons Attribution ShareAlike](https://creativecommons.org/licenses/by-nd/4.0/)
