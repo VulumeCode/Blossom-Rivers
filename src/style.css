@@ -349,6 +349,18 @@ card-view[data-selected] svg {
     transform: translateY(-2vmin);
 }
 
+card-view[data-glow] svg {
+    outline-color: var(--color-pink);
+
+    path {
+        fill: color-mix(in xyz, currentColor 90%, var(--color-pink));
+
+        path.hf-paper {
+            fill: color-mix(in xyz, currentColor, var(--color-pink));
+        }
+    }
+}
+
 card-view[data-highlighted] svg {
     outline-color: var(--color-capture);
 
@@ -361,16 +373,9 @@ card-view[data-highlighted] svg {
     }
 }
 
-card-view[data-glow] svg {
-    outline-color: var(--color-pink);
 
-    path {
-        fill: color-mix(in xyz, currentColor 90%, var(--color-pink));
-
-        path.hf-paper {
-            fill: color-mix(in xyz, currentColor, var(--color-pink));
-        }
-    }
+card-view[data-highlighted][data-glow] svg {
+    box-shadow: 0 0 0vh 0.5vmin var(--color-pink);
 }
 
 
