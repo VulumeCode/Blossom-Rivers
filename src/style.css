@@ -1054,10 +1054,15 @@ deck-label {
 }
 
 #help-modal h2 {
-    text-align: center;
     color: var(--color-pink);
     margin-bottom: 2vmin;
 }
+
+#help-modal a {
+    color: var(--color-purple);
+}
+
+
 
 #help-modal p {
     margin-bottom: 1.5vmin;

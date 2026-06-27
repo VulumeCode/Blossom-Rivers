@@ -219,6 +219,73 @@ function HelpModal() {
                         ))}
                     </div>
                 </section>
+
+                <label>
+                    <input type="radio" name="tabs" />
+                    About
+                </label>
+                <section>
+                    <h2>Play</h2>
+                    <p>
+                        <a
+                            href="https://vulumecode.github.io/Blossom-Rivers/"
+                            rel="nofollow"
+                        >
+                            Play online (PWA)
+                        </a>
+                    </p>
+                    <p>
+                        <a
+                            href="https://vulume.itch.io/blossom-rivers"
+                            rel="nofollow"
+                        >
+                            Play on Itch.io
+                        </a>
+                    </p>
+                    <h2>Code</h2>
+                    <p>
+                        <a
+                            href="https://github.com/VulumeCode/Blossom-Rivers"
+                            rel="nofollow"
+                        >
+                            Code on GitHub
+                        </a>
+                    </p>
+                    <h2>Credits</h2>
+                    <p>
+                        Cards: A modified version of{" "}
+                        <a
+                            href="https://commons.wikimedia.org/wiki/Category:SVG_Hanafuda_with_green_plants"
+                            rel="nofollow"
+                        >
+                            Hanafuda cards by Louie Mantia
+                        </a>
+                        .
+                    </p>
+                    <p>
+                        Background art: Sumidagawa Hanazakari by Andō Hiroshige
+                    </p>
+                    <p>Public domain textures</p>
+                    <h2>Licences</h2>
+                    <p>
+                        Code:{" "}
+                        <a
+                            href="https://www.tldrlegal.com/license/gnu-general-public-license-v3-gpl-3"
+                            rel="nofollow"
+                        >
+                            GPLv3
+                        </a>
+                    </p>
+                    <p>
+                        Assets:{" "}
+                        <a
+                            href="https://creativecommons.org/licenses/by-nd/4.0/"
+                            rel="nofollow"
+                        >
+                            Creative Commons Attribution ShareAlike
+                        </a>
+                    </p>
+                </section>
                 <button onClick={() => (showHelp.value = false)}>Close</button>
             </div>
         </div>
