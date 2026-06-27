@@ -585,6 +585,8 @@ yaku-list {
     height: 100dvh;
     color: var(--color-text);
     gap: 2vmin;
+
+    font-size: 2vh;
 }
 
 #menu-title {
@@ -630,32 +632,32 @@ yaku-list {
 }
 
 #start-button {
-    padding: 2vmin 4vmin;
-    font-size: 3vmin;
+    padding: 2vh 4vh;
+    font-size: 3vh;
     background: var(--color-purple);
     color: var(--color-pink);
     border: none;
-    border-radius: 1vmin;
+    border-radius: 1vh;
     cursor: pointer;
 }
 
 #cpu-strength,
 #total-rounds {
     &>button {
-        padding: 1vmin 2vmin;
-        font-size: 2vmin;
+        padding: 1vh 2vh;
+        font-size: 2vh;
         background: var(--color-purple);
         color: var(--color-pink);
         border: none;
-        border-radius: 1vmin;
+        border-radius: 1vh;
         cursor: pointer;
 
         &+& {
-            margin-left: 1vmin;
+            margin-left: 1vh;
         }
 
         &[data-selected] {
-            outline: 0.3vmin solid var(--color-pink);
+            outline: 0.3vh solid var(--color-pink);
         }
     }
 }
