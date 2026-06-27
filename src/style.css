@@ -773,8 +773,8 @@ yaku-list {
     grid-area: t;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 0 2vmin;
+    align-items: baseline;
+    padding: 0.5vmin 2vmin;
     height: 4vmin;
     align-content: center;
 
@@ -943,7 +943,8 @@ deck-label {
     text-align: center;
     background: var(--color-dark);
     color: var(--color-text);
-    align-content: center;
+    align-content: baseline;
+    padding: 1vmin 2vmin;
 }
 
 /* --- YAKU DIALOG --- */
@@ -1011,11 +1012,16 @@ deck-label {
     }
 
     >button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 4vmin;
         height: 4vmin;
         border-radius: 50%;
         font-size: 2vmin;
         font-weight: bold;
+        translate: 0 0;
+        line-height: 0;
         cursor: pointer;
 
         background: var(--card-amber);
