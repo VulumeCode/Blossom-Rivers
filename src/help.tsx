@@ -80,7 +80,7 @@ const YAKU_OVERVIEW = [
         ],
     },
 ];
-const showHelp = signal<boolean>(false);
+export const showHelp = signal<boolean>(false);
 export const restartGame = signal<(() => void) | null>(null);
 
 function HelpModal() {

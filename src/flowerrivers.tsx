@@ -21,7 +21,7 @@ import {
 } from "./game";
 import { type CPUPlayer } from "../src/cpu/cpu";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
-import { SystemMenu, restartGame } from "../src/help";
+import { SystemMenu, restartGame, showHelp } from "../src/help";
 
 const hoveredMonth = signal<number | null>(null);
 
@@ -466,6 +466,8 @@ function loadOrMakeInitialState(): GameState {
     } catch {
         console.error("Error parsing gamestate");
     }
+    console.log("First time, opening help.");
+    showHelp.value = true;
     return makeInitialState();
 }
 
