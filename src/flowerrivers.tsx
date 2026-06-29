@@ -457,9 +457,26 @@ function YakuList({ captured }: YakuListProps) {
     );
 }
 
+function loadOrMakeInitialState(): GameState {
+    const stateJson = localStorage.getItem("gamestate");
+    try {
+        if (!!stateJson) {
+            return JSON.parse(stateJson);
+        }
+    } catch {
+        console.error("Error parsing gamestate");
+    }
+    return makeInitialState();
+}
+
 // --- MAIN COMPONENT ---
 export function FlowerRivers() {
-    const [state, dispatch] = useReducer(gameReducer, makeInitialState());
+    const [state, dispatch] = useReducer(gameReducer, loadOrMakeInitialState());
+
+    useEffect(() => {
+        localStorage.setItem("gamestate", JSON.stringify(state));
+    }, [state]);
+
     restartGame.value = () => dispatch({ type: "GO_TO_MENU" });
     const [ping, setPing] = useState(123); // Changes on animation ended.
     const [revealedCpuCard, setRevealedCpuCard] = useState<Card | null>(null);
