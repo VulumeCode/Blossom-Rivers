@@ -12,7 +12,7 @@
     --card-teal: #82d8d0;
 
 
-    /* --card-paper: #f4f3ef; */
+    /* --card-paper: #17213C; */
     /* --card-green: #50B271; */
     /* --card-frame-outer: black; */
     /* --card-frame-inner: black; */
@@ -79,45 +79,54 @@
 path {
     &.hf-paper {
         color: var(--card-paper);
+        fill: currentColor;
     }
 
     &.hf-green {
         color: var(--card-green);
+        fill: currentColor;
     }
 
     &.hf-gold {
         color: var(--card-amber);
+        fill: currentColor;
     }
 
     &.hf-brown {
         color: var(--card-bark);
+        fill: currentColor;
     }
 
     &.hf-blue {
         color: var(--card-purple);
+        fill: currentColor;
     }
 
     &.hf-teal {
         color: var(--card-teal);
+        fill: currentColor;
     }
 
     &.hf-red {
         color: var(--card-red);
+        fill: currentColor;
     }
 
     &.hf-pink {
         color: var(--card-pink);
+        fill: currentColor;
     }
 
     &.hf-dark-brown {
         color: var(--card-frame-outer);
+        fill: currentColor;
     }
 
     &.hf-dark-red {
         color: var(--card-frame-inner);
+        fill: currentColor;
     }
 
-    fill: currentColor;
 }
 
 @font-face {
