@@ -10,6 +10,11 @@ import type {
     TotalRounds,
 } from "./types";
 import { cardImageById, images } from "./cardImages";
+import {
+    cardImageById as otwarteCardImageById,
+    images as otwarteImages,
+} from "./cardImagesOtwarte";
+import { useOtwarteKarty } from "./cardStyle";
 import { isLightning, isRainMan } from "./cards";
 import { computeYaku } from "./yaku";
 import { disableFlip, enableFlip, Flipped, Flipper } from "react-flip-toolkit";
@@ -129,10 +134,25 @@ export function CardView({
     highlighted,
     flipped = true,
 }: CardViewProps) {
-    const Svg = faceDown ? images.card_back : cardImageById[card.id];
+    const otwarte = useOtwarteKarty.value;
     const clickable = !!(onClick && !disabled);
 
     const glow = hoveredMonth.value === card.month && !faceDown;
+
+    let cardContent;
+    if (otwarte) {
+        const src = faceDown
+            ? otwarteImages.card_back
+            : otwarteCardImageById[card.id];
+        cardContent = (
+            <div>
+                <img src={src} />
+            </div>
+        );
+    } else {
+        const Svg = faceDown ? images.card_back : cardImageById[card.id];
+        cardContent = <Svg />;
+    }
 
     const view = (
         <card-view
@@ -150,7 +170,7 @@ export function CardView({
                 if (!faceDown) hoveredMonth.value = null;
             }}
         >
-            <Svg />
+            {cardContent}
         </card-view>
     );
     return flipped ? (
@@ -873,7 +893,7 @@ export function FlowerRivers() {
                 },
             }}
         >
-            <div id="game-board">
+            <div id="game-board" data-art={useOtwarteKarty.value && "otwarte"}>
                 {/* Yaku Choice Dialog */}
                 {phase === "YAKU_CHOICE" &&
                     (() => {

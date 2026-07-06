@@ -323,7 +323,6 @@ card-view {
     display: inline-block;
     flex-shrink: 0;
     z-index: 1000;
-    will-change: transform;
 }
 
 card-view[data-flipping] {
@@ -334,7 +333,7 @@ card-view:hover {
     z-index: 2000;
 }
 
-card-view svg {
+card-view>* {
     width: var(--card-w);
     height: var(--card-h);
     border-radius: 0.15vmin;
@@ -351,9 +350,25 @@ card-view svg {
 
     #deck & {
         --deck-height: calc((var(--cards-left)/36)*1vmin);
-        box-shadow: 0 var(--deck-height) 0 var(--card-frame-outer),
+        --deck-color: var(--card-frame-outer);
+        box-shadow: 0 var(--deck-height) 0 var(--deck-color),
             0 calc(0.5vmin + var(--deck-height)) 1vmin var(--color-card-shadow);
     }
+}
+
+[data-art="otwarte"] card-view>* {
+
+    &>img {
+        background-color: oklch(14.1% .005 285.823);
+        padding: 7%;
+        width: 100%;
+        height: 100%;
+    }
+
+    #deck & {
+        --deck-color: oklch(20% .005 285.823);
+    }
+
 }
 
 
@@ -361,13 +376,15 @@ card-view[data-clickable] {
     cursor: pointer;
 }
 
-card-view[data-selected] svg {
+card-view[data-selected]>* {
     transform: translateY(-2vmin);
 }
 
-card-view[data-glow] svg {
+card-view[data-glow]>* {
     outline-color: var(--color-pink);
+}
 
+card-view[data-glow] svg {
     path {
         fill: color-mix(in xyz, currentColor 90%, var(--color-pink));
 
@@ -377,9 +394,11 @@ card-view[data-glow] svg {
     }
 }
 
-card-view[data-highlighted] svg {
+card-view[data-highlighted]>* {
     outline-color: var(--color-capture);
+}
 
+card-view[data-highlighted] svg {
     path {
         fill: color-mix(in xyz, currentColor 90%, var(--color-capture));
 
@@ -390,7 +409,27 @@ card-view[data-highlighted] svg {
 }
 
 
-card-view[data-highlighted][data-glow] svg {
+
+[data-art="otwarte"] card-view[data-glow]>div {
+    background-color: var(--color-pink);
+
+    &>img {
+        opacity: 70%;
+    }
+}
+
+[data-art="otwarte"] card-view[data-highlighted]>div {
+    background-color: var(--color-capture);
+
+    &>img {
+        opacity: 70%;
+    }
+}
+
+
+
+
+card-view[data-highlighted][data-glow]>* {
     box-shadow: 0 0 0vh 0.5vmin var(--color-pink);
 }
 
