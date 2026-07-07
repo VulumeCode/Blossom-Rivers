@@ -14,6 +14,7 @@ import {
     randomizeRedealOppCaptures,
     randomizeRedealOppBlurOwnCaptures,
     randomizeBlurBothCaptures,
+    evaluateRolloutDiscount,
 } from "../src/cpu/cpu";
 import { RandomPlayer } from "../src/cpu/random";
 import { RandomLegalPlayer } from "../src/cpu/random_legal";
@@ -28,6 +29,7 @@ export type Builder = () => CPUPlayer;
 export const BUILDERS: Record<string, Builder> = {
     randomsb: () => new RandomPlayer(),
     simplesb: () => new SimpleMCTSPlayer(),
+    simplesb_discount: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutDiscount }),
     simple_uni: () => new SimpleMCTSPlayer({ select_action: "uni" }),
     simple_weighed: () => new SimpleMCTSPlayer({ select_action: "weighed" }),
     // simplesbsw: () => new SimpleMCTSPlayer({ evaluateRollout: evaluateRolloutSigmoidSW }),

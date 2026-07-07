@@ -24,7 +24,7 @@ import {
     makeInitialState,
     playerName,
 } from "./game";
-import { type CPUPlayer } from "../src/cpu/cpu";
+import { evaluateRolloutDiscount, type CPUPlayer } from "../src/cpu/cpu";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
 import { SystemMenu, restartGame, showHelp } from "../src/help";
 
@@ -34,6 +34,7 @@ const hoveredMonth = signal<number | null>(null);
 const cpu: Record<CpuStrength, CPUPlayer> = {
     junk: new SimpleMCTSPlayer({
         select_action: "uni",
+        evaluateRollout: evaluateRolloutDiscount,
         budget: {
             DEALING: 3000,
             CAPTURING: 8000,
@@ -43,6 +44,7 @@ const cpu: Record<CpuStrength, CPUPlayer> = {
     }),
     normal: new SimpleMCTSPlayer({
         select_action: "weighed",
+        evaluateRollout: evaluateRolloutDiscount,
         budget: {
             DEALING: 3000,
             CAPTURING: 8000,
@@ -52,6 +54,7 @@ const cpu: Record<CpuStrength, CPUPlayer> = {
     }),
     bright: new SimpleMCTSPlayer({
         select_action: "best",
+        evaluateRollout: evaluateRolloutDiscount,
         budget: {
             DEALING: 3000,
             CAPTURING: 8000,

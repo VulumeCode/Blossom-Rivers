@@ -483,6 +483,26 @@ export function evaluateRolloutSigmoid(state: GameState, forPlayer: number): num
     return cdf
 }
 
+export function evaluateRolloutDiscount(state: GameState, forPlayer: number): number {
+    const me = forPlayer;
+    const them = 1 - forPlayer;
+    const diff = state.scores[me] - state.scores[them];
+
+    const l = state.roundScoreInfo!.winner == -1 ? 0 : state.hands[state.roundScoreInfo!.winner].length;
+    const discount = Math.pow(0.95, 5 - l);
+
+    if (state.phase === "GAME_OVER") {
+        return ((diff === 0 ? -1 : diff / (1 + Math.abs(diff))) * discount);
+    }
+    const roundsLeft = state.totalRounds - state.round;
+    const mult = state.drawMultiplier;
+    const totalStd = ROUND_SIGMA * Math.sqrt(mult * mult + roundsLeft - 1);
+    const z = diff / totalStd;
+    const cdf = 2 * normCdf(z) - 1;
+    return cdf * discount;
+}
+
+
 export function evaluateRolloutSigmoidS(state: GameState, forPlayer: number): number {
     const me = forPlayer;
     const them = 1 - forPlayer;
