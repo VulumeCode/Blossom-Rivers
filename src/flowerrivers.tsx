@@ -167,6 +167,7 @@ export function CardView({
                     : suisaigaCardImageById[card.id];
                 cardContent = (
                     <div>
+                        <div id="innerBorder"></div>
                         <img src={src} />
                     </div>
                 );
