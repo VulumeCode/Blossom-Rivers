@@ -1,12 +1,22 @@
 import { signal } from "@preact/signals";
 
-function getInitial(): boolean {
+function getInitial() {
     const params = new URLSearchParams(window.location.search);
-    return params.has("otwartekarty");
+    if (params.has("otwartekarty")) {
+        return "otwarte";
+    } else if (params.has("suisaiga")) {
+        return "suisaiga";
+    } else {
+        return "louie";
+    }
 }
 
-export const useOtwarteKarty = signal<boolean>(getInitial());
+type CardStyle = "otwarte"
+    | "suisaiga"
+    | "louie";
 
-export function setOtwarteKarty(value: boolean) {
-    useOtwarteKarty.value = value;
+export const useCardStyle = signal<CardStyle>(getInitial());
+
+export function setCardStyle(value: CardStyle) {
+    useCardStyle.value = value;
 }

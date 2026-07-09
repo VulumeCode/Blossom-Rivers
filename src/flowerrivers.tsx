@@ -14,7 +14,11 @@ import {
     cardImageById as otwarteCardImageById,
     images as otwarteImages,
 } from "./cardImagesOtwarte";
-import { useOtwarteKarty } from "./cardStyle";
+import {
+    cardImageById as suisaigaCardImageById,
+    images as suisaigaImages,
+} from "./cardImagesSuisaiga";
+import { useCardStyle } from "./cardStyle";
 import { isLightning, isRainMan } from "./cards";
 import { computeYaku } from "./yaku";
 import { disableFlip, enableFlip, Flipped, Flipper } from "react-flip-toolkit";
@@ -137,24 +141,41 @@ export function CardView({
     highlighted,
     flipped = true,
 }: CardViewProps) {
-    const otwarte = useOtwarteKarty.value;
+    const cardStyle = useCardStyle.value;
     const clickable = !!(onClick && !disabled);
 
     const glow = hoveredMonth.value === card.month && !faceDown;
 
     let cardContent;
-    if (otwarte) {
-        const src = faceDown
-            ? otwarteImages.card_back
-            : otwarteCardImageById[card.id];
-        cardContent = (
-            <div>
-                <img src={src} />
-            </div>
-        );
-    } else {
-        const Svg = faceDown ? images.card_back : cardImageById[card.id];
-        cardContent = <Svg />;
+    switch (useCardStyle.value) {
+        case "otwarte":
+            {
+                const src = faceDown
+                    ? otwarteImages.card_back
+                    : otwarteCardImageById[card.id];
+                cardContent = (
+                    <div>
+                        <img src={src} />
+                    </div>
+                );
+            }
+            break;
+        case "suisaiga":
+            {
+                const src = faceDown
+                    ? suisaigaImages.card_back
+                    : suisaigaCardImageById[card.id];
+                cardContent = (
+                    <div>
+                        <img src={src} />
+                    </div>
+                );
+            }
+            break;
+        case "louie":
+            const Svg = faceDown ? images.card_back : cardImageById[card.id];
+            cardContent = <Svg />;
+            break;
     }
 
     const view = (
@@ -678,7 +699,7 @@ export function FlowerRivers() {
     // Menu screen
     if (phase === "MENU") {
         return (
-            <div id="menu-screen">
+            <div id="menu-screen" data-art={useCardStyle.value}>
                 <SystemMenu />
                 <div id="menu-title">
                     <span data-side="left">Blossom</span>
@@ -896,7 +917,7 @@ export function FlowerRivers() {
                 },
             }}
         >
-            <div id="game-board" data-art={useOtwarteKarty.value && "otwarte"}>
+            <div id="game-board" data-art={useCardStyle.value}>
                 {/* Yaku Choice Dialog */}
                 {phase === "YAKU_CHOICE" &&
                     (() => {

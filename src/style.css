@@ -372,6 +372,36 @@ card-view>* {
 }
 
 
+:root:has([data-art="suisaiga"]) {
+    --card-ration: 188.0/120.0 !important;
+}
+
+[data-art="suisaiga"] card-view>* {
+
+    /* &::after {
+        box-shadow: inset 0px 0px 2px 2px #610000;
+        content: '';
+        display: block;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        width: 100%;
+    } */
+
+    &>img {
+        width: 100%;
+        height: 100%;
+    }
+
+    #deck & {
+        --deck-color: #500000;
+    }
+
+}
+
+
+
+
 card-view[data-clickable] {
     cursor: pointer;
 }
@@ -408,31 +438,30 @@ card-view[data-highlighted] svg {
     }
 }
 
+[data-art="otwarte"],
+[data-art="suisaiga"] {
+    card-view[data-glow]>div {
+        background-color: var(--color-pink);
 
-
-[data-art="otwarte"] card-view[data-glow]>div {
-    background-color: var(--color-pink);
-
-    &>img {
-        opacity: 70%;
+        &>img {
+            opacity: 70%;
+        }
     }
-}
 
-[data-art="otwarte"] card-view[data-highlighted]>div {
-    background-color: var(--color-capture);
+    card-view[data-highlighted]>div {
+        background-color: var(--color-capture);
 
-    &>img {
-        opacity: 70%;
+        &>img {
+            opacity: 70%;
+        }
     }
+
 }
-
-
 
 
 card-view[data-highlighted][data-glow]>* {
     box-shadow: 0 0 0vh 0.5vmin var(--color-pink);
 }
-
 
 /* --- RIVER --- */
 
