@@ -1,69 +1,70 @@
 import type { CardId } from './types';
 
-const CDN = 'https://otwartekarty.pl/build/assets';
+const CDN = 'https://otwartekarty.pl/storage/hanafuda-luizy-kwiatkowskiej';
+
 
 // Styczeń (January)
-const january_tanzaku = `${CDN}/1-ubHYU1CY.webp`;
-const january_kasu_1 = `${CDN}/2-oKAoUCn7.webp`;
-const january_kasu_2 = `${CDN}/3-DtFJVtRu.webp`;
-const january_hikari = `${CDN}/4-f54fvvYD.webp`;
+const january_tanzaku = `${CDN}/1.webp`;
+const january_kasu_1 = `${CDN}/2.webp`;
+const january_kasu_2 = `${CDN}/3.webp`;
+const january_hikari = `${CDN}/4.webp`;
 // Luty (February)
-const february_kasu_1 = `${CDN}/5-DZtHdrA-.webp`;
-const february_tanzaku = `${CDN}/6-DmF5yAzN.webp`;
-const february_tane = `${CDN}/7-WNry1mOH.webp`;
-const february_kasu_2 = `${CDN}/8-B2GmsfEm.webp`;
+const february_kasu_1 = `${CDN}/5.webp`;
+const february_tanzaku = `${CDN}/6.webp`;
+const february_tane = `${CDN}/7.webp`;
+const february_kasu_2 = `${CDN}/8.webp`;
 // Marzec (March)
-const march_kasu_1 = `${CDN}/9-BZbwJXJG.webp`;
-const march_hikari = `${CDN}/10-BASur6y_.webp`;
-const march_kasu_2 = `${CDN}/11-CIBaUxNY.webp`;
-const march_tanzaku = `${CDN}/12-CrrNjQVD.webp`;
+const march_kasu_1 = `${CDN}/9.webp`;
+const march_hikari = `${CDN}/10.webp`;
+const march_kasu_2 = `${CDN}/11.webp`;
+const march_tanzaku = `${CDN}/12.webp`;
 // Kwiecień (April)
-const april_tane = `${CDN}/13-D-7P06Es.webp`;
-const april_kasu_1 = `${CDN}/14-DsUEfm9X.webp`;
-const april_kasu_2 = `${CDN}/15-DZGxR8Vl.webp`;
-const april_tanzaku = `${CDN}/16-B-gmAbew.webp`;
+const april_tane = `${CDN}/13.webp`;
+const april_kasu_1 = `${CDN}/14.webp`;
+const april_kasu_2 = `${CDN}/15.webp`;
+const april_tanzaku = `${CDN}/16.webp`;
 // Maj (May)
-const may_kasu_1 = `${CDN}/17-Z3q-Nrr-.webp`;
-const may_tane = `${CDN}/18-CrsMkexS.webp`;
-const may_tanzaku = `${CDN}/19-C92CpdAg.webp`;
-const may_kasu_2 = `${CDN}/20-BjrXWoZO.webp`;
+const may_kasu_1 = `${CDN}/17.webp`;
+const may_tane = `${CDN}/18.webp`;
+const may_tanzaku = `${CDN}/19.webp`;
+const may_kasu_2 = `${CDN}/20.webp`;
 // Czerwiec (June)
-const june_tanzaku = `${CDN}/21-CZCvJcV3.webp`;
-const june_kasu_1 = `${CDN}/22-Cmx2VP9o.webp`;
-const june_kasu_2 = `${CDN}/23-CWfvYCDA.webp`;
-const june_tane = `${CDN}/24-DCeNXpe_.webp`;
+const june_tanzaku = `${CDN}/21.webp`;
+const june_kasu_1 = `${CDN}/22.webp`;
+const june_kasu_2 = `${CDN}/23.webp`;
+const june_tane = `${CDN}/24.webp`;
 // Lipiec (July)
-const july_tanzaku = `${CDN}/25-CAnV6TEE.webp`;
-const july_kasu_1 = `${CDN}/26-D8_daRkM.webp`;
-const july_kasu_2 = `${CDN}/27-CDotnKxy.webp`;
-const july_tane = `${CDN}/28-ZCoNZz_j.webp`;
+const july_tanzaku = `${CDN}/25.webp`;
+const july_kasu_1 = `${CDN}/26.webp`;
+const july_kasu_2 = `${CDN}/27.webp`;
+const july_tane = `${CDN}/28.webp`;
 // Sierpień (August)
-const august_kasu_1 = `${CDN}/29-D_PgWdhN.webp`;
-const august_tane = `${CDN}/30-Bl-Kj6cZ.webp`;
-const august_kasu_2 = `${CDN}/31-C5I5Z3OM.webp`;
-const august_hikari = `${CDN}/32-kmIjEuOH.webp`;
+const august_kasu_1 = `${CDN}/29.webp`;
+const august_tane = `${CDN}/30.webp`;
+const august_kasu_2 = `${CDN}/31.webp`;
+const august_hikari = `${CDN}/32.webp`;
 // Wrzesień (September)
-const september_tane = `${CDN}/33-BxOfYGUg.webp`;
-const september_tanzaku = `${CDN}/34-zx51WX-L.webp`;
-const september_kasu_1 = `${CDN}/35-DiZSj3-7.webp`;
-const september_kasu_2 = `${CDN}/36-Dnq5hS2y.webp`;
+const september_tane = `${CDN}/33.webp`;
+const september_tanzaku = `${CDN}/34.webp`;
+const september_kasu_1 = `${CDN}/35.webp`;
+const september_kasu_2 = `${CDN}/36.webp`;
 // Październik (October)
-const october_tanzaku = `${CDN}/37-CulWUhDp.webp`;
-const october_kasu_1 = `${CDN}/38-DNorNsQh.webp`;
-const october_tane = `${CDN}/39-DQ9uh6WC.webp`;
-const october_kasu_2 = `${CDN}/40-Bn6x-oQr.webp`;
+const october_tanzaku = `${CDN}/37.webp`;
+const october_kasu_1 = `${CDN}/38.webp`;
+const october_tane = `${CDN}/39.webp`;
+const october_kasu_2 = `${CDN}/40.webp`;
 // Listopad (November)
-const november_kasu = `${CDN}/41-_v5qVNRZ.webp`;
-const november_tane = `${CDN}/42-CYe99t6R.webp`;
-const november_tanzaku = `${CDN}/43-BRVnQsOX.webp`;
-const november_hikari = `${CDN}/44-fRukv4u_.webp`;
+const november_kasu = `${CDN}/41.webp`;
+const november_tane = `${CDN}/42.webp`;
+const november_tanzaku = `${CDN}/43.webp`;
+const november_hikari = `${CDN}/44.webp`;
 // Grudzień (December)
-const december_hikari = `${CDN}/45-Cu6YEEwh.webp`;
-const december_kasu_1 = `${CDN}/46-UHQDRIAS.webp`;
-const december_kasu_2 = `${CDN}/47-byIsjUAw.webp`;
-const december_kasu_3 = `${CDN}/48-zrBqq5RV.webp`;
+const december_hikari = `${CDN}/45.webp`;
+const december_kasu_1 = `${CDN}/46.webp`;
+const december_kasu_2 = `${CDN}/47.webp`;
+const december_kasu_3 = `${CDN}/48.webp`;
 
-const card_back = `${CDN}/logo-C9Nmq6bx.svg`;
+const card_back = `${CDN}/0.webp`;
 
 
 export const images: Record<string, string> = {
