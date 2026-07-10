@@ -341,7 +341,7 @@ card-view>* {
     transition:
         transform 0.2s,
         outline-color 0.2s;
-    transform: none;
+    will-change: transform, outline-color;
     flex-shrink: 0;
     outline: 0.3vmin solid transparent;
     display: block;
