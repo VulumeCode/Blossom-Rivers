@@ -377,6 +377,7 @@ card-view>* {
 }
 
 [data-art="suisaiga"] card-view>* {
+    filter: contrast(95%) sepia(15%);
 
     position: relative;
 
@@ -386,15 +387,6 @@ card-view>* {
         height: 100%;
         position: absolute;
     }
-
-    /* &::after {
-        content: '';
-        display: block;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        width: 100%;
-    } */
 
     &>img {
         width: 100%;
