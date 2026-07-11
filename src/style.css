@@ -379,14 +379,6 @@ card-view>* {
 [data-art="suisaiga"] card-view>* {
     filter: contrast(95%) sepia(15%);
 
-    position: relative;
-
-    &>#innerBorder {
-        box-shadow: inset 0px 0px 0.1vmin 0.3vmin #610000;
-        width: 100%;
-        height: 100%;
-        position: absolute;
-    }
 
     &>img {
         width: 100%;
@@ -440,20 +432,12 @@ card-view[data-highlighted] svg {
 
 [data-art="otwarte"],
 [data-art="suisaiga"] {
-    card-view[data-glow]>div {
-        background-color: var(--color-pink);
-
-        &>* {
-            opacity: 70%;
-        }
+    card-view[data-glow]>div>* {
+        filter: url(#tint-glow);
     }
 
-    card-view[data-highlighted]>div {
-        background-color: var(--color-capture);
-
-        &>* {
-            opacity: 70%;
-        }
+    card-view[data-highlighted]>div>* {
+        filter: url(#tint-highlight);
     }
 
 }

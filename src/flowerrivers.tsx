@@ -31,6 +31,7 @@ import {
 import { evaluateRolloutDiscount, type CPUPlayer } from "../src/cpu/cpu";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
 import { SystemMenu, restartGame, showHelp } from "../src/help";
+import { SvgFilters } from "./svg-filters";
 
 const hoveredMonth = signal<number | null>(null);
 
@@ -167,7 +168,6 @@ export function CardView({
                     : suisaigaCardImageById[card.id];
                 cardContent = (
                     <div>
-                        <div id="innerBorder"></div>
                         <img src={src} />
                     </div>
                 );
@@ -898,262 +898,279 @@ export function FlowerRivers() {
         .map((x) => x.id)
         .join(",");
     return (
-        <Flipper
-            flipKey={flipState}
-            spring={"noWobble"}
-            onComplete={() => {
-                document
-                    .querySelectorAll("card-view[data-flipping]")
-                    .forEach((el) => el.removeAttribute("data-flipping"));
-                setPing(ping + 1);
-            }}
-            // spring={{ stiffness: 500, damping: 500 }}
-            staggerConfig={{
-                // the "default" config will apply to staggered elements without explicit keys
-                default: {
-                    // default direction is forwards
-                    // reverse: true,
-                    // default is .1, 0 < n < 1
-                    speed: 1,
-                },
-            }}
-        >
-            <div id="game-board" data-art={useCardStyle.value}>
-                {/* Yaku Choice Dialog */}
-                {phase === "YAKU_CHOICE" &&
-                    (() => {
-                        const info = gameReducer(state, {
-                            type: "CALL_STOP",
-                        }).roundScoreInfo!;
-                        return (
-                            <DialogOverlay>
-                                <div id="yaku-dialog-title">
-                                    {yakuPlayer === 0 ? "Yaku!" : "CPU Yaku!"}
-                                </div>
-                                <ScoreBreakdown info={info} perspective={0} />
-                                <div id="yaku-dialog-buttons">
-                                    {yakuPlayer === 0 ? (
-                                        <>
-                                            <button
-                                                id="stop-button"
-                                                onClick={() =>
-                                                    dispatch({
-                                                        type: "CALL_STOP",
-                                                    })
-                                                }
-                                            >
-                                                Stop
-                                            </button>
-                                            <button
-                                                id="koikoi-button"
-                                                disabled={hands[0].length == 0}
-                                                onClick={() =>
-                                                    dispatch({
-                                                        type: "CALL_KOIKOI",
-                                                    })
-                                                }
-                                            >
-                                                Koi-Koi!
-                                            </button>
-                                        </>
-                                    ) : (
-                                        <div id="cpu-deciding">
-                                            CPU is deciding...
-                                        </div>
-                                    )}
-                                </div>
-                            </DialogOverlay>
-                        );
-                    })()}
-                {/* Round Over Dialog */}
-                {phase === "ROUND_OVER" &&
-                    (() => {
-                        const info = roundScoreInfo;
-                        return (
-                            <DialogOverlay>
-                                <div id="round-over-title">
-                                    Round {round} Complete
-                                </div>
-                                {info && info.winner === -1 ? (
-                                    <div id="round-over-draw-info">
-                                        Draw! Points doubled next round.
+        <>
+            <SvgFilters />
+            <Flipper
+                flipKey={flipState}
+                spring={"noWobble"}
+                onComplete={() => {
+                    document
+                        .querySelectorAll("card-view[data-flipping]")
+                        .forEach((el) => el.removeAttribute("data-flipping"));
+                    setPing(ping + 1);
+                }}
+                // spring={{ stiffness: 500, damping: 500 }}
+                staggerConfig={{
+                    // the "default" config will apply to staggered elements without explicit keys
+                    default: {
+                        // default direction is forwards
+                        // reverse: true,
+                        // default is .1, 0 < n < 1
+                        speed: 1,
+                    },
+                }}
+            >
+                <div id="game-board" data-art={useCardStyle.value}>
+                    {/* Yaku Choice Dialog */}
+                    {phase === "YAKU_CHOICE" &&
+                        (() => {
+                            const info = gameReducer(state, {
+                                type: "CALL_STOP",
+                            }).roundScoreInfo!;
+                            return (
+                                <DialogOverlay>
+                                    <div id="yaku-dialog-title">
+                                        {yakuPlayer === 0
+                                            ? "Yaku!"
+                                            : "CPU Yaku!"}
                                     </div>
-                                ) : (
-                                    info && (
-                                        <div id="round-over-winner-info">
-                                            <div id="round-over-winner-text">
+                                    <ScoreBreakdown
+                                        info={info}
+                                        perspective={0}
+                                    />
+                                    <div id="yaku-dialog-buttons">
+                                        {yakuPlayer === 0 ? (
+                                            <>
+                                                <button
+                                                    id="stop-button"
+                                                    onClick={() =>
+                                                        dispatch({
+                                                            type: "CALL_STOP",
+                                                        })
+                                                    }
+                                                >
+                                                    Stop
+                                                </button>
+                                                <button
+                                                    id="koikoi-button"
+                                                    disabled={
+                                                        hands[0].length == 0
+                                                    }
+                                                    onClick={() =>
+                                                        dispatch({
+                                                            type: "CALL_KOIKOI",
+                                                        })
+                                                    }
+                                                >
+                                                    Koi-Koi!
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <div id="cpu-deciding">
+                                                CPU is deciding...
+                                            </div>
+                                        )}
+                                    </div>
+                                </DialogOverlay>
+                            );
+                        })()}
+                    {/* Round Over Dialog */}
+                    {phase === "ROUND_OVER" &&
+                        (() => {
+                            const info = roundScoreInfo;
+                            return (
+                                <DialogOverlay>
+                                    <div id="round-over-title">
+                                        Round {round} Complete
+                                    </div>
+                                    {info && info.winner === -1 ? (
+                                        <div id="round-over-draw-info">
+                                            Draw! Points doubled next round.
+                                        </div>
+                                    ) : (
+                                        info && (
+                                            <div id="round-over-winner-info">
+                                                <div id="round-over-winner-text">
+                                                    {playerName(info.winner)}{" "}
+                                                    won the round!
+                                                </div>
+                                                <ScoreBreakdown
+                                                    info={info}
+                                                    perspective={0}
+                                                />
+                                            </div>
+                                        )
+                                    )}
+                                    <div id="round-over-scores">
+                                        Score — You: {scores[0]} | CPU:{" "}
+                                        {scores[1]}
+                                    </div>
+                                    <button
+                                        id="next-round-button"
+                                        onClick={() => {
+                                            disableFlip();
+                                            dispatch({ type: "NEXT_ROUND" });
+                                            requestAnimationFrame(() =>
+                                                enableFlip(),
+                                            );
+                                        }}
+                                    >
+                                        Next Round
+                                    </button>
+                                </DialogOverlay>
+                            );
+                        })()}
+                    {/* Game Over Dialog */}
+                    {phase === "GAME_OVER" &&
+                        (() => {
+                            const info = roundScoreInfo;
+                            const finalS0 = scores[0];
+                            const finalS1 = scores[1];
+                            const winner =
+                                finalS0 > finalS1
+                                    ? "You win!"
+                                    : finalS0 < finalS1
+                                      ? "CPU wins!"
+                                      : "Tie game!";
+                            return (
+                                <DialogOverlay>
+                                    <div id="game-over-title">Game Over</div>
+                                    {info && info.winner !== -1 && (
+                                        <div id="game-over-round-info">
+                                            <div id="game-over-round-text">
                                                 {playerName(info.winner)} won
-                                                the round!
+                                                the final round!
                                             </div>
                                             <ScoreBreakdown
                                                 info={info}
                                                 perspective={0}
                                             />
                                         </div>
-                                    )
-                                )}
-                                <div id="round-over-scores">
-                                    Score — You: {scores[0]} | CPU: {scores[1]}
-                                </div>
-                                <button
-                                    id="next-round-button"
-                                    onClick={() => {
-                                        disableFlip();
-                                        dispatch({ type: "NEXT_ROUND" });
-                                        requestAnimationFrame(() =>
-                                            enableFlip(),
-                                        );
-                                    }}
-                                >
-                                    Next Round
-                                </button>
-                            </DialogOverlay>
-                        );
-                    })()}
-                {/* Game Over Dialog */}
-                {phase === "GAME_OVER" &&
-                    (() => {
-                        const info = roundScoreInfo;
-                        const finalS0 = scores[0];
-                        const finalS1 = scores[1];
-                        const winner =
-                            finalS0 > finalS1
-                                ? "You win!"
-                                : finalS0 < finalS1
-                                  ? "CPU wins!"
-                                  : "Tie game!";
-                        return (
-                            <DialogOverlay>
-                                <div id="game-over-title">Game Over</div>
-                                {info && info.winner !== -1 && (
-                                    <div id="game-over-round-info">
-                                        <div id="game-over-round-text">
-                                            {playerName(info.winner)} won the
-                                            final round!
+                                    )}
+                                    {info && info.winner === -1 && (
+                                        <div id="game-over-draw-info">
+                                            Final round was a draw.
                                         </div>
-                                        <ScoreBreakdown
-                                            info={info}
-                                            perspective={0}
-                                        />
+                                    )}
+                                    <div id="game-over-scores">
+                                        Score — You: {scores[0]} | CPU:{" "}
+                                        {scores[1]}
                                     </div>
-                                )}
-                                {info && info.winner === -1 && (
-                                    <div id="game-over-draw-info">
-                                        Final round was a draw.
-                                    </div>
-                                )}
-                                <div id="game-over-scores">
-                                    Score — You: {scores[0]} | CPU: {scores[1]}
-                                </div>
-                                <div id="game-over-winner">{winner}</div>
-                                <button
-                                    id="play-again-button"
-                                    onClick={() =>
-                                        dispatch({ type: "GO_TO_MENU" })
-                                    }
-                                >
-                                    Play Again
-                                </button>
-                            </DialogOverlay>
-                        );
-                    })()}
-                {/* Top Bar */}
-                <div id="top-bar">
-                    <top-title>花川 - Blossom Rivers</top-title>
-                    <span>
-                        Round {round}/{totalRounds} — Turn {turn}
-                    </span>
-                    <span>
-                        You: <b>{scores[0]}</b> | CPU: <b>{scores[1]}</b>
-                        {drawMultiplier > 1 && (
-                            <draw-multiplier>
-                                ×{drawMultiplier} next!
-                            </draw-multiplier>
-                        )}
-                    </span>
-                </div>
-                <div id="cpu-hand-row">
-                    <SystemMenu />
-
-                    <HandView
-                        id="cpu-hand"
-                        cards={hands[1]}
-                        faceDown
-                        disabled
-                        selectedCard={revealedCpuCard}
-                    />
-                </div>
-                <div id="cpu-capture-row">
-                    <CapturedView id="cpu-captured" cards={captured[1]} />
-                </div>
-
-                {/* Deck + Rivers area */}
-                <div id="play-area">
-                    {/* Deck + Drawn card */}
-                    <div id="deck-column">
-                        {/* Deck */}
-                        <div id="deck" style={{ "--cards-left": deck.length }}>
-                            {deck.length > 0 ? (
-                                <CardView card={deck[0]} faceDown />
-                            ) : (
-                                <div id="deck-empty" />
+                                    <div id="game-over-winner">{winner}</div>
+                                    <button
+                                        id="play-again-button"
+                                        onClick={() =>
+                                            dispatch({ type: "GO_TO_MENU" })
+                                        }
+                                    >
+                                        Play Again
+                                    </button>
+                                </DialogOverlay>
+                            );
+                        })()}
+                    {/* Top Bar */}
+                    <div id="top-bar">
+                        <top-title>花川 - Blossom Rivers</top-title>
+                        <span>
+                            Round {round}/{totalRounds} — Turn {turn}
+                        </span>
+                        <span>
+                            You: <b>{scores[0]}</b> | CPU: <b>{scores[1]}</b>
+                            {drawMultiplier > 1 && (
+                                <draw-multiplier>
+                                    ×{drawMultiplier} next!
+                                </draw-multiplier>
                             )}
-                        </div>
-                        <deck-label>{deck.length} left</deck-label>
+                        </span>
+                    </div>
+                    <div id="cpu-hand-row">
+                        <SystemMenu />
 
-                        {/* Drawn card */}
-                        <div id="drawn-card">
-                            {drawnCard && <CardView card={drawnCard} />}
+                        <HandView
+                            id="cpu-hand"
+                            cards={hands[1]}
+                            faceDown
+                            disabled
+                            selectedCard={revealedCpuCard}
+                        />
+                    </div>
+                    <div id="cpu-capture-row">
+                        <CapturedView id="cpu-captured" cards={captured[1]} />
+                    </div>
+
+                    {/* Deck + Rivers area */}
+                    <div id="play-area">
+                        {/* Deck + Drawn card */}
+                        <div id="deck-column">
+                            {/* Deck */}
+                            <div
+                                id="deck"
+                                style={{ "--cards-left": deck.length }}
+                            >
+                                {deck.length > 0 ? (
+                                    <CardView card={deck[0]} faceDown />
+                                ) : (
+                                    <div id="deck-empty" />
+                                )}
+                            </div>
+                            <deck-label>{deck.length} left</deck-label>
+
+                            {/* Drawn card */}
+                            <div id="drawn-card">
+                                {drawnCard && <CardView card={drawnCard} />}
+                            </div>
+                        </div>
+
+                        {/* Rivers */}
+                        <div id="rivers-column">
+                            {rivers.map((river, ri) => (
+                                <RiverView
+                                    key={ri}
+                                    cards={river}
+                                    index={ri}
+                                    highlightType={getRiverHighlight(ri)}
+                                    shouldHighlight={
+                                        !!highlightedRiverSet?.has(ri)
+                                    }
+                                    onClick={
+                                        canHumanAct
+                                            ? () => handleRiverClick(ri)
+                                            : undefined
+                                    }
+                                    onDiscard={() => handleDiscard(ri)}
+                                    showDiscard={showDiscardButton(ri)}
+                                />
+                            ))}
                         </div>
                     </div>
 
-                    {/* Rivers */}
-                    <div id="rivers-column">
-                        {rivers.map((river, ri) => (
-                            <RiverView
-                                key={ri}
-                                cards={river}
-                                index={ri}
-                                highlightType={getRiverHighlight(ri)}
-                                shouldHighlight={!!highlightedRiverSet?.has(ri)}
-                                onClick={
-                                    canHumanAct
-                                        ? () => handleRiverClick(ri)
-                                        : undefined
-                                }
-                                onDiscard={() => handleDiscard(ri)}
-                                showDiscard={showDiscardButton(ri)}
-                            />
-                        ))}
+                    {/* Status bar */}
+                    <div id="status-bar">{statusText}</div>
+
+                    {/* Human Area */}
+                    <div id="human-hand-row">
+                        <HandView
+                            id="human-hand"
+                            cards={hands[0]
+                                .slice()
+                                .sort((a, b) => a.month - b.month)}
+                            selectedCard={selectedHandCard}
+                            onSelect={handleSelectCard}
+                            disabled={
+                                !(
+                                    (phase === "CAPTURING" ||
+                                        phase === "FORCED_CAPTURE") &&
+                                    isHumanCapturer
+                                )
+                            }
+                            highlightedIds={highlightedHandIds}
+                        />
+                    </div>
+                    <div id="human-capture-row">
+                        <CapturedView id="human-captured" cards={captured[0]} />
                     </div>
                 </div>
-
-                {/* Status bar */}
-                <div id="status-bar">{statusText}</div>
-
-                {/* Human Area */}
-                <div id="human-hand-row">
-                    <HandView
-                        id="human-hand"
-                        cards={hands[0]
-                            .slice()
-                            .sort((a, b) => a.month - b.month)}
-                        selectedCard={selectedHandCard}
-                        onSelect={handleSelectCard}
-                        disabled={
-                            !(
-                                (phase === "CAPTURING" ||
-                                    phase === "FORCED_CAPTURE") &&
-                                isHumanCapturer
-                            )
-                        }
-                        highlightedIds={highlightedHandIds}
-                    />
-                </div>
-                <div id="human-capture-row">
-                    <CapturedView id="human-captured" cards={captured[0]} />
-                </div>
-            </div>
-        </Flipper>
+            </Flipper>
+        </>
     );
 }
