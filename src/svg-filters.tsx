@@ -34,7 +34,7 @@ export function SvgFilters() {
                     <feComposite operator="out" in2="SourceGraphic" />
                     <feMorphology operator="dilate" radius="0.035" />
                     <feGaussianBlur stdDeviation="0.005" />
-                    <feComposite operator="atop" in2="SourceGraphic" />
+                    <feBlend mode="darken" in2="SourceGraphic" />
                 </filter>
             </defs>
         </svg>
