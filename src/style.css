@@ -1,3 +1,17 @@
+/* SVG filter stacking: base + tint are combined into one filter property.
+   Initial value must be empty so unset vars don't invalidate the declaration. */
+@property --card-filter-base {
+    syntax: "*";
+    inherits: true;
+    initial-value: ;
+}
+
+@property --card-filter-tint {
+    syntax: "*";
+    inherits: true;
+    initial-value: ;
+}
+
 :root {
     /* Card SVG colors */
     --card-paper: #f4f3ef;
@@ -377,13 +391,11 @@ card-view>* {
 }
 
 [data-art="suisaiga"] card-view>* {
-    filter: contrast(95%) sepia(15%);
-
 
     &>img {
+        --card-filter-base: url(#inner-shadow) contrast(95%) sepia(15%);
         width: 100%;
         height: 100%;
-        filter: url(#inner-shadow);
     }
 
     #deck & {
@@ -431,23 +443,18 @@ card-view[data-highlighted] svg {
     }
 }
 
-[data-art="otwarte"] {
-    card-view[data-glow]>div>* {
-        filter: url(#tint-glow);
-    }
-
-    card-view[data-highlighted]>div>* {
-        filter: url(#tint-highlight);
-    }
-}
-
+[data-art="otwarte"],
 [data-art="suisaiga"] {
     card-view[data-glow]>div>* {
-        filter: url(#inner-shadow) url(#tint-glow);
+        --card-filter-tint: url(#tint-glow);
     }
 
     card-view[data-highlighted]>div>* {
-        filter: url(#inner-shadow) url(#tint-highlight);
+        --card-filter-tint: url(#tint-highlight);
+    }
+
+    card-view>div>img {
+        filter: var(--card-filter-base) var(--card-filter-tint);
     }
 }
 
