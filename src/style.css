@@ -383,6 +383,7 @@ card-view>* {
     &>img {
         width: 100%;
         height: 100%;
+        filter: url(#inner-shadow);
     }
 
     #deck & {
@@ -430,8 +431,7 @@ card-view[data-highlighted] svg {
     }
 }
 
-[data-art="otwarte"],
-[data-art="suisaiga"] {
+[data-art="otwarte"] {
     card-view[data-glow]>div>* {
         filter: url(#tint-glow);
     }
@@ -439,7 +439,16 @@ card-view[data-highlighted] svg {
     card-view[data-highlighted]>div>* {
         filter: url(#tint-highlight);
     }
+}
 
+[data-art="suisaiga"] {
+    card-view[data-glow]>div>* {
+        filter: url(#inner-shadow) url(#tint-glow);
+    }
+
+    card-view[data-highlighted]>div>* {
+        filter: url(#inner-shadow) url(#tint-highlight);
+    }
 }
 
 
