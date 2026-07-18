@@ -86,7 +86,7 @@ export function playGame(
     seat0: CPUPlayer,
     seat1: CPUPlayer,
     p0Starts: boolean,
-): { state: GameState; steps: number } {
+): { state: GameState; steps: number; koikoiCalls: [number, number] } {
     let s = gameReducer(makeInitialState(), { type: "START_GAME" });
     if (p0Starts) {
         // Default seating has player 1 deal first / player 0 capture first.
@@ -95,6 +95,7 @@ export function playGame(
     }
     // Safety: bound the loop. A normal 3-round game is well under 1000 steps;
     // anything larger means a bug in a player.
+    const koikoiCalls: [number, number] = [0, 0];
     let step = 0;
     for (; step < 5000 && s.phase !== "GAME_OVER"; step++) {
         if (s.phase === "ROUND_OVER") {
@@ -109,12 +110,13 @@ export function playGame(
         }
         const player = toMove === 0 ? seat0 : seat1;
         const action = player.chooseAction(s);
+        if (action.type === "CALL_KOIKOI") koikoiCalls[toMove]++;
         s = gameReducer(s, action);
     }
     if (s.phase !== "GAME_OVER") {
         throw new Error("Game did not terminate within 5000 steps.");
     }
-    return { state: s, steps: step };
+    return { state: s, steps: step, koikoiCalls };
 }
 
 // Linear-interpolation percentile (numpy-style). Returns NaN for empty input.
@@ -161,6 +163,8 @@ interface GameResult {
     s1: number;
     elapsed: number;
     p0Starts: boolean;
+    koikoi0: number;
+    koikoi1: number;
 }
 
 async function main(): Promise<void> {
@@ -214,7 +218,8 @@ async function main(): Promise<void> {
 
     const wins = { p0: 0, p1: 0 };
     const scores: { p0: number[]; p1: number[] } = { p0: [], p1: [] };
-    const lengths: number[] = [];
+    const lengths: { p0: number[]; p1: number[] } = { p0: [], p1: [] };
+    const koikoiCounts: { p0: number[]; p1: number[] } = { p0: [], p1: [] };
     let ties = 0;
     let completed = 0;
     let nextGame = 0;
@@ -229,13 +234,16 @@ async function main(): Promise<void> {
             const id = nextId++;
             pending.set(id, (r) => {
                 completed++;
-                lengths.push(r.steps);
                 if (r.s0 > r.s1) {
                     wins.p0++;
                     scores.p0.push(r.s0);
+                    lengths.p0.push(r.steps);
+                    koikoiCounts.p0.push(r.koikoi0);
                 } else if (r.s1 > r.s0) {
                     wins.p1++;
                     scores.p1.push(r.s1);
+                    lengths.p1.push(r.steps);
+                    koikoiCounts.p1.push(r.koikoi1);
                 } else {
                     ties++;
                     scores.p0.push(r.s0);
@@ -273,10 +281,13 @@ async function main(): Promise<void> {
         log(
             `  ${seat} (${algo.padEnd(6)})  wins=${w}/${args.games} (${rate}%)  scores: ${fmt(stats(scores[seat]))}`,
         );
+        if (lengths[seat].length)
+            log(`${"".padEnd(20)}  steps:  ${fmt(stats(lengths[seat]), 0)}`);
+        if (koikoiCounts[seat].length)
+            log(`${"".padEnd(20)}  koikoi: ${fmt(stats(koikoiCounts[seat]))}`);
     };
     row("p0", args.p0);
     row("p1", args.p1);
-    log(`  game length:    ${fmt(stats(lengths), 0)}`);
     log(`  ties            ${ties}/${args.games}`);
     log(`  elapsed         ${totalSec}s`);
 }

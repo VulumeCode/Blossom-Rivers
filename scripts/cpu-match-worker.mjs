@@ -45,13 +45,13 @@ parentPort.on("message", (msg) => {
             const seat1 = BUILDERS[args.p1]();
             const p0Starts = args.swap && g % 2 === 1;
             const t0 = Date.now();
-            const { state: result, steps } = playGame(seat0, seat1, p0Starts);
+            const { state: result, steps, koikoiCalls } = playGame(seat0, seat1, p0Starts);
             const elapsed = (Date.now() - t0) / 1000;
             const [s0, s1] = result.scores;
             parentPort.postMessage({
                 type: "result",
                 id,
-                result: { steps, s0, s1, elapsed, p0Starts },
+                result: { steps, s0, s1, elapsed, p0Starts, koikoi0: koikoiCalls[0], koikoi1: koikoiCalls[1] },
             });
         } catch (err) {
             logErr(`game ${args.p0} vs ${args.p1}`, err);
