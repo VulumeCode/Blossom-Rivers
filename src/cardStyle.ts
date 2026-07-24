@@ -11,7 +11,7 @@ function getInitial() {
     }
 }
 
-type CardStyle = "otwarte"
+export type CardStyle = "otwarte"
     | "suisaiga"
     | "louie";
 

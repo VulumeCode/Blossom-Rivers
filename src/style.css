@@ -1332,3 +1332,18 @@ deck-label {
 .yaku-overview-points {
     color: var(--color-pink);
 }
+
+
+.card-style-option {
+    margin: 1vmin;
+    padding: 1vmin;
+
+    border: none;
+    border-radius: 1vh;
+    cursor: pointer;
+
+    &[data-selected] {
+
+        outline: 0.3vh solid var(--color-pink);
+    }
+}

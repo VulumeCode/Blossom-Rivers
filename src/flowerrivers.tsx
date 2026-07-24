@@ -18,7 +18,7 @@ import {
     cardImageById as suisaigaCardImageById,
     images as suisaigaImages,
 } from "./cardImagesSuisaiga";
-import { useCardStyle } from "./cardStyle";
+import { CardStyle, useCardStyle } from "./cardStyle";
 import { isLightning, isRainMan } from "./cards";
 import { computeYaku } from "./yaku";
 import { disableFlip, enableFlip, Flipped, Flipper } from "react-flip-toolkit";
@@ -30,7 +30,7 @@ import {
 } from "./game";
 import { evaluateRolloutDiscount, type CPUPlayer } from "../src/cpu/cpu";
 import { SimpleMCTSPlayer } from "../src/cpu/simple_mcts";
-import { SystemMenu, restartGame, showHelp } from "../src/help";
+import { SystemMenu, restartGame, showModal } from "../src/help";
 import { SvgFilters } from "./svg-filters";
 
 const hoveredMonth = signal<number | null>(null);
@@ -131,6 +131,7 @@ interface CardViewProps {
     disabled?: boolean;
     highlighted?: boolean;
     flipped?: boolean;
+    cardStyle?: CardStyle;
 }
 
 export function CardView({
@@ -141,14 +142,15 @@ export function CardView({
     disabled,
     highlighted,
     flipped = true,
+    cardStyle = undefined,
 }: CardViewProps) {
-    const cardStyle = useCardStyle.value;
+    cardStyle ||= useCardStyle.value;
     const clickable = !!(onClick && !disabled);
 
     const glow = hoveredMonth.value === card.month && !faceDown;
 
     let cardContent;
-    switch (useCardStyle.value) {
+    switch (cardStyle) {
         case "otwarte":
             {
                 const src = faceDown
@@ -512,7 +514,7 @@ function loadOrMakeInitialState(): GameState {
         console.error("Error parsing gamestate");
     }
     console.log("First time, opening help.");
-    showHelp.value = true;
+    showModal.value = "help";
     return makeInitialState();
 }
 

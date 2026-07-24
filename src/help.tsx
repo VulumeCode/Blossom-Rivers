@@ -1,6 +1,7 @@
 import { signal } from "@preact/signals";
 import { CARDS } from "./cards";
 import { CardView } from "../src/flowerrivers";
+import { setCardStyle, useCardStyle } from "./cardStyle";
 const YAKU_OVERVIEW = [
     {
         name: "Five Brights",
@@ -80,12 +81,12 @@ const YAKU_OVERVIEW = [
         ],
     },
 ];
-export const showHelp = signal<boolean>(false);
+export const showModal = signal<null | "help" | "settings">(null);
 export const restartGame = signal<(() => void) | null>(null);
 
 function HelpModal() {
     return (
-        <div class="overlay" onClick={() => (showHelp.value = false)}>
+        <div class="overlay" onClick={() => (showModal.value = null)}>
             <div id="help-modal" onClick={(e) => e.stopPropagation()}>
                 <label>
                     <input type="radio" name="tabs" checked />
@@ -287,7 +288,7 @@ function HelpModal() {
                         </a>
                     </p>
                 </section>
-                <button onClick={() => (showHelp.value = false)}>
+                <button onClick={() => (showModal.value = null)}>
                     Close help
                 </button>
                 {restartGame.value && (
@@ -299,7 +300,133 @@ function HelpModal() {
                                 )
                             ) {
                                 restartGame.value!();
-                                showHelp.value = false;
+                                showModal.value = null;
+                            }
+                        }}
+                    >
+                        Restart game
+                    </button>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function SettingsModal() {
+    return (
+        <div class="overlay" onClick={() => (showModal.value = null)}>
+            <div id="help-modal" onClick={(e) => e.stopPropagation()}>
+                <label>
+                    <input type="radio" name="tabs" checked />
+                    Card style
+                </label>
+                <section>
+                    <div id="card-style">
+                        <div
+                            onClick={() => setCardStyle("louie")}
+                            data-selected={
+                                useCardStyle.value == "louie" || undefined
+                            }
+                            class="card-style-option"
+                        >
+                            <h3>Classic</h3>
+                            <div>
+                                The classic cards by{" "}
+                                <a
+                                    href="https://commons.wikimedia.org/wiki/Category:SVG_Hanafuda_with_green_plants"
+                                    rel="nofollow"
+                                >
+                                    Louie Mantia
+                                </a>{" "}
+                                modified for this game.
+                            </div>
+                            <div class="yaku-overview-cards">
+                                {YAKU_OVERVIEW[0].cards.map((id) => {
+                                    const card = CARDS.find((c) => c.id === id);
+                                    return (
+                                        <CardView
+                                            card={card!}
+                                            flipped={false}
+                                            cardStyle="louie"
+                                        />
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        <div
+                            onClick={() => setCardStyle("suisaiga")}
+                            data-selected={
+                                useCardStyle.value == "suisaiga" || undefined
+                            }
+                            class="card-style-option"
+                        >
+                            <h3>Shou Suisaiga</h3>
+                            <div>My very own aquarelle deck.</div>
+                            <div
+                                data-art="suisaiga"
+                                class="yaku-overview-cards"
+                            >
+                                {YAKU_OVERVIEW[0].cards.map((id) => {
+                                    const card = CARDS.find((c) => c.id === id);
+                                    return (
+                                        <CardView
+                                            card={card!}
+                                            flipped={false}
+                                            cardStyle="suisaiga"
+                                        />
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        <div
+                            onClick={() => setCardStyle("otwarte")}
+                            data-selected={
+                                useCardStyle.value == "otwarte" || undefined
+                            }
+                            class="card-style-option"
+                        >
+                            <h3>OpenCards Hanafuda </h3>
+                            <div>
+                                This deck is designed to be as friendly to new
+                                people as possible
+                                <br />
+                                while staying 100% compatible with the standard
+                                design!
+                            </div>
+                            <a href="https://www.instagram.com/otwartekarty.pl/">
+                                Follow @otwartekarty.pl on Instagram!
+                            </a>
+                            <div data-art="otwarte" class="yaku-overview-cards">
+                                {YAKU_OVERVIEW[0].cards.map((id) => {
+                                    const card = CARDS.find((c) => c.id === id);
+                                    return (
+                                        <CardView
+                                            card={card!}
+                                            flipped={false}
+                                            cardStyle="otwarte"
+                                        />
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <button onClick={() => (showModal.value = null)}>
+                    Close settings
+                </button>
+                {restartGame.value && (
+                    <button
+                        onClick={() => {
+                            if (
+                                confirm(
+                                    "Restart the game? Current progress will be lost.",
+                                )
+                            ) {
+                                restartGame.value!();
+                                showModal.value = null;
                             }
                         }}
                     >
@@ -315,13 +442,20 @@ export function SystemMenu() {
     return (
         <>
             {" "}
-            {showHelp.value && <HelpModal />}
+            {showModal.value == "help" && <HelpModal />}
+            {showModal.value == "settings" && <SettingsModal />}
             <div id="system-buttons">
                 <button
                     id="help-button"
-                    onClick={() => (showHelp.value = true)}
+                    onClick={() => (showModal.value = "help")}
                 >
                     ?
+                </button>
+                <button
+                    id="settings-button"
+                    onClick={() => (showModal.value = "settings")}
+                >
+                    ⛭
                 </button>
                 <button
                     id="fullscreen-button"
