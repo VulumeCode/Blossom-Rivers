@@ -886,13 +886,25 @@ yaku-list {
 #top-bar {
     grid-area: t;
     display: flex;
-    justify-content: space-between;
     align-items: baseline;
     padding: 0.5vmin 2vmin;
     height: 4vmin;
     align-content: center;
 
     background: var(--color-dark);
+
+    >* {
+        flex: 1;
+        white-space: nowrap;
+    }
+
+    > :nth-child(2) {
+        text-align: center;
+    }
+
+    > :last-child {
+        text-align: right;
+    }
 }
 
 top-title {
