@@ -1,4 +1,4 @@
-# 花川 - Blossom Rivers
+# Hanagawa 花川 - Rivers of Flowers hanafuda
 
 A hanafuda drafting game
 

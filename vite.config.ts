@@ -9,9 +9,9 @@ export default defineConfig({
     VitePWA({
     registerType: 'autoUpdate',
     manifest: {
-      "name": "花川 - Blossom Rivers",
+      "name": "Hanagawa - Rivers of Flowers",
       "short_name": "花川",
-      "description": "Blossom Rivers hanafuda game",
+      "description": "Rivers of Flowers hanafuda game",
       "display": "standalone",
       "background_color": "#592116",
       "theme_color": "#592116",

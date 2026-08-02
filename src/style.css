@@ -714,20 +714,26 @@ yaku-list {
     font-family: serif;
 }
 
+#menu-title [data-latin] {
+    text-orientation: upright;
+    writing-mode: vertical-rl;
+    letter-spacing: -4.2vmin;
+}
+
 #menu-title [data-side="left"] {
     color: var(--color-pink);
 }
 
-#menu-title [data-side="left"]:not([data-kanji]) {
-    align-self: end;
+#menu-title [data-side="left"][data-latin] {
+    align-self: start;
 }
 
 #menu-title [data-side="right"] {
     color: var(--color-purple);
 }
 
-#menu-title [data-side="right"]:not([data-kanji]) {
-    align-self: start;
+#menu-title [data-side="right"][data-latin] {
+    align-self: end;
 }
 
 #start-button {

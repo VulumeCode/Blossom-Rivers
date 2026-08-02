@@ -705,7 +705,9 @@ export function FlowerRivers() {
             <div id="menu-screen" data-art={useCardStyle.value}>
                 <SystemMenu />
                 <div id="menu-title">
-                    <span data-side="left">Blossom</span>
+                    <span data-side="left" data-latin>
+                        Hana
+                    </span>
                     <span data-side="left" data-kanji>
                         花
                     </span>
@@ -714,8 +716,11 @@ export function FlowerRivers() {
                     <span data-side="right" data-kanji>
                         川
                     </span>
-                    <span data-side="right">Rivers</span>
+                    <span data-side="right" data-latin>
+                        Gawa
+                    </span>
                 </div>
+                <div id="tagline">Rivers of Flowers</div>
                 <div id="tagline">A hanafuda drafting game</div>
 
                 <button
@@ -1072,7 +1077,7 @@ export function FlowerRivers() {
                         })()}
                     {/* Top Bar */}
                     <div id="top-bar">
-                        <top-title>花川 - Blossom Rivers</top-title>
+                        <top-title>Hanagawa</top-title>
                         <span>
                             Round {round}/{totalRounds} — Turn {turn}
                         </span>
