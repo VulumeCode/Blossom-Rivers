@@ -370,52 +370,41 @@ card-view>* {
     }
 }
 
-[data-art="otwarte"] card-view:not(.overlay *)>*,
-.yaku-overview-cards[data-art="otwarte"] card-view>*,
-#card-overview[data-art="otwarte"] card-view>* {
-
-    &>img {
+@scope ([data-art="otwarte"]) to ([data-art]:not([data-art="otwarte"])) {
+    card-view>*>img {
         background-color: oklch(14.1% .005 285.823);
         padding: 7%;
         width: 100%;
         height: 100%;
     }
 
-    #deck & {
+    #deck card-view>* {
         --deck-color: oklch(20% .005 285.823);
     }
-
 }
-
 
 :root:has(:is(#game-board, #menu-screen)[data-art="suisaiga"]) {
     --card-ration: 188.0/120.0 !important;
 }
 
-#card-style .yaku-overview-cards[data-art="suisaiga"],
-#card-overview[data-art="suisaiga"] {
+#card-style .yaku-overview-cards[data-art="suisaiga"] {
     --card-h: calc(var(--card-w) * 188.0/120.0);
 }
 
-#card-style .yaku-overview-cards:not([data-art="suisaiga"]),
-#card-overview:not([data-art="suisaiga"]) {
+#card-style .yaku-overview-cards:not([data-art="suisaiga"]) {
     --card-h: calc(var(--card-w) * 1600.0/976.0);
 }
 
-[data-art="suisaiga"] card-view:not(.overlay *)>*,
-.yaku-overview-cards[data-art="suisaiga"] card-view>*,
-#card-overview[data-art="suisaiga"] card-view>* {
-
-    &>img {
+@scope ([data-art="suisaiga"]) to ([data-art]:not([data-art="suisaiga"])) {
+    card-view>*>img {
         --card-filter-base: url(#inner-shadow) contrast(95%) sepia(15%);
         width: 100%;
         height: 100%;
     }
 
-    #deck & {
+    #deck card-view>* {
         --deck-color: #500000;
     }
-
 }
 
 
@@ -457,9 +446,7 @@ card-view[data-highlighted] svg {
     }
 }
 
-:is([data-art="otwarte"], [data-art="suisaiga"]):not(.overlay *),
-.yaku-overview-cards:is([data-art="otwarte"], [data-art="suisaiga"]),
-#card-overview:is([data-art="otwarte"], [data-art="suisaiga"]) {
+@scope (:is([data-art="otwarte"], [data-art="suisaiga"])) to ([data-art]:not([data-art="otwarte"]):not([data-art="suisaiga"])) {
     card-view[data-glow]>div>* {
         --card-filter-tint: url(#tint-glow);
     }
