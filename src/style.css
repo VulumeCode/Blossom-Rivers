@@ -370,7 +370,19 @@ card-view>* {
     }
 }
 
-@scope ([data-art="otwarte"]) to ([data-art]:not([data-art="otwarte"])) {
+[data-art="louie"] {
+    --card-art: louie;
+}
+
+[data-art="otwarte"] {
+    --card-art: otwarte;
+}
+
+[data-art="suisaiga"] {
+    --card-art: suisaiga;
+}
+
+@container style(--card-art: otwarte) {
     card-view>*>img {
         background-color: oklch(14.1% .005 285.823);
         padding: 7%;
@@ -395,7 +407,7 @@ card-view>* {
     --card-h: calc(var(--card-w) * 1600.0/976.0);
 }
 
-@scope ([data-art="suisaiga"]) to ([data-art]:not([data-art="suisaiga"])) {
+@container style(--card-art: suisaiga) {
     card-view>*>img {
         --card-filter-base: url(#inner-shadow) contrast(95%) sepia(15%);
         width: 100%;
@@ -446,7 +458,7 @@ card-view[data-highlighted] svg {
     }
 }
 
-@scope (:is([data-art="otwarte"], [data-art="suisaiga"])) to ([data-art]:not([data-art="otwarte"]):not([data-art="suisaiga"])) {
+@container style(--card-art: otwarte) or style(--card-art: suisaiga) {
     card-view[data-glow]>div>* {
         --card-filter-tint: url(#tint-glow);
     }
