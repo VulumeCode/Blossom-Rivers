@@ -1184,6 +1184,7 @@ deck-label {
     border-radius: 1vmin;
     padding: 3vmin 4vmin;
     width: 80vw;
+    max-width: 110dvh;
     height: 80vh;
     text-align: left;
     color: var(--color-dimmed);
