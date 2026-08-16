@@ -68,18 +68,14 @@
             var(--color-river-to),
             var(--color-river-to));
 
-    --card-ration: 1600.0/976.0;
-
     --card-w-def: 7vmin;
     --card-w-sm: 4.5vmin;
     --card-w-river: 6.2vmin;
 
-    --card-h-def: calc(var(--card-w-def) * var(--card-ration));
-    --card-h-sm: calc(var(--card-w-sm) * var(--card-ration));
-    --card-h-river: calc(var(--card-w-river) * var(--card-ration));
+    --card-ration: calc(1600.0 / 976.0);
 
     --card-w: var(--card-w-def);
-    --card-h: var(--card-h-def);
+    --card-h: calc(var(--card-w) * var(--card-ration));
 
     @media (max-aspect-ratio: 62/90) {
         --card-w-def: 11vmin;
@@ -372,14 +368,17 @@ card-view>* {
 
 [data-art="louie"] {
     --card-art: louie;
+    --card-ration: calc(1600.0 / 976.0);
 }
 
 [data-art="otwarte"] {
     --card-art: otwarte;
+    --card-ration: calc(1600.0 / 976.0);
 }
 
 [data-art="suisaiga"] {
     --card-art: suisaiga;
+    --card-ration: calc(188.0 / 120.0);
 }
 
 @container style(--card-art: otwarte) {
@@ -393,18 +392,6 @@ card-view>* {
     #deck card-view>* {
         --deck-color: oklch(20% .005 285.823);
     }
-}
-
-:root:has(:is(#game-board, #menu-screen)[data-art="suisaiga"]) {
-    --card-ration: 188.0/120.0 !important;
-}
-
-#card-style .yaku-overview-cards[data-art="suisaiga"] {
-    --card-h: calc(var(--card-w) * 188.0/120.0);
-}
-
-#card-style .yaku-overview-cards:not([data-art="suisaiga"]) {
-    --card-h: calc(var(--card-w) * 1600.0/976.0);
 }
 
 @container style(--card-art: suisaiga) {
@@ -481,7 +468,7 @@ card-view[data-highlighted][data-glow]>* {
 
 river-lane {
     --card-w: var(--card-w-river);
-    --card-h: var(--card-h-river);
+    --card-h: calc(var(--card-w) * var(--card-ration));
 }
 
 river-lane {
@@ -614,7 +601,7 @@ hand-view {
 
 captured-view {
     --card-w: var(--card-w-sm);
-    --card-h: var(--card-h-sm);
+    --card-h: calc(var(--card-w) * var(--card-ration));
 }
 
 captured-view {
@@ -1195,7 +1182,7 @@ deck-label {
 
 
     --card-w: var(--card-w-river);
-    --card-h: var(--card-h-river);
+    --card-h: calc(var(--card-w) * var(--card-ration));
 
     justify-content: center;
     align-content: space-between;
@@ -1374,6 +1361,10 @@ deck-label {
     border: none;
     border-radius: 1vh;
     cursor: pointer;
+
+    [data-art] {
+        --card-h: calc(var(--card-w) * var(--card-ration));
+    }
 
     &[data-selected] {
 

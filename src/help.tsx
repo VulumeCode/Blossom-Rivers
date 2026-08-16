@@ -340,7 +340,7 @@ function SettingsModal() {
                                 </a>{" "}
                                 modified for this game.
                             </div>
-                            <div class="yaku-overview-cards">
+                            <div data-art="louie" class="yaku-overview-cards">
                                 {YAKU_OVERVIEW[0].cards.map((id) => {
                                     const card = CARDS.find((c) => c.id === id);
                                     return (
